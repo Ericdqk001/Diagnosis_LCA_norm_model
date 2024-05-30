@@ -1,0 +1,38 @@
+[project]
+name = "LCA-normative-modelling"
+version = "0.1"
+description = "Depression detection."
+requires-python = "==3.10.*"
+dependencies = ["ruff",
+"wandb",
+"torch",
+"torchvision",
+"torchaudio",
+"transformers",
+"pip-tools",
+"pre-commit",
+"pandas",
+"matplotlib",
+"scikit-learn",
+"multiviewae",
+"ipykernel",
+"statsmodels",
+"seaborn",
+"pysurfer",
+"nilearn",
+"plotly",
+"nichord",
+"neuroCombat",]
+
+[tool.ruff]
+select = ["E", "F", "D", "I"]
+ignore = ["D100", "D101", "D102", "D103", "D104", "D105", "D106", "D107", "E501", "E712", "E741", "D205", "D209", "D210"]
+
+[tool.ruff.pydocstyle]
+convention = "google"
+
+[tool.sqlfluff.core]
+dialect = "tsql"
+templater = "placeholder"
+exclude_rules = "L016,L031"
+max_line_length = 88

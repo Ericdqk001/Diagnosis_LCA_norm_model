@@ -4,61 +4,82 @@ import pandas as pd
 
 
 def prepare_lca():
-
-    data_path = Path("data")
-
-    all_psych_dx_path = Path(
-        data_path,
-        "liza_data",
-        "all_psych_dx_r5.csv",
+    """Prepare the CBCL data for LCA analysis by selecting the baseline data and
+    removing missing values."""
+    data_path = Path(
+        "data",
+        "raw_data",
+        "core",
+        "mental-health",
+        "mh_p_cbcl.csv",
     )
 
-    all_psych_dx = pd.read_csv(
-        all_psych_dx_path,
+    cbcl_t_vars_path = Path(
+        "data",
+        "var_dict",
+        "cbcl_8_dim_t.csv",
+    )
+
+    cbcl = pd.read_csv(
+        data_path,
         index_col=0,
         low_memory=False,
     )
 
-    # Exclude all rows with 'control' in the 'psych_dx' column
-    # all_psych_dx = all_psych_dx[all_psych_dx["psych_dx"] != "control"]
+    cbcl_t_vars_df = pd.read_csv(cbcl_t_vars_path)
 
-    # Get the diagnosis columns
-    dx_columns = [col for col in all_psych_dx.columns if "Has" in col]
+    cbcl_t_vars = cbcl_t_vars_df["var_name"].tolist()
 
-    # Convert True/False to 1/0 for those columns
-    all_psych_dx[dx_columns] = all_psych_dx[dx_columns].applymap(
-        lambda x: 2 if x == True else 1
-    )
+    # Add the internalising and externalising syndromes and total problem scales to the list for analysis
+    sum_syndrome = [
+        "cbcl_scr_syn_internal_t",
+        "cbcl_scr_syn_external_t",
+        "cbcl_scr_syn_totprob_t",
+    ]
 
-    # Select only the dx_columns
-    dx_columns_df = all_psych_dx[dx_columns]
+    cbcl_t_vars.extend(sum_syndrome)
 
-    # Join with cbcl dummy
+    # Select the baseline data
+    baseline_cbcl = cbcl[cbcl["eventname"] == "baseline_year_1_arm_1"]
 
-    cbcl_dummy_path = Path(
-        data_path,
+    # Filter columns with t variables
+    filtered_cbcl = baseline_cbcl[cbcl_t_vars]
+
+    # Count the number of missing data
+    num_missing = filtered_cbcl.isnull().sum().sum()
+    print("Number of missing data:", num_missing)
+
+    # Record the subject ids with missing data
+
+    missing_subject_ids = filtered_cbcl[
+        filtered_cbcl.isnull().any(axis=1)
+    ].index.tolist()
+    print("Subject IDs with missing data:", missing_subject_ids)
+
+    # Remove missing values
+
+    filtered_cbcl = filtered_cbcl.dropna()
+
+    # Create dummy variables using a threshold of 65 for the t scores
+    filtered_cbcl = (filtered_cbcl >= 65).astype(int)
+
+    # Add one here because LCA expects 1/2 rather than 0/1
+    filtered_cbcl += 1
+
+    # Save the filtered data
+    filtered_cbcl_save_path = Path(
+        "data",
         "LCA",
-        "cbcl_t_no_mis_dummy.csv",
     )
 
-    cbcl_dummy = pd.read_csv(
-        cbcl_dummy_path,
-        index_col=0,
-        low_memory=False,
-    )
+    if not filtered_cbcl_save_path.exists():
+        filtered_cbcl_save_path.mkdir(parents=True)
 
-    cbcl_psych_dx_dummy = cbcl_dummy.join(
-        dx_columns_df,
-        how="inner",
-    )
-
-    # Save it as a csv file, keeping the index
-    cbcl_psych_dx_dummy.to_csv(
+    filtered_cbcl.to_csv(
         Path(
-            "data",
-            "LCA",
-            "cbcl_psych_dx_dummy.csv",
-        )
+            filtered_cbcl_save_path,
+            "cbcl_t_no_mis_dummy.csv",
+        ),
     )
 
 

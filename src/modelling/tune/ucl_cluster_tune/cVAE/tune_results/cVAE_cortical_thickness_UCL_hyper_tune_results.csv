@@ -1,0 +1,73 @@
+,config,average_val_loss,average_recon
+0,"{'batch_size': 64, 'learning_rate': 0.01, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [30]}",183.44001342773439,-174.6328430175781
+1,"{'batch_size': 64, 'learning_rate': 0.01, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [30, 30]}",186.5453076171875,-181.8168807983398
+2,"{'batch_size': 64, 'learning_rate': 0.01, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [40]}",183.7823376464844,-174.6015298461914
+3,"{'batch_size': 64, 'learning_rate': 0.01, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [40, 40]}",186.51880584716798,-181.6356134033203
+4,"{'batch_size': 64, 'learning_rate': 0.01, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [50]}",184.16339599609373,-175.15773376464844
+5,"{'batch_size': 64, 'learning_rate': 0.01, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [50, 50]}",186.16027893066405,-180.8546029663086
+6,"{'batch_size': 64, 'learning_rate': 0.005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [30]}",183.10240661621094,-174.09036682128908
+7,"{'batch_size': 64, 'learning_rate': 0.005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [30, 30]}",185.71361083984374,-180.09124328613282
+8,"{'batch_size': 64, 'learning_rate': 0.005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [40]}",183.2359564208984,-174.12388824462892
+9,"{'batch_size': 64, 'learning_rate': 0.005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [40, 40]}",185.02789611816408,-178.12705718994138
+10,"{'batch_size': 64, 'learning_rate': 0.005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [50]}",183.69126708984373,-174.5909686279297
+11,"{'batch_size': 64, 'learning_rate': 0.005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [50, 50]}",184.92925354003907,-177.5477136230469
+12,"{'batch_size': 64, 'learning_rate': 0.001, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [30]}",182.83418212890626,-173.73296173095704
+13,"{'batch_size': 64, 'learning_rate': 0.001, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [30, 30]}",183.3068359375,-175.2712075805664
+14,"{'batch_size': 64, 'learning_rate': 0.001, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [40]}",182.87839263916015,-173.5776541137695
+15,"{'batch_size': 64, 'learning_rate': 0.001, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [40, 40]}",183.07330078124997,-173.85830688476565
+16,"{'batch_size': 64, 'learning_rate': 0.001, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [50]}",183.4666125488281,-174.01886291503905
+17,"{'batch_size': 64, 'learning_rate': 0.001, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [50, 50]}",183.57129058837887,-174.06841735839845
+18,"{'batch_size': 64, 'learning_rate': 0.0005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [30]}",182.77990478515625,-173.69934417724608
+19,"{'batch_size': 64, 'learning_rate': 0.0005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [30, 30]}",182.87136627197268,-174.57323577880862
+20,"{'batch_size': 64, 'learning_rate': 0.0005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [40]}",182.69955657958982,-173.46937683105472
+21,"{'batch_size': 64, 'learning_rate': 0.0005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [40, 40]}",182.86648437500003,-173.78494934082033
+22,"{'batch_size': 64, 'learning_rate': 0.0005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [50]}",183.50632568359376,-174.20227294921875
+23,"{'batch_size': 64, 'learning_rate': 0.0005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [50, 50]}",183.33241119384766,-173.98712341308592
+24,"{'batch_size': 128, 'learning_rate': 0.01, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [30]}",182.93841705322265,-173.99253946940104
+25,"{'batch_size': 128, 'learning_rate': 0.01, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [30, 30]}",185.98528900146485,-180.9129430135091
+26,"{'batch_size': 128, 'learning_rate': 0.01, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [40]}",183.0436971028646,-173.9922754923503
+27,"{'batch_size': 128, 'learning_rate': 0.01, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [40, 40]}",185.20856323242188,-179.37955017089843
+28,"{'batch_size': 128, 'learning_rate': 0.01, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [50]}",183.44720306396485,-174.12142639160157
+29,"{'batch_size': 128, 'learning_rate': 0.01, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [50, 50]}",185.5066146850586,-179.74345804850262
+30,"{'batch_size': 128, 'learning_rate': 0.005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [30]}",182.58248087565104,-173.59575754801432
+31,"{'batch_size': 128, 'learning_rate': 0.005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [30, 30]}",185.06949005126955,-178.74553680419925
+32,"{'batch_size': 128, 'learning_rate': 0.005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [40]}",183.0031066894531,-173.8316645304362
+33,"{'batch_size': 128, 'learning_rate': 0.005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [40, 40]}",184.21185963948568,-176.4968790690104
+34,"{'batch_size': 128, 'learning_rate': 0.005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [50]}",183.41102040608726,-174.0074427286784
+35,"{'batch_size': 128, 'learning_rate': 0.005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [50, 50]}",184.3113896687826,-176.2071248372396
+36,"{'batch_size': 128, 'learning_rate': 0.001, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [30]}",182.435769144694,-173.33779449462892
+37,"{'batch_size': 128, 'learning_rate': 0.001, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [30, 30]}",182.5077799479167,-173.9016581217448
+38,"{'batch_size': 128, 'learning_rate': 0.001, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [40]}",182.51622009277344,-173.2734069824219
+39,"{'batch_size': 128, 'learning_rate': 0.001, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [40, 40]}",182.86759287516276,-173.61710001627605
+40,"{'batch_size': 128, 'learning_rate': 0.001, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [50]}",183.65343526204427,-174.25459798177084
+41,"{'batch_size': 128, 'learning_rate': 0.001, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [50, 50]}",183.40615132649737,-173.8536824544271
+42,"{'batch_size': 128, 'learning_rate': 0.0005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [30]}",182.45520273844403,-173.4063730875651
+43,"{'batch_size': 128, 'learning_rate': 0.0005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [30, 30]}",182.430983988444,-173.83251902262367
+44,"{'batch_size': 128, 'learning_rate': 0.0005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [40]}",182.5544692993164,-173.24400533040364
+45,"{'batch_size': 128, 'learning_rate': 0.0005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [40, 40]}",182.5951410929362,-173.3700083414714
+46,"{'batch_size': 128, 'learning_rate': 0.0005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [50]}",183.22500813802083,-173.83299153645834
+47,"{'batch_size': 128, 'learning_rate': 0.0005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [50, 50]}",183.32929687499998,-173.8616185506185
+48,"{'batch_size': 256, 'learning_rate': 0.01, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [30]}",182.4798957824707,-173.31058883666992
+49,"{'batch_size': 256, 'learning_rate': 0.01, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [30, 30]}",185.27038192749023,-179.9443229675293
+50,"{'batch_size': 256, 'learning_rate': 0.01, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [40]}",182.97227783203124,-173.97601699829102
+51,"{'batch_size': 256, 'learning_rate': 0.01, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [40, 40]}",184.9379623413086,-179.06508026123046
+52,"{'batch_size': 256, 'learning_rate': 0.01, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [50]}",183.0659523010254,-173.9279052734375
+53,"{'batch_size': 256, 'learning_rate': 0.01, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [50, 50]}",185.30797653198243,-179.53984680175782
+54,"{'batch_size': 256, 'learning_rate': 0.005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [30]}",182.17156295776368,-173.00877685546874
+55,"{'batch_size': 256, 'learning_rate': 0.005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [30, 30]}",184.18801193237306,-177.3337432861328
+56,"{'batch_size': 256, 'learning_rate': 0.005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [40]}",182.64206237792968,-173.33293075561522
+57,"{'batch_size': 256, 'learning_rate': 0.005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [40, 40]}",183.93780670166015,-175.9363815307617
+58,"{'batch_size': 256, 'learning_rate': 0.005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [50]}",183.4766532897949,-174.156689453125
+59,"{'batch_size': 256, 'learning_rate': 0.005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [50, 50]}",184.08039627075195,-175.8543800354004
+60,"{'batch_size': 256, 'learning_rate': 0.001, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [30]}",182.2395797729492,-172.89810943603516
+61,"{'batch_size': 256, 'learning_rate': 0.001, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [30, 30]}",182.70548248291016,-173.9452781677246
+62,"{'batch_size': 256, 'learning_rate': 0.001, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [40]}",182.13902435302734,-172.6525619506836
+63,"{'batch_size': 256, 'learning_rate': 0.001, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [40, 40]}",182.72178421020507,-173.40754318237305
+64,"{'batch_size': 256, 'learning_rate': 0.001, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [50]}",183.21495819091797,-173.6125915527344
+65,"{'batch_size': 256, 'learning_rate': 0.001, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [50, 50]}",183.6361053466797,-174.05035400390625
+66,"{'batch_size': 256, 'learning_rate': 0.0005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [30]}",182.33131790161133,-173.07867660522462
+67,"{'batch_size': 256, 'learning_rate': 0.0005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [30, 30]}",182.4477653503418,-173.6514129638672
+68,"{'batch_size': 256, 'learning_rate': 0.0005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [40]}",181.98024139404296,-172.6263626098633
+69,"{'batch_size': 256, 'learning_rate': 0.0005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [40, 40]}",182.4295913696289,-172.99943313598632
+70,"{'batch_size': 256, 'learning_rate': 0.0005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [50]}",183.39262619018555,-173.81190185546876
+71,"{'batch_size': 256, 'learning_rate': 0.0005, 'latent_dim': 10, 'epochs': 5000, 'hidden_dim': [50, 50]}",183.76094436645508,-173.99773330688475
