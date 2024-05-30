@@ -168,6 +168,8 @@ def one_hot_encode_covariate(
         [covariate],
     ]
 
+    print(covariate_data)
+
     covariate_data[covariate] = pd.Categorical(covariate_data[covariate])
 
     category_codes = covariate_data[covariate].cat.codes
@@ -175,6 +177,8 @@ def one_hot_encode_covariate(
     num_categories = len(covariate_data[covariate].cat.categories)
 
     one_hot_encoded_covariate = np.eye(num_categories)[category_codes]
+
+    print(one_hot_encoded_covariate)
 
     return one_hot_encoded_covariate
 
@@ -283,41 +287,6 @@ def train(
                 "Epoch_kl_loss": kl_loss / len(train_loader),
             }
         )
-
-
-# Remove subjects with high entropy
-high_entropy_subs_path = Path(
-    "data",
-    "LCA",
-    "subjects_with_high_entropy.csv",
-)
-
-high_entropy_subs = pd.read_csv(
-    high_entropy_subs_path,
-    low_memory=False,
-)["subject"].tolist()
-
-TRAIN_SUBS = [sub for sub in TRAIN_SUBS if sub not in high_entropy_subs]
-
-VAL_SUBS = [sub for sub in VAL_SUBS if sub not in high_entropy_subs]
-
-psych_dx_path = Path(
-    "data",
-    "liza_data",
-    "all_psych_dx_r5.csv",
-)
-
-psych_dx = pd.read_csv(
-    psych_dx_path,
-    index_col=0,
-    low_memory=False,
-)
-
-control_subs = psych_dx[psych_dx["psych_dx"] == "control"].index.tolist()
-
-TRAIN_SUBS = [sub for sub in TRAIN_SUBS if sub in control_subs]
-
-VAL_SUBS = [sub for sub in VAL_SUBS if sub in control_subs]
 
 
 def main(config):

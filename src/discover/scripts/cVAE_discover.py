@@ -1,16 +1,19 @@
 from pathlib import Path
 
+import pandas as pd
 import torch
-from discover.scripts.plot_utils import (
-    plot_boxplots,
-    plot_histograms,
-)
+
+# from discover.scripts.plot_utils import (
+#     plot_boxplots,
+#     plot_histograms,
+# )
 from discover.scripts.test_utils import (
     compute_distance_deviation_cVAE,
     get_individual_deviation_p_values,
     prepare_inputs_cVAE,
-    welch_t_test_p_values,
 )
+
+# welch_t_test_p_values,
 from modelling.models.cVAE import cVAE
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -53,6 +56,12 @@ data_splits_path = Path(
     "data_splits_with_clinical_val.json",
 )
 
+cVAE_discover_results_path = Path(
+    "src",
+    "discover",
+    "results",
+)
+
 
 cVAE_feature_hyper = {
     "t1w_cortical_thickness_rois": {
@@ -86,6 +95,8 @@ def discover():
         "t1w_cortical_surface_area_rois": "cortical_surface_area",
         "gordon_net_subcor_limbic_no_dup": "rsfmri",
     }
+
+    all_ind_dim_dev_U_test_results = []
 
     for feature in feature_sets:
 
@@ -146,42 +157,59 @@ def discover():
 
         print(ind_dim_dev_U_test_results)
 
-        welch_t_p_values_dict = welch_t_test_p_values(
-            output_data=output_data_with_dev,
+        # Add the DataFrame to the list
+
+        ind_dim_dev_U_test_results["Feature"] = feature_sets[feature]
+
+        all_ind_dim_dev_U_test_results.append(ind_dim_dev_U_test_results)
+
+    # Combine all DataFrames into one
+    all_ind_dim_dev_U_test_results_df = pd.concat(all_ind_dim_dev_U_test_results)
+
+    # Save the combined DataFrame to a CSV file
+    all_ind_dim_dev_U_test_results_df.to_csv(
+        Path(
+            cVAE_discover_results_path,
+            "all_features_all_ind_dim_dev_U_test_results.csv",
         )
+    )
 
-        print(f"p values of feature {feature}: {welch_t_p_values_dict}")
+    # welch_t_p_values_dict = welch_t_test_p_values(
+    #     output_data=output_data_with_dev,
+    # )
 
-        # kruskal_wallis_test_p_values_dict = kruskal_wallis_test_p_values(
-        #     low_symp_distance,
-        #     inter_distance,
-        #     exter_distance,
-        #     high_distance,
-        # )
+    # print(f"p values of feature {feature}: {welch_t_p_values_dict}")
 
-        plot_histograms(
-            FEATURE_NAMES_MAP.get(feature),
-            output_data_with_dev,
-        )
+    # kruskal_wallis_test_p_values_dict = kruskal_wallis_test_p_values(
+    #     low_symp_distance,
+    #     inter_distance,
+    #     exter_distance,
+    #     high_distance,
+    # )
 
-        plot_boxplots(
-            FEATURE_NAMES_MAP.get(feature),
-            output_data_with_dev,
-        )
+    # plot_histograms(
+    #     FEATURE_NAMES_MAP.get(feature),
+    #     output_data_with_dev,
+    # )
 
-        # plot_density_distributions(
-        #     FEATURE_NAMES_MAP.get(feature),
-        #     low_symp_distance,
-        #     inter_distance,
-        #     exter_distance,
-        #     high_distance,
-        # )
+    # plot_boxplots(
+    #     FEATURE_NAMES_MAP.get(feature),
+    #     output_data_with_dev,
+    # )
 
-        # print(f"p values of feature {feature}: {welch_t_p_values_dict}")
+    # plot_density_distributions(
+    #     FEATURE_NAMES_MAP.get(feature),
+    #     low_symp_distance,
+    #     inter_distance,
+    #     exter_distance,
+    #     high_distance,
+    # )
 
-        # print(
-        #     f"kruskal wallis p values of feature {feature}: {kruskal_wallis_test_p_values_dict}"
-        # )
+    # print(f"p values of feature {feature}: {welch_t_p_values_dict}")
+
+    # print(
+    #     f"kruskal wallis p values of feature {feature}: {kruskal_wallis_test_p_values_dict}"
+    # )
 
 
 if __name__ == "__main__":
