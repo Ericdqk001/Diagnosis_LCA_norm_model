@@ -99,13 +99,13 @@ def split_data():
     )
 
     # Remove high entropy
-    t1w_cortical_features_resid = t1w_cortical_features_resid[
-        t1w_cortical_features_resid["entropy"] <= 0.20
-    ]
+    # t1w_cortical_features_resid = t1w_cortical_features_resid[
+    #     t1w_cortical_features_resid["entropy"] <= 0.20
+    # ]
 
-    gordon_cor_subcortical_resid = gordon_cor_subcortical_resid[
-        gordon_cor_subcortical_resid["entropy"] <= 0.20
-    ]
+    # gordon_cor_subcortical_resid = gordon_cor_subcortical_resid[
+    #     gordon_cor_subcortical_resid["entropy"] <= 0.20
+    # ]
 
     # %%
     ### Split the 'low symptom' cohort into train/val/test sets using a ratio of 80/10/10

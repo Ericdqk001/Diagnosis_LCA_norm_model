@@ -85,6 +85,12 @@ def interpret_cVAE(
 
         outlier_indices_by_sex[sex] = outlier_indices.tolist()
 
+    unique_outliers = set(outlier_indices_by_sex["Male"]).union(
+        set(outlier_indices_by_sex["Female"])
+    )
+
+    outlier_indices_by_sex["Unique_indices"] = list(unique_outliers)
+
     return outlier_indices_by_sex
 
 
@@ -119,13 +125,14 @@ if __name__ == "__main__":
 
     outlier_indices_by_sex = interpret_cVAE(
         dim_to_interpret=4,
-        shift_how_much=2,
+        shift_how_much=-5,
         checkpoint_path=checkpoint_path,
         brain_features_of_interest=brain_features_of_interest,
         feature_type="t1w_cortical_surface_area_rois",
         learning_rate=feature_hypers["t1w_cortical_surface_area_rois"]["learning_rate"],
         latent_dim=feature_hypers["t1w_cortical_surface_area_rois"]["latent_dim"],
         hidden_dim=feature_hypers["t1w_cortical_surface_area_rois"]["hidden_dim"],
+        num_std=1,
     )
 
     with open(
