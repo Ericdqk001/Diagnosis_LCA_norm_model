@@ -172,9 +172,5 @@ class cVAE(nn.Module):
         c = torch.LongTensor(c).to(DEVICE)
         with torch.no_grad():
             mu, _ = self.encode(x, c)
-            print("MU here")
-
-            print(c)
-
             x_pred = self.decode(mu, c).loc.cpu().detach().numpy()
         return x_pred

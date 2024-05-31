@@ -41,73 +41,49 @@ def separate_latent_deviation(mu_train, mu_sample, var_sample):
     return (mu_sample - np.mean(mu_train, axis=0)) / np.sqrt(var + var_sample)
 
 
-def welch_t_test_p_values(
-    output_data,
-) -> dict:
-    """Perform Welch's t-test between control distance and each test distance group."""
-    p_values = {}
+def test_assumptions_for_m_distances(output_data):
+    """Check assumptions of normality and equal variance for different test groups
+    regarding the mahalanobis distance distributions.
 
+    Results suggests that most distribution does not satisfy the assumptions of
+    normality, one did not satisfy the assumption of equal variance.
+    ."""
+    # Initialize dictionary to store results
+    results = {}
+
+    # Extract Mahalanobis distances for each group
     control_distance = output_data["mahalanobis_distance"][
         output_data["low_symp_test_subs"] == 1
     ].values
-
     inter_test_distance = output_data["mahalanobis_distance"][
         output_data["inter_test_subs"] == 1
     ].values
-
     exter_test_distance = output_data["mahalanobis_distance"][
         output_data["exter_test_subs"] == 1
     ].values
-
     high_test_distance = output_data["mahalanobis_distance"][
         output_data["high_test_subs"] == 1
     ].values
 
-    # Welch's t-test for inter_test_distance
-    t_stat_inter, p_value_inter = stats.ttest_ind(
-        control_distance, inter_test_distance, equal_var=False
-    )
-    p_values["inter_test"] = p_value_inter
+    # Test for normality using the Shapiro-Wilk test
+    results["normality"] = {
+        "control": stats.shapiro(control_distance),
+        "inter_test": stats.shapiro(inter_test_distance),
+        "exter_test": stats.shapiro(exter_test_distance),
+        "high_test": stats.shapiro(high_test_distance),
+    }
 
-    # Welch's t-test for exter_test_distance
-    t_stat_exter, p_value_exter = stats.ttest_ind(
-        control_distance, exter_test_distance, equal_var=False
-    )
-    p_values["exter_test"] = p_value_exter
-
-    # Welch's t-test for high_test_distance
-    t_stat_high, p_value_high = stats.ttest_ind(
-        control_distance, high_test_distance, equal_var=False
-    )
-    p_values["high_test"] = p_value_high
-
-    return p_values
-
-
-def kruskal_wallis_test_p_values(
-    control_distance: np.ndarray,
-    inter_test_distance: np.ndarray,
-    exter_test_distance: np.ndarray,
-    high_test_distance: np.ndarray,
-) -> dict:
-    """Perform Kruskal-Wallis test between control distance and each test distance group."""
-    p_values = {}
-
-    # Combine all distances into a list of samples
-    all_distances = [
+    # Test for equal variances using Levene's test
+    # Note: Welch's test does not assume equal variances.
+    results["levenes_test"] = stats.levene(
         control_distance,
         inter_test_distance,
         exter_test_distance,
         high_test_distance,
-    ]
+        center="median",  # Recommended when distributions are not symmetrical
+    )
 
-    # Perform Kruskal-Wallis test
-    h_stat, p_value = stats.kruskal(*all_distances)
-
-    # Store p-value from Kruskal-Wallis test
-    p_values["kruskal_test"] = p_value
-
-    return p_values
+    return results
 
 
 def one_hot_encode_covariate(
@@ -139,7 +115,8 @@ def prepare_inputs_cVAE(
     brain_features_of_interest_path=None,
     data_splits_path=None,
     if_low_entropy=False,
-    if_no_psych_dx=False,
+    interpret=False,
+    interpret_features_indices=None,
 ):
     """Prepare the inputs for the compute_mahalanobis_distance_cVAE function below.
 
@@ -168,6 +145,9 @@ def prepare_inputs_cVAE(
         data_splits = json.load(f)
 
     features = brain_features_of_interest[feature]
+
+    if interpret == True:
+        features = [features[i] for i in interpret_features_indices]
 
     if "cortical" in feature:
         modality_data_splits = data_splits["structural"]
@@ -226,26 +206,6 @@ def prepare_inputs_cVAE(
         #     print(
         #         "Test subjects list is correctly combined after removing high entropy."
         #     )
-
-    if if_no_psych_dx == True:
-
-        psych_dx_path = Path(
-            "data",
-            "liza_data",
-            "all_psych_dx_r5.csv",
-        )
-
-        psych_dx = pd.read_csv(
-            psych_dx_path,
-            index_col=0,
-            low_memory=False,
-        )
-
-        control_subs = psych_dx[psych_dx["psych_dx"] == "control"].index.tolist()
-
-        train_subs = [sub for sub in train_subs if sub in control_subs]
-
-        low_symp_test_subs = [sub for sub in low_symp_test_subs if sub in control_subs]
 
     scaler = StandardScaler()
 
@@ -357,6 +317,46 @@ def compute_distance_deviation_cVAE(
     return output_data
 
 
+def compute_interpret_distance_deviation_cVAE(
+    model,
+    train_dataset=None,
+    test_dataset=None,
+    train_cov=None,
+    test_cov=None,
+    latent_dim=None,
+    output_data=None,
+) -> pd.DataFrame:
+    """Computes the mahalanobis distance of test samples from the distribution of the
+    training samples.
+    """
+    train_latent, _ = model.pred_latent(
+        train_dataset,
+        train_cov,
+        DEVICE,
+    )
+
+    test_latent, test_var = model.pred_latent(
+        test_dataset,
+        test_cov,
+        DEVICE,
+    )
+
+    test_distance = latent_deviations_mahalanobis_across(
+        [test_latent],
+        [train_latent],
+    )
+
+    output_data["mahalanobis_distance"] = test_distance
+
+    individual_deviation = separate_latent_deviation(
+        train_latent, test_latent, test_var
+    )
+    for i in range(latent_dim):
+        output_data["latent_deviation_{0}".format(i)] = individual_deviation[:, i]
+
+    return output_data
+
+
 def get_individual_deviation_p_values(
     output_data,
     latent_dim,
@@ -364,22 +364,47 @@ def get_individual_deviation_p_values(
 ):
     # Lists to store the results
     results = []
+    normality_results = []
+    variance_results = []
 
     for clinical_cohort in clinical_cohorts:
         for i in range(latent_dim):
-            # Mann-Whitney U test for individual deviation
-            normative_deviation = output_data["latent_deviation_{0}".format(i)][
+            # Extract the deviations for normative and clinical groups
+            normative_deviation = output_data[f"latent_deviation_{i}"][
                 output_data["low_symp_test_subs"] == 1
             ]
-
-            clinical_deviation = output_data["latent_deviation_{0}".format(i)][
+            clinical_deviation = output_data[f"latent_deviation_{i}"][
                 output_data[clinical_cohort] == 1
             ]
 
+            # Normality test (Shapiro-Wilk)
+            shapiro_norm = stats.shapiro(normative_deviation)
+            shapiro_clin = stats.shapiro(clinical_deviation)
+            normality_results.append(
+                {
+                    "clinical_cohort": clinical_cohort,
+                    "latent_dim": i,
+                    "normative_normality_p": shapiro_norm.pvalue,
+                    "clinical_normality_p": shapiro_clin.pvalue,
+                }
+            )
+
+            # Test for equal variances (Levene's test)
+            levene_stat, levene_p = stats.levene(
+                normative_deviation, clinical_deviation
+            )
+            variance_results.append(
+                {
+                    "clinical_cohort": clinical_cohort,
+                    "latent_dim": i,
+                    "levene_stat": levene_stat,
+                    "levene_p": levene_p,
+                }
+            )
+
+            # Mann-Whitney U test for individual deviation
             u_stat, p_value = stats.mannwhitneyu(
-                normative_deviation,
-                clinical_deviation,
-                alternative="two-sided",
+                normative_deviation, clinical_deviation, alternative="two-sided"
             )
 
             # Determine the direction of the difference
@@ -400,10 +425,13 @@ def get_individual_deviation_p_values(
                 }
             )
 
-    # Create a DataFrame from the results list
+    # Create DataFrames from the results list
     results_df = pd.DataFrame(results)
+    normality_df = pd.DataFrame(normality_results)
+    variance_df = pd.DataFrame(variance_results)
 
-    return results_df
+    # Return all results as a tuple of DataFrames
+    return results_df, normality_df, variance_df
 
 
 def identify_extreme_deviation():
@@ -448,3 +476,46 @@ print("Critical value for extreme deviation:", critical_value)
 #         recon_deviation - mean_recon_deviation
 #     ) / std_recon_deviation
 #     return normalised_recon_deviation
+
+
+# def welch_t_test_p_values(
+#     output_data,
+# ) -> dict:
+#     """Perform Welch's t-test between control distance and each test distance group."""
+#     p_values = {}
+
+#     control_distance = output_data["mahalanobis_distance"][
+#         output_data["low_symp_test_subs"] == 1
+#     ].values
+
+#     inter_test_distance = output_data["mahalanobis_distance"][
+#         output_data["inter_test_subs"] == 1
+#     ].values
+
+#     exter_test_distance = output_data["mahalanobis_distance"][
+#         output_data["exter_test_subs"] == 1
+#     ].values
+
+#     high_test_distance = output_data["mahalanobis_distance"][
+#         output_data["high_test_subs"] == 1
+#     ].values
+
+#     # Welch's t-test for inter_test_distance
+#     t_stat_inter, p_value_inter = stats.ttest_ind(
+#         control_distance, inter_test_distance, equal_var=False
+#     )
+#     p_values["inter_test"] = p_value_inter
+
+#     # Welch's t-test for exter_test_distance
+#     t_stat_exter, p_value_exter = stats.ttest_ind(
+#         control_distance, exter_test_distance, equal_var=False
+#     )
+#     p_values["exter_test"] = p_value_exter
+
+#     # Welch's t-test for high_test_distance
+#     t_stat_high, p_value_high = stats.ttest_ind(
+#         control_distance, high_test_distance, equal_var=False
+#     )
+#     p_values["high_test"] = p_value_high
+
+#     return p_values

@@ -2,11 +2,6 @@ from pathlib import Path
 
 import pandas as pd
 import torch
-
-# from discover.scripts.plot_utils import (
-#     plot_boxplots,
-#     plot_histograms,
-# )
 from discover.scripts.test_utils import (
     compute_distance_deviation_cVAE,
     get_individual_deviation_p_values,
@@ -63,6 +58,15 @@ cVAE_discover_results_path = Path(
 )
 
 
+output_data_save_path = Path(
+    cVAE_discover_results_path,
+    "out_put_data",
+)
+
+if not output_data_save_path.exists():
+    output_data_save_path.mkdir(parents=True)
+
+
 cVAE_feature_hyper = {
     "t1w_cortical_thickness_rois": {
         "learning_rate": 0.0005,
@@ -98,6 +102,10 @@ def discover():
 
     all_ind_dim_dev_U_test_results = []
 
+    ind_dim_dev_test_norm_assump_results = []
+
+    ind_dim_test_var_assump_results = []
+
     for feature in feature_sets:
 
         print(f"Discovering feature: {feature}")
@@ -123,8 +131,6 @@ def discover():
             cbcl_path=cbcl_lca_path,
             brain_features_of_interest_path=features_of_interest_path,
             data_splits_path=data_splits_path,
-            if_low_entropy=True,
-            if_no_psych_dx=True,
         )
 
         hyperparameters = cVAE_feature_hyper.get(feature)
@@ -150,68 +156,76 @@ def discover():
             output_data=output_data,
         )
 
-        ind_dim_dev_U_test_results = get_individual_deviation_p_values(
-            output_data_with_dev,
-            hyperparameters.get("latent_dim"),
+        feature_output_data_save_path = Path(
+            output_data_save_path,
+            f"{feature}_output_data_with_dev.csv",
         )
 
-        print(ind_dim_dev_U_test_results)
+        output_data_with_dev.to_csv(feature_output_data_save_path)
+
+        ind_dim_dev_U_test_results, normality_df, variance_df = (
+            get_individual_deviation_p_values(
+                output_data_with_dev,
+                hyperparameters.get("latent_dim"),
+            )
+        )
 
         # Add the DataFrame to the list
 
         ind_dim_dev_U_test_results["Feature"] = feature_sets[feature]
 
+        normality_df["Feature"] = feature_sets[feature]
+
+        variance_df["Feature"] = feature_sets[feature]
+
         all_ind_dim_dev_U_test_results.append(ind_dim_dev_U_test_results)
+
+        ind_dim_dev_test_norm_assump_results.append(normality_df)
+
+        ind_dim_test_var_assump_results.append(variance_df)
 
     # Combine all DataFrames into one
     all_ind_dim_dev_U_test_results_df = pd.concat(all_ind_dim_dev_U_test_results)
 
+    ind_dim_dev_test_norm_assump_results_df = pd.concat(
+        ind_dim_dev_test_norm_assump_results
+    )
+
+    ind_dim_test_var_assump_results_df = pd.concat(ind_dim_test_var_assump_results)
+
+    ind_dim_test_results_path = Path(
+        cVAE_discover_results_path,
+        "ind_dim_test_results",
+    )
+
+    if not ind_dim_test_results_path.exists():
+        ind_dim_test_results_path.mkdir(parents=True)
+
     # Save the combined DataFrame to a CSV file
     all_ind_dim_dev_U_test_results_df.to_csv(
         Path(
-            cVAE_discover_results_path,
+            ind_dim_test_results_path,
             "all_features_all_ind_dim_dev_U_test_results.csv",
         )
     )
 
-    # welch_t_p_values_dict = welch_t_test_p_values(
-    #     output_data=output_data_with_dev,
-    # )
+    ind_dim_dev_test_norm_assump_results_df.to_csv(
+        Path(
+            ind_dim_test_results_path,
+            "all_features_ind_dim_dev_test_norm_assump_results.csv",
+        )
+    )
 
-    # print(f"p values of feature {feature}: {welch_t_p_values_dict}")
-
-    # kruskal_wallis_test_p_values_dict = kruskal_wallis_test_p_values(
-    #     low_symp_distance,
-    #     inter_distance,
-    #     exter_distance,
-    #     high_distance,
-    # )
-
-    # plot_histograms(
-    #     FEATURE_NAMES_MAP.get(feature),
-    #     output_data_with_dev,
-    # )
-
-    # plot_boxplots(
-    #     FEATURE_NAMES_MAP.get(feature),
-    #     output_data_with_dev,
-    # )
-
-    # plot_density_distributions(
-    #     FEATURE_NAMES_MAP.get(feature),
-    #     low_symp_distance,
-    #     inter_distance,
-    #     exter_distance,
-    #     high_distance,
-    # )
-
-    # print(f"p values of feature {feature}: {welch_t_p_values_dict}")
-
-    # print(
-    #     f"kruskal wallis p values of feature {feature}: {kruskal_wallis_test_p_values_dict}"
-    # )
+    ind_dim_test_var_assump_results_df.to_csv(
+        Path(
+            ind_dim_test_results_path,
+            "all_features_ind_dim_test_var_assump_results.csv",
+        )
+    )
 
 
 if __name__ == "__main__":
 
     discover()
+
+    # TODO Test the normality and equal variance assumptions test pipelines
