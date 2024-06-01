@@ -41,6 +41,51 @@ def separate_latent_deviation(mu_train, mu_sample, var_sample):
     return (mu_sample - np.mean(mu_train, axis=0)) / np.sqrt(var + var_sample)
 
 
+def U_test_p_values(output_data):
+    """Perform Mann-Whitney U test between control distance and each test distance group."""
+    # Initialize lists to store results for DataFrame
+    cohorts = []
+    u_stats = []
+    p_values = []
+
+    # Extract mahalanobis distances for each group
+    control_distance = output_data["mahalanobis_distance"][
+        output_data["low_symp_test_subs"] == 1
+    ].values
+    inter_test_distance = output_data["mahalanobis_distance"][
+        output_data["inter_test_subs"] == 1
+    ].values
+    exter_test_distance = output_data["mahalanobis_distance"][
+        output_data["exter_test_subs"] == 1
+    ].values
+    high_test_distance = output_data["mahalanobis_distance"][
+        output_data["high_test_subs"] == 1
+    ].values
+
+    # Define the groups to test against control
+    test_groups = {
+        "inter_test": inter_test_distance,
+        "exter_test": exter_test_distance,
+        "high_test": high_test_distance,
+    }
+
+    # Perform Mann-Whitney U test for each group
+    for group, distances in test_groups.items():
+        u_stat, p_value = stats.mannwhitneyu(
+            control_distance, distances, alternative="two-sided"
+        )
+        cohorts.append(group)
+        u_stats.append(u_stat)
+        p_values.append(p_value)
+
+    # Create a DataFrame from the results
+    results_df = pd.DataFrame(
+        {"Cohort": cohorts, "U_statistic": u_stats, "P_value": p_values}
+    )
+
+    return results_df
+
+
 def test_assumptions_for_m_distances(output_data):
     """Check assumptions of normality and equal variance for different test groups
     regarding the mahalanobis distance distributions.
@@ -434,17 +479,38 @@ def get_individual_deviation_p_values(
     return results_df, normality_df, variance_df
 
 
-def identify_extreme_deviation():
-    pass
+def identify_extreme_deviation(output_data, alpha=0.001, latent_dim=10):
+    # Calculate the critical value based on the chi-squared distribution
+    critical_value = stats.chi2.ppf(1 - alpha, latent_dim)
 
+    # Initialize a dictionary to hold results
+    results = {"cohort": [], "proportion_extreme_deviation": []}
 
-# Parameters
-dimensions = 10  # Number of dimensions
-alpha = 0.001  # Significance level
+    # Cohorts list
+    cohorts = [
+        "low_symp_test_subs",
+        "inter_test_subs",
+        "exter_test_subs",
+        "high_test_subs",
+    ]
 
-# Critical value for chi-squared distribution at the given alpha
-critical_value = stats.chi2.ppf(1 - alpha, dimensions)
-print("Critical value for extreme deviation:", critical_value)
+    # Analyze each cohort
+    for cohort in cohorts:
+        # Filter data for the current cohort
+        cohort_data = output_data[output_data[cohort] == 1]["mahalanobis_distance"]
+
+        # Calculate the proportion of distances that are extreme deviations
+        proportion_extreme = (cohort_data > critical_value).mean()
+
+        # Append the results to the dictionary
+        results["cohort"].append(cohort)
+        results["proportion_extreme_deviation"].append(proportion_extreme)
+
+    # Convert results dictionary to a DataFrame
+    results_df = pd.DataFrame(results)
+
+    return results_df
+
 
 # Interpretation
 # If the squared Mahalanobis distance of a point exceeds this critical value,
@@ -476,46 +542,3 @@ print("Critical value for extreme deviation:", critical_value)
 #         recon_deviation - mean_recon_deviation
 #     ) / std_recon_deviation
 #     return normalised_recon_deviation
-
-
-# def welch_t_test_p_values(
-#     output_data,
-# ) -> dict:
-#     """Perform Welch's t-test between control distance and each test distance group."""
-#     p_values = {}
-
-#     control_distance = output_data["mahalanobis_distance"][
-#         output_data["low_symp_test_subs"] == 1
-#     ].values
-
-#     inter_test_distance = output_data["mahalanobis_distance"][
-#         output_data["inter_test_subs"] == 1
-#     ].values
-
-#     exter_test_distance = output_data["mahalanobis_distance"][
-#         output_data["exter_test_subs"] == 1
-#     ].values
-
-#     high_test_distance = output_data["mahalanobis_distance"][
-#         output_data["high_test_subs"] == 1
-#     ].values
-
-#     # Welch's t-test for inter_test_distance
-#     t_stat_inter, p_value_inter = stats.ttest_ind(
-#         control_distance, inter_test_distance, equal_var=False
-#     )
-#     p_values["inter_test"] = p_value_inter
-
-#     # Welch's t-test for exter_test_distance
-#     t_stat_exter, p_value_exter = stats.ttest_ind(
-#         control_distance, exter_test_distance, equal_var=False
-#     )
-#     p_values["exter_test"] = p_value_exter
-
-#     # Welch's t-test for high_test_distance
-#     t_stat_high, p_value_high = stats.ttest_ind(
-#         control_distance, high_test_distance, equal_var=False
-#     )
-#     p_values["high_test"] = p_value_high
-
-#     return p_values

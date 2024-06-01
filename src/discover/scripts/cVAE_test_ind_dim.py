@@ -57,7 +57,6 @@ cVAE_discover_results_path = Path(
     "results",
 )
 
-
 output_data_save_path = Path(
     cVAE_discover_results_path,
     "out_put_data",

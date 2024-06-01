@@ -164,4 +164,4 @@ checkpoints
 wandb
 
 # Discover test results
-src/discover/results
+# src/discover/results

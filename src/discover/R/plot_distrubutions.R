@@ -9,7 +9,7 @@ library(tidyr)
 library(dplyr)
 # Load the csv results data
 
-data <- read.csv("src/discover/results/t1w_cortical_thickness_rois_output_data.csv")
+data <- read.csv("src/discover/results/out_put_data/t1w_cortical_thickness_rois_output_data_with_dev.csv")
 
 head(data)
 
@@ -20,27 +20,29 @@ data_long = data_long[data_long$value == 1, ]  # Keep only rows where Value is 1
 
 theme_set(theme_ridges())
 
-# Calculate mean and median for each cohort
 summary_stats <- data_long %>%
   group_by(Clinical_Cohorts) %>%
   summarize(mean = mean(mahalanobis_distance), median = median(mahalanobis_distance))
 
+alpha <- 0.001
+latent_dim <- 10
+critical_value <- qchisq(1 - alpha, df = latent_dim)
+
 # Set the theme
 theme_set(theme_ridges())
 
-# Create the density ridge plot with four colors and mean/median lines
+# Create the density ridge plot with mean, median, and critical value lines for each cohort
 ggplot(data_long, aes(x = mahalanobis_distance, y = Clinical_Cohorts)) +
   geom_density_ridges(aes(fill = Clinical_Cohorts), alpha = 0.8) +
   scale_fill_manual(values = c("#00AFBB", "#E7B800", "#FC4E07", "#7CFC00")) +
-  geom_vline(data = summary_stats, aes(xintercept = mean, color = Clinical_Cohorts), linetype = "dashed", size = 0.5) +
-  geom_vline(data = summary_stats, aes(xintercept = median, color = Clinical_Cohorts), linetype = "dotted", size = 0.5) +
-  labs(title = "Density Ridge Plot with Mean and Median",
+  geom_vline(aes(xintercept = critical_value), color = "black", linetype = "solid", size = 0.5) +
+  geom_segment(data = summary_stats, aes(x = mean, xend = mean, y = as.numeric(Clinical_Cohorts) - 0.2, yend = as.numeric(Clinical_Cohorts) + 0.2, color = Clinical_Cohorts), linetype = "dashed", size = 0.5) +
+  geom_segment(data = summary_stats, aes(x = median, xend = median, y = as.numeric(Clinical_Cohorts) - 0.2, yend = as.numeric(Clinical_Cohorts) + 0.2, color = Clinical_Cohorts), linetype = "dotted", size = 0.5) +
+  labs(title = "Density Ridge Plot with Mean, Median, and Critical Value",
        x = "Mahalanobis Distance",
        y = "Clinical Cohorts",
        fill = "Clinical Cohorts") +
   theme(legend.position = "right")
-
-
 # data(iris)
 # head(iris)
 
