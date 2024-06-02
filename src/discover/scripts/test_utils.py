@@ -86,49 +86,67 @@ def U_test_p_values(output_data):
     return results_df
 
 
-def test_assumptions_for_m_distances(output_data):
+def test_assumptions_for_m_distances(feature, output_data):
     """Check assumptions of normality and equal variance for different test groups
     regarding the mahalanobis distance distributions.
 
-    Results suggests that most distribution does not satisfy the assumptions of
-    normality, one did not satisfy the assumption of equal variance.
-    ."""
-    # Initialize dictionary to store results
-    results = {}
-
+    Results, all failed the normality test, one failed the equal variance test,
+    justifying the use of non-parametric tests.
+    """
     # Extract Mahalanobis distances for each group
-    control_distance = output_data["mahalanobis_distance"][
-        output_data["low_symp_test_subs"] == 1
-    ].values
-    inter_test_distance = output_data["mahalanobis_distance"][
-        output_data["inter_test_subs"] == 1
-    ].values
-    exter_test_distance = output_data["mahalanobis_distance"][
-        output_data["exter_test_subs"] == 1
-    ].values
-    high_test_distance = output_data["mahalanobis_distance"][
-        output_data["high_test_subs"] == 1
-    ].values
-
-    # Test for normality using the Shapiro-Wilk test
-    results["normality"] = {
-        "control": stats.shapiro(control_distance),
-        "inter_test": stats.shapiro(inter_test_distance),
-        "exter_test": stats.shapiro(exter_test_distance),
-        "high_test": stats.shapiro(high_test_distance),
+    groups = {
+        "control": output_data["mahalanobis_distance"][
+            output_data["low_symp_test_subs"] == 1
+        ].values,
+        "inter_test": output_data["mahalanobis_distance"][
+            output_data["inter_test_subs"] == 1
+        ].values,
+        "exter_test": output_data["mahalanobis_distance"][
+            output_data["exter_test_subs"] == 1
+        ].values,
+        "high_test": output_data["mahalanobis_distance"][
+            output_data["high_test_subs"] == 1
+        ].values,
     }
 
+    # Initialize list to store results for DataFrame
+    results = []
+
+    # Test for normality using the Shapiro-Wilk test
+    for group_name, distances in groups.items():
+        shapiro_stat, shapiro_p = stats.shapiro(distances)
+        results.append(
+            {
+                "Group": group_name,
+                "Test": "Shapiro-Wilk",
+                "Statistic": shapiro_stat,
+                "P-Value": shapiro_p,
+                "Feature": feature,
+            }
+        )
+
     # Test for equal variances using Levene's test
-    # Note: Welch's test does not assume equal variances.
-    results["levenes_test"] = stats.levene(
-        control_distance,
-        inter_test_distance,
-        exter_test_distance,
-        high_test_distance,
+    levene_stat, levene_p = stats.levene(
+        groups["control"],
+        groups["inter_test"],
+        groups["exter_test"],
+        groups["high_test"],
         center="median",  # Recommended when distributions are not symmetrical
     )
+    results.append(
+        {
+            "Group": "All",
+            "Test": "Levene",
+            "Statistic": levene_stat,
+            "P-Value": levene_p,
+            "Feature": feature,
+        }
+    )
 
-    return results
+    # Convert results list to a DataFrame
+    results_df = pd.DataFrame(results)
+
+    return results_df
 
 
 def one_hot_encode_covariate(
@@ -295,7 +313,7 @@ def prepare_inputs_cVAE(
 
     c_dim = train_cov.shape[1]
 
-    data = {
+    output_data = {
         "low_symp_test_subs": [
             1 if sub in low_symp_test_subs else 0 for sub in test_subs
         ],
@@ -305,7 +323,7 @@ def prepare_inputs_cVAE(
     }
 
     # Create the DataFrame with indexes set by test_set_subs
-    output_data = pd.DataFrame(data, index=test_subs)
+    output_data = pd.DataFrame(output_data, index=test_subs)
 
     return (
         train_dataset,
@@ -507,6 +525,80 @@ def identify_extreme_deviation(output_data, alpha=0.001, latent_dim=10):
         results["proportion_extreme_deviation"].append(proportion_extreme)
 
     # Convert results dictionary to a DataFrame
+    results_df = pd.DataFrame(results)
+
+    return results_df
+
+
+def test_correlate_distance_symptom_severity(output_data):
+    data_path = Path(
+        "data",
+        "raw_data",
+        "core",
+        "mental-health",
+        "mh_p_cbcl.csv",
+    )
+
+    # cbcl_t_vars_path = Path(
+    #     "data",
+    #     "var_dict",
+    #     "cbcl_8_dim_t.csv",
+    # )
+
+    # Load CBCL scores and variable names
+    cbcl = pd.read_csv(data_path, index_col=0, low_memory=False)
+
+    # cbcl_t_vars_df = pd.read_csv(cbcl_t_vars_path)
+    # cbcl_t_vars = cbcl_t_vars_df["var_name"].tolist()
+
+    sum_syndrome = [
+        "cbcl_scr_syn_internal_t",
+        "cbcl_scr_syn_external_t",
+        "cbcl_scr_syn_totprob_t",
+    ]
+
+    baseline_cbcl = cbcl[cbcl["eventname"] == "baseline_year_1_arm_1"]
+
+    # Filter columns with t variables
+    filtered_cbcl = baseline_cbcl[sum_syndrome].dropna()
+
+    # Merge datasets
+    inter_test_data = output_data[output_data["inter_test_subs"] == 1].join(
+        filtered_cbcl, how="inner"
+    )
+    exter_test_data = output_data[output_data["exter_test_subs"] == 1].join(
+        filtered_cbcl, how="inner"
+    )
+    high_test_data = output_data[output_data["high_test_subs"] == 1].join(
+        filtered_cbcl, how="inner"
+    )
+
+    # Prepare to store results
+    results = []
+
+    # Calculate correlation for each cohort
+    cohorts = {
+        "Internalizing": inter_test_data,
+        "Externalizing": exter_test_data,
+        "High Symptom": high_test_data,
+    }
+
+    for cohort_name, cohort_data in cohorts.items():
+        for syndrome in sum_syndrome:
+            # Compute the Spearman correlation and the p-value
+            correlation, p_value = stats.spearmanr(
+                cohort_data["mahalanobis_distance"], cohort_data[syndrome]
+            )
+            results.append(
+                {
+                    "Cohort": cohort_name,
+                    "Syndrome": syndrome,
+                    "Correlation": correlation,
+                    "P-Value": p_value,
+                }
+            )
+
+    # Convert results to a DataFrame
     results_df = pd.DataFrame(results)
 
     return results_df

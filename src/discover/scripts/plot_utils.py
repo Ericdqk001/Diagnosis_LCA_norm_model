@@ -6,6 +6,11 @@ import torch
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+# Set global parameters to make all text bold
+plt.rcParams["font.weight"] = "bold"
+plt.rcParams["axes.labelweight"] = "bold"
+plt.rcParams["axes.titleweight"] = "bold"
+
 
 # def plot_histograms(
 #     feature: str,
@@ -131,7 +136,7 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 #     plt.show()
 
 
-def plot_histograms(feature: str, output_data: pd.DataFrame):
+def plot_histograms(feature: str, output_data: pd.DataFrame, p_values_df: pd.DataFrame):
     # Extract distances for each group
     control_distance = output_data["mahalanobis_distance"][
         output_data["low_symp_test_subs"] == 1
@@ -147,33 +152,89 @@ def plot_histograms(feature: str, output_data: pd.DataFrame):
     ].values
 
     # Create a figure with subplots (1 row, 3 columns)
-    fig, axes = plt.subplots(
-        nrows=1, ncols=3, figsize=(18, 6)
-    )  # Adjust the figsize to fit your needs
+    fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(18, 6))
     fig.suptitle(
-        "Distribution of Mahalanobis Distances by Group for Feature: {}".format(feature)
+        "Distribution of Mahalanobis Distances by Group for Feature: {}".format(
+            feature
+        ),
+        fontweight="bold",
     )
 
-    # Labels and colors for each plot
-    groups = [
-        ("Internalising", internalising_distance),
-        ("Externalising", exter_test_distance),
-        ("High Symptom", high_test_distance),
+    # Custom color palette
+    colors = ["#ff7f0e", "#2ca02c", "#d62728"]  # More distinctive color palette
+    group_names = [
+        "Predominantly Internalising",
+        "Predominantly Externalising",
+        "Highly Dysregulated",
     ]
-    colors = ["orange", "green", "red"]  # Colors for each group's histogram
 
-    # Iterate over each clinical cohort and control, plotting their histograms
+    # Labels and distances for each plot
+    groups = zip(
+        group_names, [internalising_distance, exter_test_distance, high_test_distance]
+    )
+
+    p_value_cohort_map = {
+        "Predominantly Internalising": "inter_test",
+        "Predominantly Externalising": "exter_test",
+        "Highly Dysregulated": "high_test",
+    }
+
+    # Plot histograms
     for ax, (group_name, group_distance), color in zip(axes, groups, colors):
-        ax.hist(control_distance, bins=20, alpha=0.7, color="blue", label="Control")
-        ax.hist(group_distance, bins=20, alpha=0.7, color=color, label=group_name)
+        ax.hist(
+            control_distance,
+            bins=20,
+            alpha=0.5,
+            color="grey",
+            label="Control",
+            histtype="stepfilled",
+        )
+        ax.hist(
+            group_distance,
+            bins=20,
+            alpha=0.75,
+            color=color,
+            label=group_name,
+            histtype="stepfilled",
+        )
         ax.set_title("{} vs Control".format(group_name))
-        ax.legend()
 
-        # Add vertical lines for the mean of each distribution
-        ax.axvline(np.mean(control_distance), color="blue", linestyle="--")
-        ax.axvline(np.mean(group_distance), color=color, linestyle="--")
+        # Add vertical lines for the median of each distribution
+        control_median_line = ax.axvline(
+            np.median(control_distance),
+            color="grey",
+            linestyle="--",
+            label="Control Median",
+        )
+        group_median_line = ax.axvline(
+            np.median(group_distance),
+            color=color,
+            linestyle="--",
+            label=f"{group_name} Median",
+        )
+
+        # Fetch and annotate the p-value for the current group
+        p_value = p_values_df.loc[
+            p_values_df["Cohort"] == p_value_cohort_map[group_name], "P_value"
+        ].values[0]
+        ax.text(
+            0.95,
+            0.95,
+            f"p-value: {p_value:.4f}",
+            transform=ax.transAxes,
+            verticalalignment="top",
+            horizontalalignment="right",
+            fontsize=12,
+            bbox=dict(
+                boxstyle="round,pad=0.3",
+                edgecolor="black",
+                facecolor="white",
+                alpha=0.8,
+            ),
+        )
 
         ax.set_xlabel("Mahalanobis Distance")
+        ax.legend()
 
     # Adjust layout
     plt.tight_layout()
