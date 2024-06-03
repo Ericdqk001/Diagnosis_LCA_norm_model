@@ -1,4 +1,4 @@
-,clinical_cohort,latent_dim,levene_stat,levene_p,Feature
+,clinical_cohort,latent_dim,levene_stat,levene_p,feature
 0,inter_test_subs,0,1.0980975913898006,0.29493667865695283,cortical_thickness
 1,inter_test_subs,1,2.5947189449818318,0.10753540147909696,cortical_thickness
 2,inter_test_subs,2,6.161289618092587,0.013220505711282162,cortical_thickness

@@ -3,7 +3,6 @@ from pathlib import Path
 import pandas as pd
 from discover.scripts.plot_utils import (
     plot_boxplots,
-    plot_density_distributions,
     plot_histograms,
 )
 from discover.scripts.test_utils import (
@@ -22,15 +21,15 @@ cVAE_discover_results_path = Path(
 
 output_data_save_path = Path(
     cVAE_discover_results_path,
-    "out_put_data",
+    "output_data",
 )
 
 
 feature_sets = {
     "t1w_cortical_thickness_rois": "Cortical Thickness",
-    "t1w_cortical_volume_rois": "cortical_volume",
-    "t1w_cortical_surface_area_rois": "cortical_surface_area",
-    "gordon_net_subcor_limbic_no_dup": "rsfmri",
+    "t1w_cortical_volume_rois": "Cortical Volume",
+    "t1w_cortical_surface_area_rois": "Cortical Surface Area",
+    "gordon_net_subcor_limbic_no_dup": "Functional Connectivity",
 }
 
 
@@ -63,10 +62,10 @@ def discover():
             output_data=feature_output_data,
         )
 
-        plot_density_distributions(
-            feature=feature_sets[feature],
-            output_data=feature_output_data,
-        )
+        # plot_density_distributions(
+        #     feature=feature_sets[feature],
+        #     output_data=feature_output_data,
+        # )
 
         # Test assumptions of normality and homogeneity of variance
         assumption_test_result = test_assumptions_for_m_distances(
@@ -87,8 +86,6 @@ def discover():
             output_data=feature_output_data,
             p_values_df=U_test_result,
         )
-
-        print(U_test_result)
 
         U_test_result["Feature"] = feature_sets[feature]
 

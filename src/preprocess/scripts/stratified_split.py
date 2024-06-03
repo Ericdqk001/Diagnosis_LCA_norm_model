@@ -265,20 +265,20 @@ def split_data():
         "functional": rsfmri_data_splits_with_clinical_val,
     }
 
-    with open(
-        Path(processed_data_path, "t1w_data_splits_with_clinical_val.json"), "w"
-    ) as f:
-        json.dump(t1w_data_splits_with_clinical_val, f)
+    # with open(
+    #     Path(processed_data_path, "t1w_data_splits_with_clinical_val.json"), "w"
+    # ) as f:
+    #     json.dump(t1w_data_splits_with_clinical_val, f)
 
-    with open(
-        Path(processed_data_path, "rsfmri_data_splits_with_clinical_val.json"), "w"
-    ) as f:
-        json.dump(rsfmri_data_splits_with_clinical_val, f)
+    # with open(
+    #     Path(processed_data_path, "rsfmri_data_splits_with_clinical_val.json"), "w"
+    # ) as f:
+    #     json.dump(rsfmri_data_splits_with_clinical_val, f)
 
-    with open(
-        Path(processed_data_path, "data_splits_with_clinical_val.json"), "w"
-    ) as f:
-        json.dump(data_splits_with_clinical_val, f)
+    # with open(
+    #     Path(processed_data_path, "data_splits_with_clinical_val.json"), "w"
+    # ) as f:
+    #     json.dump(data_splits_with_clinical_val, f)
 
     for key, value in t1w_data_splits_with_clinical_val.items():
         print(f"Length of {key} in t1w_data_splits: {len(value)}")
@@ -312,21 +312,3 @@ if __name__ == "__main__":
 # t1w_internalising has 12 subjects with total_dx = 0
 # t1w_externalising has 3 subjects with total_dx = 0
 # t1w_high_symptom has 0 subjects with total_dx = 0
-
-
-# Length of train in t1w_data_splits: 2582
-# Length of val in t1w_data_splits: 315
-# Length of total_test in t1w_data_splits: 628
-# Length of low_symptom_test in t1w_data_splits: 341
-# Length of internalising_test in t1w_data_splits: 113
-# Length of externalising_test in t1w_data_splits: 95
-# Length of high_symptom_test in t1w_data_splits: 79
-
-
-# Length of train in rsfmri_data_splits: 2259
-# Length of val in rsfmri_data_splits: 275
-# Length of total_test in rsfmri_data_splits: 524
-# Length of low_symptom_test in rsfmri_data_splits: 298
-# Length of internalising_test in rsfmri_data_splits: 89
-# Length of externalising_test in rsfmri_data_splits: 72
-# Length of high_symptom_test in rsfmri_data_splits: 65

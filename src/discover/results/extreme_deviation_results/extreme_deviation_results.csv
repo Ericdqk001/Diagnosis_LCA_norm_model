@@ -3,15 +3,15 @@ low_symp_test_subs,0.08211143695014662,Cortical Thickness
 inter_test_subs,0.12669683257918551,Cortical Thickness
 exter_test_subs,0.18303571428571427,Cortical Thickness
 high_test_subs,0.11764705882352941,Cortical Thickness
-low_symp_test_subs,0.07624633431085044,cortical_volume
-inter_test_subs,0.11010558069381599,cortical_volume
-exter_test_subs,0.08035714285714286,cortical_volume
-high_test_subs,0.12299465240641712,cortical_volume
-low_symp_test_subs,0.08797653958944282,cortical_surface_area
-inter_test_subs,0.08748114630467571,cortical_surface_area
-exter_test_subs,0.08482142857142858,cortical_surface_area
-high_test_subs,0.10160427807486631,cortical_surface_area
-low_symp_test_subs,0.12080536912751678,rsfmri
-inter_test_subs,0.0888468809073724,rsfmri
-exter_test_subs,0.1130952380952381,rsfmri
-high_test_subs,0.11724137931034483,rsfmri
+low_symp_test_subs,0.07624633431085044,Cortical Volume
+inter_test_subs,0.11010558069381599,Cortical Volume
+exter_test_subs,0.08035714285714286,Cortical Volume
+high_test_subs,0.12299465240641712,Cortical Volume
+low_symp_test_subs,0.08797653958944282,Cortical Surface Area
+inter_test_subs,0.08748114630467571,Cortical Surface Area
+exter_test_subs,0.08482142857142858,Cortical Surface Area
+high_test_subs,0.10160427807486631,Cortical Surface Area
+low_symp_test_subs,0.12080536912751678,Functional Connectivity
+inter_test_subs,0.0888468809073724,Functional Connectivity
+exter_test_subs,0.1130952380952381,Functional Connectivity
+high_test_subs,0.11724137931034483,Functional Connectivity

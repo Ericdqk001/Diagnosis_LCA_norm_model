@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import torch
+from statsmodels.stats.multitest import multipletests
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -10,130 +11,6 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 plt.rcParams["font.weight"] = "bold"
 plt.rcParams["axes.labelweight"] = "bold"
 plt.rcParams["axes.titleweight"] = "bold"
-
-
-# def plot_histograms(
-#     feature: str,
-#     output_data: pd.DataFrame,
-# ):
-
-#     control_distance = output_data["mahalanobis_distance"][
-#         output_data["low_symp_test_subs"] == 1
-#     ].values
-
-#     inter_test_distance = output_data["mahalanobis_distance"][
-#         output_data["inter_test_subs"] == 1
-#     ].values
-
-#     exter_test_distance = output_data["mahalanobis_distance"][
-#         output_data["exter_test_subs"] == 1
-#     ].values
-
-#     high_test_distance = output_data["mahalanobis_distance"][
-#         output_data["high_test_subs"] == 1
-#     ].values
-
-#     # Create a figure with subplots
-#     fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 8))
-#     fig.suptitle(
-#         "Distribution of Mahalanobis Distances by Group for Feature: {}".format(feature)
-#     )
-
-#     # Plot distributions for all groups
-#     axes[0, 0].hist(
-#         control_distance,
-#         bins=20,
-#         alpha=0.7,
-#         color="blue",
-#         label="Control",
-#     )
-#     axes[0, 0].hist(
-#         inter_test_distance,
-#         bins=20,
-#         alpha=0.7,
-#         color="orange",
-#         label="Internalising",
-#     )
-#     axes[0, 0].hist(
-#         exter_test_distance,
-#         bins=20,
-#         alpha=0.7,
-#         color="green",
-#         label="Externalising",
-#     )
-#     axes[0, 0].hist(
-#         high_test_distance,
-#         bins=20,
-#         alpha=0.7,
-#         color="red",
-#         label="High Symptom",
-#     )
-#     axes[0, 0].set_title("All Groups")
-#     axes[0, 0].legend()
-
-#     # Define colors for the vertical lines
-#     line_colors = ["blue", "orange", "green", "red"]
-
-#     # Add vertical lines for the mean of each distribution in the first subplot
-#     for group_distance, color in zip(
-#         [
-#             control_distance,
-#             inter_test_distance,
-#             exter_test_distance,
-#             high_test_distance,
-#         ],
-#         line_colors,
-#     ):
-#         axes[0, 0].axvline(
-#             np.mean(group_distance),
-#             color=color,
-#             linestyle="--",
-#             label="{} Mean".format(color.capitalize()),
-#         )
-
-#     # Plot distributions for each group compared to control
-#     for ax, group_distance, group_name in zip(
-#         axes.flat[1:],
-#         [inter_test_distance, exter_test_distance, high_test_distance],
-#         ["Internalising", "Externalising", "High Symptom"],
-#     ):
-#         ax.hist(
-#             control_distance,
-#             bins=20,
-#             alpha=0.7,
-#             color="blue",
-#             label="Control",
-#         )
-#         ax.hist(
-#             group_distance,
-#             bins=20,
-#             alpha=0.7,
-#             color="red",
-#             label=group_name,
-#         )
-#         ax.set_title("{} vs Control".format(group_name))
-#         ax.legend()
-
-#         # Add vertical lines for the mean of each distribution
-#         ax.axvline(
-#             np.mean(control_distance),
-#             color="blue",
-#             linestyle="--",
-#             # label="Control Mean",
-#         )
-#         ax.axvline(
-#             np.mean(group_distance),
-#             color="red",
-#             linestyle="--",
-#             # label="{} Mean".format(group_name),
-#         )
-
-#     # Set x-axis label
-#     for ax in axes.flat:
-#         ax.set_xlabel("Mahalanobis Distance")
-#     # Adjust layout
-#     plt.tight_layout()
-#     plt.show()
 
 
 def plot_histograms(feature: str, output_data: pd.DataFrame, p_values_df: pd.DataFrame):
@@ -200,13 +77,13 @@ def plot_histograms(feature: str, output_data: pd.DataFrame, p_values_df: pd.Dat
         ax.set_title("{} vs Control".format(group_name))
 
         # Add vertical lines for the median of each distribution
-        control_median_line = ax.axvline(
+        ax.axvline(
             np.median(control_distance),
             color="grey",
             linestyle="--",
             label="Control Median",
         )
-        group_median_line = ax.axvline(
+        ax.axvline(
             np.median(group_distance),
             color=color,
             linestyle="--",
@@ -241,72 +118,54 @@ def plot_histograms(feature: str, output_data: pd.DataFrame, p_values_df: pd.Dat
     plt.show()
 
 
-def plot_boxplots(
-    feature: str,
-    output_data: pd.DataFrame,
-):
-
+def plot_boxplots(feature: str, output_data: pd.DataFrame):
+    # Extract Mahalanobis distances for each group
     control_distance = output_data["mahalanobis_distance"][
         output_data["low_symp_test_subs"] == 1
     ].values
-
     inter_test_distance = output_data["mahalanobis_distance"][
         output_data["inter_test_subs"] == 1
     ].values
-
     exter_test_distance = output_data["mahalanobis_distance"][
         output_data["exter_test_subs"] == 1
     ].values
-
     high_test_distance = output_data["mahalanobis_distance"][
         output_data["high_test_subs"] == 1
     ].values
 
-    # Create a figure with subplots
-    fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 8))
+    # Create a figure for the boxplots
+    fig, ax = plt.subplots(figsize=(10, 6))  # Adjust the size as needed
     fig.suptitle(
-        "Distribution of Mahalanobis Distances by Group for Feature: {}".format(feature)
+        f"Boxplots of Mahalanobis Distances by Group for Feature: {feature}",
+        fontweight="bold",
     )
 
-    # Plot boxplots for all groups
+    # Group data and labels
     all_data = [
         control_distance,
         inter_test_distance,
         exter_test_distance,
         high_test_distance,
     ]
-    all_labels = ["Control", "Internalising", "Externalising", "High Symptom"]
-    axes[0, 0].boxplot(all_data, labels=all_labels, patch_artist=True)
-    axes[0, 0].set_title("All Groups")
+    all_labels = [
+        "Control",
+        "Predominantly Internalising",
+        "Predominantly Externalising",
+        "Highly Dysregulated",
+    ]
+
+    # Create boxplot
+    box = ax.boxplot(all_data, labels=all_labels, patch_artist=True)
 
     # Define colors for the boxplots
     box_colors = ["blue", "orange", "green", "red"]
 
-    # Set colors for the boxplots in the first subplot
-    for patch, color in zip(axes[0, 0].artists, box_colors):
+    # Set colors for the boxplots
+    for patch, color in zip(box["boxes"], box_colors):
         patch.set_facecolor(color)
 
-    # Plot boxplots for each group compared to control
-    for ax, group_distance, group_name, color in zip(
-        axes.flat[1:],
-        [inter_test_distance, exter_test_distance, high_test_distance],
-        ["Internalising", "Externalising", "High Symptom"],
-        ["orange", "green", "red"],
-    ):
-        ax.boxplot(
-            [control_distance, group_distance],
-            labels=["Control", group_name],
-            patch_artist=True,
-        )
-        ax.set_title("{} vs Control".format(group_name))
-
-        # Set colors for the boxplots in the current subplot
-        for patch, col in zip(ax.artists, ["blue", color]):
-            patch.set_facecolor(col)
-
     # Set y-axis label
-    for ax in axes.flat:
-        ax.set_ylabel("Mahalanobis Distance")
+    ax.set_ylabel("Mahalanobis Distance")
 
     # Adjust layout
     plt.tight_layout()
@@ -390,3 +249,136 @@ def plot_density_distributions(feature: str, output_data: pd.DataFrame):
     # Adjust layout and show plot
     plt.tight_layout()
     plt.show()
+
+
+def convert_p_to_significance_FDR_corrected(df):
+    """Apply FDR correction to p-values from a DataFrame and categorize them into
+    significance levels.
+
+
+    Args:
+        df (DataFrame): A pandas DataFrame containing the columns 'latent_dim' and
+        'p_value', where 'latent_dim' represents the index of latent dimensions and
+        'p_value' contains the corresponding p-values.
+
+    Returns:
+        dict: A dictionary mapping 'latent_dim_{index}' to its significance level.
+    """
+    # Extract p-values and latent dimensions
+    p_values = df["p_value"].tolist()
+    latent_dims = df["latent_dim"].tolist()
+
+    # Apply the FDR correction using Benjamini-Hochberg
+    alpha = 0.05  # Base significance level
+    rejected, corrected_pvals, _, _ = multipletests(
+        p_values, alpha=alpha, method="fdr_bh"
+    )
+
+    # Initialize the dictionary to store significance levels
+    significance_levels = {}
+    for latent_dim, reject, p_value in zip(latent_dims, rejected, corrected_pvals):
+        key = f"latent_dim_{latent_dim}"  # Format the key as specified
+        if not reject:
+            significance_levels[key] = "ns"  # Not significant
+        elif p_value <= 0.001:
+            significance_levels[key] = "***"  # Very highly significant
+        elif p_value <= 0.01:
+            significance_levels[key] = "**"  # Highly significant
+        else:
+            significance_levels[key] = "*"  # Significant
+
+    return significance_levels
+
+
+def plot_ind_dim_violin(feature, output_data, latent_dim, ind_dim_dev_U_test_results):
+    cohort_map = {
+        "inter_test_subs": "Predominantly Internalising",
+        "exter_test_subs": "Predominantly Externalising",
+        "high_test_subs": "Highly Dysregulated",
+    }
+
+    # Set default properties for bold text
+    plt.rcParams["font.weight"] = "bold"
+    plt.rcParams["axes.labelweight"] = "bold"
+    plt.rcParams["axes.titleweight"] = "bold"
+
+    for cohort_key in cohort_map:
+        # Extract p-values for the current cohort
+        ind_dim_p_value_df = ind_dim_dev_U_test_results[
+            ind_dim_dev_U_test_results["clinical_cohort"] == cohort_key
+        ]
+
+        # Apply FDR correction and categorize p-values into significance levels
+        significance_levels = convert_p_to_significance_FDR_corrected(
+            ind_dim_p_value_df
+        )
+
+        # Create DataFrame for plotting
+        data_for_plotting = pd.DataFrame()
+
+        for i in range(latent_dim):
+            normative_deviation = output_data[f"latent_deviation_{i}"][
+                output_data["low_symp_test_subs"] == 1
+            ]
+            clinical_deviation = output_data[f"latent_deviation_{i}"][
+                output_data[cohort_key] == 1
+            ]
+
+            norm_df = pd.DataFrame(
+                {
+                    "Value": normative_deviation,
+                    "Type": "Control",
+                    "Latent Dimension": f"Dimension {i+1}",
+                }
+            )
+            clin_df = pd.DataFrame(
+                {
+                    "Value": clinical_deviation,
+                    "Type": cohort_map[cohort_key],
+                    "Latent Dimension": f"Dimension {i+1}",
+                }
+            )
+            combined_df = pd.concat([norm_df, clin_df])
+            data_for_plotting = pd.concat(
+                [data_for_plotting, combined_df], ignore_index=True
+            )
+
+        # Plot the data using seaborn's violinplot
+        plt.figure(figsize=(20, 10))
+        ax = sns.violinplot(
+            x="Latent Dimension",
+            y="Value",
+            hue="Type",
+            data=data_for_plotting,
+            split=True,
+            inner="quartile",
+            palette="muted",
+        )
+
+        # Customize the plot with dynamic titles and larger x-axis labels
+        title = f"Deviation at Individual Latent Dimensions of {feature} - {cohort_map[cohort_key]} vs Control"
+        ax.set_title(title, fontsize=16)
+        ax.set_xlabel("Latent Dimensions", fontsize=14)
+        ax.set_ylabel("Deviation", fontsize=14)
+        ax.tick_params(axis="x", labelsize=14)  # Adjust x-axis label size
+
+        # Annotate significance on top of each violin pair
+        for i in range(latent_dim):
+            significance = significance_levels[f"latent_dim_{i}"]
+            y_max = data_for_plotting[
+                data_for_plotting["Latent Dimension"] == f"Dimension {i+1}"
+            ].Value.max()
+            ax.text(
+                i,
+                y_max * 1.25,
+                significance,
+                horizontalalignment="center",
+                verticalalignment="bottom",
+                fontsize=12,
+                color="black",
+                weight="bold",
+            )
+
+        plt.legend(title="Group", title_fontsize="13", fontsize="12")
+        plt.tight_layout()
+        plt.show()

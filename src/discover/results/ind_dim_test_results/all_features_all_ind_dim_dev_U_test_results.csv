@@ -1,4 +1,4 @@
-,clinical_cohort,latent_dim,u_stat,p_value,direction,Feature
+,clinical_cohort,latent_dim,u_stat,p_value,direction,feature
 0,inter_test_subs,0,110905.0,0.6235116840479595,normative < clinical,cortical_thickness
 1,inter_test_subs,1,111278.0,0.6853603246939928,normative < clinical,cortical_thickness
 2,inter_test_subs,2,115511.0,0.5704376604618367,normative > clinical,cortical_thickness

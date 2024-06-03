@@ -421,6 +421,7 @@ def compute_interpret_distance_deviation_cVAE(
 
 
 def get_individual_deviation_p_values(
+    feature,
     output_data,
     latent_dim,
     clinical_cohorts=["inter_test_subs", "exter_test_subs", "high_test_subs"],
@@ -449,6 +450,7 @@ def get_individual_deviation_p_values(
                     "latent_dim": i,
                     "normative_normality_p": shapiro_norm.pvalue,
                     "clinical_normality_p": shapiro_clin.pvalue,
+                    "feature": feature,
                 }
             )
 
@@ -462,6 +464,7 @@ def get_individual_deviation_p_values(
                     "latent_dim": i,
                     "levene_stat": levene_stat,
                     "levene_p": levene_p,
+                    "feature": feature,
                 }
             )
 
@@ -485,6 +488,7 @@ def get_individual_deviation_p_values(
                     "u_stat": u_stat,
                     "p_value": p_value,
                     "direction": direction,
+                    "feature": feature,
                 }
             )
 
@@ -497,9 +501,16 @@ def get_individual_deviation_p_values(
     return results_df, normality_df, variance_df
 
 
-def identify_extreme_deviation(output_data, alpha=0.001, latent_dim=10):
+def identify_extreme_deviation(
+    output_data,
+    alpha=0.001,
+    latent_dim=10,
+):
     # Calculate the critical value based on the chi-squared distribution
     critical_value = stats.chi2.ppf(1 - alpha, latent_dim)
+
+    print("Critical value for chi-squared test:")
+    print(critical_value)
 
     # Initialize a dictionary to hold results
     results = {"cohort": [], "proportion_extreme_deviation": []}

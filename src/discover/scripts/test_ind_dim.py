@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pandas as pd
 import torch
+from discover.scripts.plot_utils import plot_ind_dim_violin
 from discover.scripts.test_utils import (
     compute_distance_deviation_cVAE,
     get_individual_deviation_p_values,
@@ -59,7 +60,7 @@ cVAE_discover_results_path = Path(
 
 output_data_save_path = Path(
     cVAE_discover_results_path,
-    "out_put_data",
+    "output_data",
 )
 
 if not output_data_save_path.exists():
@@ -160,23 +161,29 @@ def discover():
             f"{feature}_output_data_with_dev.csv",
         )
 
-        output_data_with_dev.to_csv(feature_output_data_save_path)
+        # output_data_with_dev.to_csv(feature_output_data_save_path)
 
-        # TODO TEST it
+        # TODO TEST it (Done)
         ind_dim_dev_U_test_results, normality_df, variance_df = (
             get_individual_deviation_p_values(
+                feature_sets[feature],
                 output_data_with_dev,
                 hyperparameters.get("latent_dim"),
             )
         )
 
+        print(ind_dim_dev_U_test_results)
+
+        # Plot the violin plots
+
+        plot_ind_dim_violin(
+            feature_sets[feature],
+            output_data_with_dev,
+            hyperparameters.get("latent_dim"),
+            ind_dim_dev_U_test_results,
+        )
+
         # Add the DataFrame to the list
-
-        ind_dim_dev_U_test_results["Feature"] = feature_sets[feature]
-
-        normality_df["Feature"] = feature_sets[feature]
-
-        variance_df["Feature"] = feature_sets[feature]
 
         all_ind_dim_dev_U_test_results.append(ind_dim_dev_U_test_results)
 
