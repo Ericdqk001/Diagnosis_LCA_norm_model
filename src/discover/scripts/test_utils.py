@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import scipy.stats as stats
 import torch
+from scipy.stats import shapiro
 from sklearn.covariance import MinCovDet
 from sklearn.preprocessing import StandardScaler
 
@@ -20,7 +21,21 @@ def latent_deviations_mahalanobis_across(cohort, train):
 
 
 def calc_robust_mahalanobis_distance(values, train_values):
+    # Test if train_values follows a Gaussian distribution using the Shapiro-Wilk test
+    stat, p_value = shapiro(train_values)
+    print("Shapiro-Wilk Test p-value:", p_value)
+
+    # Typically, if the p-value is less than 0.05, we reject the null hypothesis
+    # that the data was drawn from a normal distribution
+    if p_value < 0.05:
+        print("Data does not appear to be normally distributed.")
+    else:
+        print("Data appears to be normally distributed.")
+
+    # Compute the robust covariance matrix
     robust_cov = MinCovDet(random_state=42).fit(train_values)
+
+    # Calculate the Mahalanobis distance using the robust covariance matrix
     mahal_robust_cov = robust_cov.mahalanobis(values)
     return mahal_robust_cov
 

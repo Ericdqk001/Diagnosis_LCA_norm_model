@@ -173,4 +173,5 @@ class cVAE(nn.Module):
         with torch.no_grad():
             mu, _ = self.encode(x, c)
             x_pred = self.decode(mu, c).loc.cpu().detach().numpy()
+            # x_std = self.decode(mu, c).scale.cpu().detach().numpy()
         return x_pred

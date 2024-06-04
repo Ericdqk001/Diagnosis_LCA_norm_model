@@ -1,0 +1,10 @@
+Cohort,U_statistic,P_value,Feature
+inter_test,17960.0,0.27993407122896485,Cortical Thickness
+exter_test,12637.0,0.0010467975956793495,Cortical Thickness
+high_test,10651.0,0.003747406916655221,Cortical Thickness
+inter_test,18822.0,0.7133759797151156,Cortical Volume
+exter_test,15507.0,0.5252507560635311,Cortical Volume
+high_test,13312.0,0.8717037214180734,Cortical Volume
+inter_test,19130.0,0.9104156937570153,Cortical Surface Area
+exter_test,16247.0,0.964016801974592,Cortical Surface Area
+high_test,13374.0,0.9221548148683074,Cortical Surface Area

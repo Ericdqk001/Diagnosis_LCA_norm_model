@@ -1,0 +1,13 @@
+cohort,proportion_extreme_deviation,Feature
+low_symp_test_subs,0.08211143695014662,Cortical Thickness
+inter_test_subs,0.08849557522123894,Cortical Thickness
+exter_test_subs,0.2,Cortical Thickness
+high_test_subs,0.08860759493670886,Cortical Thickness
+low_symp_test_subs,0.07624633431085044,Cortical Volume
+inter_test_subs,0.10619469026548672,Cortical Volume
+exter_test_subs,0.07368421052631578,Cortical Volume
+high_test_subs,0.08860759493670886,Cortical Volume
+low_symp_test_subs,0.08797653958944282,Cortical Surface Area
+inter_test_subs,0.061946902654867256,Cortical Surface Area
+exter_test_subs,0.10526315789473684,Cortical Surface Area
+high_test_subs,0.08860759493670886,Cortical Surface Area

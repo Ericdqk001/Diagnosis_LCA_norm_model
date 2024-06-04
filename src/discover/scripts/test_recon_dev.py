@@ -18,12 +18,6 @@ cVAE_discover_results_path = Path(
 )
 
 
-output_data_save_path = Path(
-    cVAE_discover_results_path,
-    "output_data",
-)
-
-
 feature_sets = {
     "t1w_cortical_thickness_rois": "Cortical Thickness",
     "t1w_cortical_volume_rois": "Cortical Volume",
@@ -31,7 +25,18 @@ feature_sets = {
 }
 
 
-def discover():
+def discover(if_low_entropy: bool = False):
+
+    output_data_save_path = Path(
+        cVAE_discover_results_path,
+        "output_data",
+    )
+
+    if if_low_entropy:
+        output_data_save_path = Path(
+            cVAE_discover_results_path,
+            "output_data_low_entropy",
+        )
 
     U_test_results = []
 
@@ -111,6 +116,12 @@ def discover():
         "assumption_test_results",
     )
 
+    if if_low_entropy:
+        assumption_test_results_path = Path(
+            cVAE_discover_results_path,
+            "low_entropy_assumption_test_results",
+        )
+
     if not assumption_test_results_path.exists():
         assumption_test_results_path.mkdir(parents=True)
 
@@ -126,6 +137,12 @@ def discover():
         cVAE_discover_results_path,
         "U_test_results",
     )
+
+    if if_low_entropy:
+        U_test_save_results_path = Path(
+            cVAE_discover_results_path,
+            "low_entropy_U_test_results",
+        )
 
     if not U_test_save_results_path.exists():
         U_test_save_results_path.mkdir(parents=True)
@@ -145,6 +162,12 @@ def discover():
         "correlation_results",
     )
 
+    if if_low_entropy:
+        correlation_results_save_path = Path(
+            cVAE_discover_results_path,
+            "low_entropy_correlation_results",
+        )
+
     if not correlation_results_save_path.exists():
         correlation_results_save_path.mkdir(parents=True)
 
@@ -158,4 +181,4 @@ def discover():
 
 
 if __name__ == "__main__":
-    discover()
+    discover(if_low_entropy=False)

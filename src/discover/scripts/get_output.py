@@ -55,15 +55,6 @@ cVAE_discover_results_path = Path(
     "results",
 )
 
-output_data_save_path = Path(
-    cVAE_discover_results_path,
-    "output_data",
-)
-
-if not output_data_save_path.exists():
-    output_data_save_path.mkdir(parents=True)
-
-
 cVAE_feature_hyper = {
     "t1w_cortical_thickness_rois": {
         "learning_rate": 0.0005,
@@ -88,20 +79,13 @@ cVAE_feature_hyper = {
 }
 
 
-def discover():
+def get_output(if_low_entropy=False):
 
     feature_sets = {
         "t1w_cortical_thickness_rois": "cortical_thickness",
         "t1w_cortical_volume_rois": "cortical_volume",
         "t1w_cortical_surface_area_rois": "cortical_surface_area",
-        # "gordon_net_subcor_limbic_no_dup": "rsfmri",
     }
-
-    all_ind_dim_dev_U_test_results = []
-
-    ind_dim_dev_test_norm_assump_results = []
-
-    ind_dim_test_var_assump_results = []
 
     for feature in feature_sets:
 
@@ -128,6 +112,7 @@ def discover():
             cbcl_path=cbcl_lca_path,
             brain_features_of_interest_path=features_of_interest_path,
             data_splits_path=data_splits_path,
+            if_low_entropy=if_low_entropy,
         )
 
         hyperparameters = cVAE_feature_hyper.get(feature)
@@ -153,7 +138,27 @@ def discover():
             output_data=output_data,
         )
 
+        output_data_save_path = Path(
+            cVAE_discover_results_path,
+            "output_data",
+        )
+
+        if if_low_entropy:
+            output_data_save_path = Path(
+                cVAE_discover_results_path,
+                "output_data_low_entropy",
+            )
+
+        if not output_data_save_path.exists():
+            output_data_save_path.mkdir(parents=True)
+
         feature_output_data_save_path = Path(
             output_data_save_path,
             f"{feature}_output_data_with_dev.csv",
         )
+
+        output_data_with_dev.to_csv(feature_output_data_save_path)
+
+
+if __name__ == "__main__":
+    get_output(if_low_entropy=False)
