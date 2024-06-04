@@ -8,7 +8,7 @@ import torch
 #     plot_histograms,
 # )
 from discover.scripts.test_utils import (
-    compute_interpret_distance_deviation_cVAE,
+    compute_interpret_distance_deviation,
     get_individual_deviation_p_values,
     prepare_inputs_cVAE,
 )
@@ -157,7 +157,7 @@ def discover():
 
         model.load_state_dict(torch.load(checkpoint_path))
 
-        output_data_with_dev = compute_interpret_distance_deviation_cVAE(
+        output_data_with_dev = compute_interpret_distance_deviation(
             model,
             train_dataset=train_dataset,
             test_dataset=test_dataset,

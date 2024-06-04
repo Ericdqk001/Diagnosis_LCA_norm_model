@@ -13,20 +13,23 @@ plt.rcParams["axes.labelweight"] = "bold"
 plt.rcParams["axes.titleweight"] = "bold"
 
 
-def plot_histograms(feature: str, output_data: pd.DataFrame, p_values_df: pd.DataFrame):
+def plot_histograms(
+    feature: str,
+    output_data: pd.DataFrame,
+    p_values_df: pd.DataFrame,
+    metric: str = "mahalanobis_distance",
+):
     # Extract distances for each group
-    control_distance = output_data["mahalanobis_distance"][
+    control_distance = output_data[metric][
         output_data["low_symp_test_subs"] == 1
     ].values
-    internalising_distance = output_data["mahalanobis_distance"][
+    internalising_distance = output_data[metric][
         output_data["inter_test_subs"] == 1
     ].values
-    exter_test_distance = output_data["mahalanobis_distance"][
+    exter_test_distance = output_data[metric][
         output_data["exter_test_subs"] == 1
     ].values
-    high_test_distance = output_data["mahalanobis_distance"][
-        output_data["high_test_subs"] == 1
-    ].values
+    high_test_distance = output_data[metric][output_data["high_test_subs"] == 1].values
 
     # Create a figure with subplots (1 row, 3 columns)
     fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(18, 6))
@@ -118,20 +121,22 @@ def plot_histograms(feature: str, output_data: pd.DataFrame, p_values_df: pd.Dat
     plt.show()
 
 
-def plot_boxplots(feature: str, output_data: pd.DataFrame):
+def plot_boxplots(
+    feature: str,
+    output_data: pd.DataFrame,
+    metric: str = "mahalanobis_distance",
+):
     # Extract Mahalanobis distances for each group
-    control_distance = output_data["mahalanobis_distance"][
+    control_distance = output_data[metric][
         output_data["low_symp_test_subs"] == 1
     ].values
-    inter_test_distance = output_data["mahalanobis_distance"][
+    inter_test_distance = output_data[metric][
         output_data["inter_test_subs"] == 1
     ].values
-    exter_test_distance = output_data["mahalanobis_distance"][
+    exter_test_distance = output_data[metric][
         output_data["exter_test_subs"] == 1
     ].values
-    high_test_distance = output_data["mahalanobis_distance"][
-        output_data["high_test_subs"] == 1
-    ].values
+    high_test_distance = output_data[metric][output_data["high_test_subs"] == 1].values
 
     # Create a figure for the boxplots
     fig, ax = plt.subplots(figsize=(10, 6))  # Adjust the size as needed

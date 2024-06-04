@@ -14,8 +14,3 @@ inter_test,Shapiro-Wilk,0.8135857521778085,5.4469720649438685e-27,t1w_cortical_s
 exter_test,Shapiro-Wilk,0.9242148364362976,2.5923246322715167e-09,t1w_cortical_surface_area_rois
 high_test,Shapiro-Wilk,0.9232702926698861,2.437576415530435e-08,t1w_cortical_surface_area_rois
 All,Levene,1.2788027651566725,0.2801215986735026,t1w_cortical_surface_area_rois
-control,Shapiro-Wilk,0.8904026283676538,7.962738825488428e-14,gordon_net_subcor_limbic_no_dup
-inter_test,Shapiro-Wilk,0.9008479602771239,4.974542378477492e-18,gordon_net_subcor_limbic_no_dup
-exter_test,Shapiro-Wilk,0.8988713004125074,2.545555336959188e-09,gordon_net_subcor_limbic_no_dup
-high_test,Shapiro-Wilk,0.9685510431955092,0.0020520055603320763,gordon_net_subcor_limbic_no_dup
-All,Levene,0.7113082160468185,0.545293465090628,gordon_net_subcor_limbic_no_dup

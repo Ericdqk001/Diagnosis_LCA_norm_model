@@ -8,6 +8,3 @@ high_test,31520.0,0.8285927725724404,Cortical Volume
 inter_test,108361.0,0.28214087392596954,Cortical Surface Area
 exter_test,37675.0,0.7855340528455447,Cortical Surface Area
 high_test,29009.0,0.08649919891339289,Cortical Surface Area
-inter_test,82191.0,0.3069434563098731,Functional Connectivity
-exter_test,25843.0,0.5614691574779871,Functional Connectivity
-high_test,20605.0,0.4292486486452831,Functional Connectivity

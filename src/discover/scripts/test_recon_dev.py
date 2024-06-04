@@ -7,7 +7,6 @@ from discover.scripts.plot_utils import (
 )
 from discover.scripts.test_utils import (
     U_test_p_values,
-    identify_extreme_deviation,
     test_assumptions_for_u_test,
     test_correlate_distance_symptom_severity,
 )
@@ -38,7 +37,7 @@ def discover():
 
     assumption_test_results = []
 
-    extreme_deviation_results = []
+    # extreme_deviation_results = []
 
     correlation_results = []
 
@@ -59,17 +58,14 @@ def discover():
         plot_boxplots(
             feature=feature_sets[feature],
             output_data=feature_output_data,
+            metric="reconstruction_deviation",
         )
-
-        # plot_density_distributions(
-        #     feature=feature_sets[feature],
-        #     output_data=feature_output_data,
-        # )
 
         # Test assumptions of normality and homogeneity of variance
         assumption_test_result = test_assumptions_for_u_test(
             feature=feature,
             output_data=feature_output_data,
+            metric="reconstruction_deviation",
         )
 
         assumption_test_results.append(
@@ -78,12 +74,14 @@ def discover():
 
         U_test_result = U_test_p_values(
             output_data=feature_output_data,
+            metric="reconstruction_deviation",
         )
 
         plot_histograms(
             feature=feature_sets[feature],
             output_data=feature_output_data,
             p_values_df=U_test_result,
+            metric="reconstruction_deviation",
         )
 
         U_test_result["Feature"] = feature_sets[feature]
@@ -92,22 +90,13 @@ def discover():
             U_test_result,
         )
 
-        # Calculate the proportion of extreme deviation
-        cohort_extreme_dev_prop = identify_extreme_deviation(
-            output_data=feature_output_data,
-            alpha=0.05,
-        )
-
-        cohort_extreme_dev_prop["Feature"] = feature_sets[feature]
-
-        extreme_deviation_results.append(
-            cohort_extreme_dev_prop,
-        )
-
         correlation_result = test_correlate_distance_symptom_severity(
             feature=feature_sets[feature],
             output_data=feature_output_data,
+            metric="reconstruction_deviation",
         )
+
+        correlation_result["Feature"] = feature_sets[feature]
 
         correlation_results.append(
             correlation_result,
@@ -128,7 +117,7 @@ def discover():
     assumption_test_results_df.to_csv(
         Path(
             assumption_test_results_path,
-            "distance_assumption_test_results.csv",
+            "recon_dev_assumption_test_results.csv",
         ),
         index=False,
     )
@@ -144,25 +133,7 @@ def discover():
     U_test_results_df.to_csv(
         Path(
             U_test_save_results_path,
-            "distance_U_test_results.csv",
-        ),
-        index=False,
-    )
-
-    extreme_deviation_results_df = pd.concat(extreme_deviation_results)
-
-    extreme_deviation_save_results_path = Path(
-        cVAE_discover_results_path,
-        "extreme_deviation_results",
-    )
-
-    if not extreme_deviation_save_results_path.exists():
-        extreme_deviation_save_results_path.mkdir(parents=True)
-
-    extreme_deviation_results_df.to_csv(
-        Path(
-            extreme_deviation_save_results_path,
-            "extreme_deviation_results.csv",
+            "recon_dev_U_test_results.csv",
         ),
         index=False,
     )
@@ -180,7 +151,7 @@ def discover():
     correlation_results_df.to_csv(
         Path(
             correlation_results_save_path,
-            "distance_correlation_results.csv",
+            "recon_dev_correlation_results.csv",
         ),
         index=False,
     )

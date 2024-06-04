@@ -41,7 +41,10 @@ def separate_latent_deviation(mu_train, mu_sample, var_sample):
     return (mu_sample - np.mean(mu_train, axis=0)) / np.sqrt(var + var_sample)
 
 
-def U_test_p_values(output_data):
+def U_test_p_values(
+    output_data,
+    metric="mahalanobis_distance",
+):
     """Perform Mann-Whitney U test between control distance and each test distance group."""
     # Initialize lists to store results for DataFrame
     cohorts = []
@@ -49,18 +52,16 @@ def U_test_p_values(output_data):
     p_values = []
 
     # Extract mahalanobis distances for each group
-    control_distance = output_data["mahalanobis_distance"][
+    control_distance = output_data[metric][
         output_data["low_symp_test_subs"] == 1
     ].values
-    inter_test_distance = output_data["mahalanobis_distance"][
+    inter_test_distance = output_data[metric][
         output_data["inter_test_subs"] == 1
     ].values
-    exter_test_distance = output_data["mahalanobis_distance"][
+    exter_test_distance = output_data[metric][
         output_data["exter_test_subs"] == 1
     ].values
-    high_test_distance = output_data["mahalanobis_distance"][
-        output_data["high_test_subs"] == 1
-    ].values
+    high_test_distance = output_data[metric][output_data["high_test_subs"] == 1].values
 
     # Define the groups to test against control
     test_groups = {
@@ -86,7 +87,7 @@ def U_test_p_values(output_data):
     return results_df
 
 
-def test_assumptions_for_m_distances(feature, output_data):
+def test_assumptions_for_u_test(feature, output_data, metric="mahalanobis_distance"):
     """Check assumptions of normality and equal variance for different test groups
     regarding the mahalanobis distance distributions.
 
@@ -95,18 +96,10 @@ def test_assumptions_for_m_distances(feature, output_data):
     """
     # Extract Mahalanobis distances for each group
     groups = {
-        "control": output_data["mahalanobis_distance"][
-            output_data["low_symp_test_subs"] == 1
-        ].values,
-        "inter_test": output_data["mahalanobis_distance"][
-            output_data["inter_test_subs"] == 1
-        ].values,
-        "exter_test": output_data["mahalanobis_distance"][
-            output_data["exter_test_subs"] == 1
-        ].values,
-        "high_test": output_data["mahalanobis_distance"][
-            output_data["high_test_subs"] == 1
-        ].values,
+        "control": output_data[metric][output_data["low_symp_test_subs"] == 1].values,
+        "inter_test": output_data[metric][output_data["inter_test_subs"] == 1].values,
+        "exter_test": output_data[metric][output_data["exter_test_subs"] == 1].values,
+        "high_test": output_data[metric][output_data["high_test_subs"] == 1].values,
     }
 
     # Initialize list to store results for DataFrame
@@ -336,7 +329,7 @@ def prepare_inputs_cVAE(
     )
 
 
-def compute_distance_deviation_cVAE(
+def compute_distance_deviation(
     model,
     train_dataset=None,
     test_dataset=None,
@@ -360,12 +353,23 @@ def compute_distance_deviation_cVAE(
         DEVICE,
     )
 
+    test_prediction = model.pred_recon(
+        test_dataset,
+        test_cov,
+        DEVICE,
+    )
+
     test_distance = latent_deviations_mahalanobis_across(
         [test_latent],
         [train_latent],
     )
 
     output_data["mahalanobis_distance"] = test_distance
+
+    output_data["reconstruction_deviation"] = reconstruction_deviation(
+        test_dataset.to_numpy(),
+        test_prediction,
+    )
 
     output_data["latent_deviation"] = latent_deviation(
         train_latent, test_latent, test_var
@@ -380,7 +384,7 @@ def compute_distance_deviation_cVAE(
     return output_data
 
 
-def compute_interpret_distance_deviation_cVAE(
+def compute_interpret_distance_deviation(
     model,
     train_dataset=None,
     test_dataset=None,
@@ -541,7 +545,11 @@ def identify_extreme_deviation(
     return results_df
 
 
-def test_correlate_distance_symptom_severity(output_data):
+def test_correlate_distance_symptom_severity(
+    feature,
+    output_data,
+    metric="mahalanobis_distance",
+):
     data_path = Path(
         "data",
         "raw_data",
@@ -598,7 +606,7 @@ def test_correlate_distance_symptom_severity(output_data):
         for syndrome in sum_syndrome:
             # Compute the Spearman correlation and the p-value
             correlation, p_value = stats.spearmanr(
-                cohort_data["mahalanobis_distance"], cohort_data[syndrome]
+                cohort_data[metric], cohort_data[syndrome]
             )
             results.append(
                 {
@@ -606,6 +614,7 @@ def test_correlate_distance_symptom_severity(output_data):
                     "Syndrome": syndrome,
                     "Correlation": correlation,
                     "P-Value": p_value,
+                    "Feature": feature,
                 }
             )
 
@@ -613,6 +622,12 @@ def test_correlate_distance_symptom_severity(output_data):
     results_df = pd.DataFrame(results)
 
     return results_df
+
+
+def reconstruction_deviation(x, x_pred):
+    feat_dim = x.shape[1]
+    dev = np.sum(np.sqrt((x - x_pred) ** 2), axis=1) / feat_dim
+    return dev
 
 
 # Interpretation
