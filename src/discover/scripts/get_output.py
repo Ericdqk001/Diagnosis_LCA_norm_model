@@ -144,6 +144,7 @@ def get_output(if_low_entropy=False, dropout=False):
             test_cov=test_cov,
             latent_dim=hyperparameters.get("latent_dim"),
             output_data=output_data,
+            dropout=dropout,
         )
 
         output_data_save_path = Path(
@@ -163,6 +164,12 @@ def get_output(if_low_entropy=False, dropout=False):
                 "output_data_dropout",
             )
 
+        if if_low_entropy and dropout:
+            output_data_save_path = Path(
+                cVAE_discover_results_path,
+                "output_data_low_entropy_dropout",
+            )
+
         if not output_data_save_path.exists():
             output_data_save_path.mkdir(parents=True)
 
@@ -176,6 +183,6 @@ def get_output(if_low_entropy=False, dropout=False):
 
 if __name__ == "__main__":
     get_output(
-        if_low_entropy=False,
+        if_low_entropy=True,
         dropout=True,
     )

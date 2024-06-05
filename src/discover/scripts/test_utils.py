@@ -381,6 +381,7 @@ def compute_distance_deviation(
     test_cov=None,
     latent_dim=None,
     output_data=None,
+    dropout=False,
 ) -> pd.DataFrame:
     """Computes the mahalanobis distance of test samples from the distribution of the
     training samples.
@@ -427,9 +428,11 @@ def compute_distance_deviation(
 
     # Uncertainty deviation here
 
-    output_data["uncertainty_deviation"] = uncertainty_deviation(
-        model, test_dataset, test_cov
-    )
+    if dropout:
+
+        output_data["uncertainty_deviation"] = uncertainty_deviation(
+            model, test_dataset, test_cov
+        )
 
     return output_data
 
