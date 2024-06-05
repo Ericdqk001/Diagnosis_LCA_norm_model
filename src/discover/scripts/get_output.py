@@ -79,7 +79,7 @@ cVAE_feature_hyper = {
 }
 
 
-def get_output(if_low_entropy=False):
+def get_output(if_low_entropy=False, dropout=False):
 
     feature_sets = {
         "t1w_cortical_thickness_rois": "cortical_thickness",
@@ -97,6 +97,11 @@ def get_output(if_low_entropy=False):
         )
 
         checkpoint_path = Path(feature_checkpoint_path, "model_weights_no_dx.pt")
+
+        if dropout:
+            checkpoint_path = Path(
+                feature_checkpoint_path, "model_weights_dropout_no_dx.pt"
+            )
 
         (
             train_dataset,
@@ -124,9 +129,12 @@ def get_output(if_low_entropy=False):
             c_dim=c_dim,
             learning_rate=hyperparameters.get("learning_rate"),
             non_linear=True,
+            dropout=dropout,
         ).to(DEVICE)
 
         model.load_state_dict(torch.load(checkpoint_path))
+
+        model.eval()
 
         output_data_with_dev = compute_distance_deviation(
             model,
@@ -149,6 +157,12 @@ def get_output(if_low_entropy=False):
                 "output_data_low_entropy",
             )
 
+        if dropout:
+            output_data_save_path = Path(
+                cVAE_discover_results_path,
+                "output_data_dropout",
+            )
+
         if not output_data_save_path.exists():
             output_data_save_path.mkdir(parents=True)
 
@@ -161,4 +175,7 @@ def get_output(if_low_entropy=False):
 
 
 if __name__ == "__main__":
-    get_output(if_low_entropy=False)
+    get_output(
+        if_low_entropy=False,
+        dropout=True,
+    )

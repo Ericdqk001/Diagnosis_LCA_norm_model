@@ -8,6 +8,7 @@ import torch
 from scipy.stats import shapiro
 from sklearn.covariance import MinCovDet
 from sklearn.preprocessing import StandardScaler
+from torch import nn
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -54,6 +55,38 @@ def latent_deviation(mu_train, mu_sample, var_sample):
 def separate_latent_deviation(mu_train, mu_sample, var_sample):
     var = np.var(mu_train, axis=0)
     return (mu_sample - np.mean(mu_train, axis=0)) / np.sqrt(var + var_sample)
+
+
+def recon_dev_weighted_by_uncertainty():
+    pass
+
+
+def reconstruction_deviation(x, x_pred):
+    feat_dim = x.shape[1]
+    dev = np.sum(np.sqrt((x - x_pred) ** 2), axis=1) / feat_dim
+    return dev
+
+
+def uncertainty_deviation(model, x, x_cov, num_samples=500):
+    for m in model.modules():
+        if isinstance(m, nn.Dropout):
+            m.train()
+
+    decoder_outputs = torch.cat(
+        [
+            torch.tensor(model.pred_recon(x, x_cov, DEVICE)).unsqueeze(0)
+            for _ in range(num_samples)
+        ],
+        dim=0,
+    )
+
+    print(decoder_outputs.shape)
+
+    variance = torch.var(decoder_outputs, dim=0).mean(1).numpy()
+
+    print(variance.shape)
+
+    return variance
 
 
 def U_test_p_values(
@@ -396,6 +429,12 @@ def compute_distance_deviation(
     for i in range(latent_dim):
         output_data["latent_deviation_{0}".format(i)] = individual_deviation[:, i]
 
+    # Uncertainty deviation here
+
+    output_data["uncertainty_deviation"] = uncertainty_deviation(
+        model, test_dataset, test_cov
+    )
+
     return output_data
 
 
@@ -637,12 +676,6 @@ def test_correlate_distance_symptom_severity(
     results_df = pd.DataFrame(results)
 
     return results_df
-
-
-def reconstruction_deviation(x, x_pred):
-    feat_dim = x.shape[1]
-    dev = np.sum(np.sqrt((x - x_pred) ** 2), axis=1) / feat_dim
-    return dev
 
 
 # Interpretation

@@ -1,0 +1,16 @@
+Group,Test,Statistic,P-Value,Feature
+control,Shapiro-Wilk,0.765088478550644,9.512550980755993e-22,t1w_cortical_thickness_rois
+inter_test,Shapiro-Wilk,0.7181765750924141,6.396377986808746e-32,t1w_cortical_thickness_rois
+exter_test,Shapiro-Wilk,0.789186407085742,1.119777600905412e-16,t1w_cortical_thickness_rois
+high_test,Shapiro-Wilk,0.7945776421442651,6.100665791151541e-15,t1w_cortical_thickness_rois
+All,Levene,2.2344597040306673,0.08246769869157282,t1w_cortical_thickness_rois
+control,Shapiro-Wilk,0.8617632750316329,7.410734045347863e-17,t1w_cortical_volume_rois
+inter_test,Shapiro-Wilk,0.8512078056903176,1.7433965659902592e-24,t1w_cortical_volume_rois
+exter_test,Shapiro-Wilk,0.8903451921576575,1.0710007339770812e-11,t1w_cortical_volume_rois
+high_test,Shapiro-Wilk,0.8461986841480149,8.926350612512213e-13,t1w_cortical_volume_rois
+All,Levene,1.669861368368889,0.17161540706910128,t1w_cortical_volume_rois
+control,Shapiro-Wilk,0.8802254627984394,1.1936387062493305e-15,t1w_cortical_surface_area_rois
+inter_test,Shapiro-Wilk,0.8446387148729143,5.906038708032961e-25,t1w_cortical_surface_area_rois
+exter_test,Shapiro-Wilk,0.9278070827370092,5.0581881305349894e-09,t1w_cortical_surface_area_rois
+high_test,Shapiro-Wilk,0.9098152347177285,2.8336433170544694e-09,t1w_cortical_surface_area_rois
+All,Levene,1.348585201537128,0.25702852614895283,t1w_cortical_surface_area_rois
