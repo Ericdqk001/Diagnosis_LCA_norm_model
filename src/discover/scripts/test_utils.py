@@ -57,14 +57,14 @@ def separate_latent_deviation(mu_train, mu_sample, var_sample):
     return (mu_sample - np.mean(mu_train, axis=0)) / np.sqrt(var + var_sample)
 
 
-def recon_dev_weighted_by_uncertainty():
-    pass
-
-
 def reconstruction_deviation(x, x_pred):
     feat_dim = x.shape[1]
     dev = np.sum(np.sqrt((x - x_pred) ** 2), axis=1) / feat_dim
     return dev
+
+
+def recon_dev_weighted_by_uncertainty(model, x, x_cov, num_samples=500):
+    pass
 
 
 def uncertainty_deviation(model, x, x_cov, num_samples=500):
@@ -80,11 +80,7 @@ def uncertainty_deviation(model, x, x_cov, num_samples=500):
         dim=0,
     )
 
-    print(decoder_outputs.shape)
-
     variance = torch.var(decoder_outputs, dim=0).mean(1).numpy()
-
-    print(variance.shape)
 
     return variance
 

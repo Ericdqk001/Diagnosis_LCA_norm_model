@@ -27,17 +27,33 @@ feature_sets = {
 metric = "uncertainty_deviation"
 
 
-def discover(if_low_entropy: bool = False):
+def discover(
+    metric,
+    if_low_entropy: bool = False,
+    dropout: bool = False,
+):
 
     output_data_save_path = Path(
         cVAE_discover_results_path,
-        "output_data_dropout",
+        "output_data",
     )
 
     if if_low_entropy:
         output_data_save_path = Path(
             cVAE_discover_results_path,
             "output_data_low_entropy",
+        )
+
+    if dropout:
+        output_data_save_path = Path(
+            cVAE_discover_results_path,
+            "output_data_dropout",
+        )
+
+    if if_low_entropy and not dropout:
+        output_data_save_path = Path(
+            cVAE_discover_results_path,
+            "output_data_low_entropy_dropout",
         )
 
     U_test_results = []
