@@ -137,6 +137,6 @@ def discover(if_low_entropy: bool = False):
 
 if __name__ == "__main__":
 
-    discover(if_low_entropy=True)
+    discover(if_low_entropy=False)
 
     # TODO Test the normality and equal variance assumptions test pipelines

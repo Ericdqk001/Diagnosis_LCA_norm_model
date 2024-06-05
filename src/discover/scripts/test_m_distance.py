@@ -210,4 +210,4 @@ def discover(if_low_entropy: bool = False):
 
 
 if __name__ == "__main__":
-    discover(if_low_entropy=False)
+    discover(if_low_entropy=True)

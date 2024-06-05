@@ -51,38 +51,95 @@ class Encoder(nn.Module):
 
 
 class Decoder(nn.Module):
-    def __init__(self, input_dim, hidden_dim, c_dim, non_linear=False, init_logvar=-3):
+    def __init__(
+        self,
+        input_dim,
+        hidden_dim,
+        c_dim,
+        non_linear=False,
+        init_logvar=-3,
+        dropout=False,
+        dropout_rate=0.05,
+    ):
         super().__init__()
         self.input_size = input_dim
         self.hidden_dims = hidden_dim[::-1]
         self.non_linear = non_linear
+        self.dropout = dropout
         self.init_logvar = init_logvar
         self.c_dim = c_dim
+        self.dropout_rate = dropout_rate
         self.layer_sizes_decoder = self.hidden_dims + [input_dim]
         self.layer_sizes_decoder[0] = self.hidden_dims[0] + c_dim
-        lin_layers = [
-            nn.Linear(dim0, dim1, bias=True)
-            for dim0, dim1 in zip(
-                self.layer_sizes_decoder[:-1], self.layer_sizes_decoder[1:]
-            )
-        ]
-        self.decoder_layers = nn.Sequential(*lin_layers[0:-1])
+
+        # Create layers for the decoder
+        layers = []
+        for dim0, dim1 in zip(
+            self.layer_sizes_decoder[:-1], self.layer_sizes_decoder[1:-1]
+        ):
+            layers.append(nn.Linear(dim0, dim1, bias=True))
+            if self.non_linear:
+                layers.append(nn.ReLU())
+            if self.dropout:
+                layers.append(nn.Dropout(self.dropout_rate))
+
+        # Adding the final linear layer separately
+        self.decoder_layers = nn.Sequential(*layers)
         self.decoder_mean_layer = nn.Linear(
             self.layer_sizes_decoder[-2], self.layer_sizes_decoder[-1], bias=True
         )
+
+        # Parameter for the output noise
         tmp_noise_par = torch.FloatTensor(1, self.input_size).fill_(self.init_logvar)
         self.logvar_out = Parameter(data=tmp_noise_par, requires_grad=True)
 
     def forward(self, z, c):
         c = c.reshape(-1, self.c_dim)
         x_rec = torch.cat((z, c), dim=1)
-        for it_layer, layer in enumerate(self.decoder_layers):
-            x_rec = layer(x_rec)
-            if self.non_linear:
-                x_rec = F.relu(x_rec)
 
+        # Pass through decoder layers
+        x_rec = self.decoder_layers(x_rec)
+
+        # Output mean from the last layer
         mu_out = self.decoder_mean_layer(x_rec)
+
+        # Create a normal distribution with the mean and standard deviation
         return Normal(loc=mu_out, scale=self.logvar_out.exp().pow(0.5))
+
+
+# class Decoder(nn.Module):
+#     def __init__(self, input_dim, hidden_dim, c_dim, non_linear=False, init_logvar=-3):
+#         super().__init__()
+#         self.input_size = input_dim
+#         self.hidden_dims = hidden_dim[::-1]
+#         self.non_linear = non_linear
+#         self.init_logvar = init_logvar
+#         self.c_dim = c_dim
+#         self.layer_sizes_decoder = self.hidden_dims + [input_dim]
+#         self.layer_sizes_decoder[0] = self.hidden_dims[0] + c_dim
+#         lin_layers = [
+#             nn.Linear(dim0, dim1, bias=True)
+#             for dim0, dim1 in zip(
+#                 self.layer_sizes_decoder[:-1], self.layer_sizes_decoder[1:]
+#             )
+#         ]
+#         self.decoder_layers = nn.Sequential(*lin_layers[0:-1])
+#         self.decoder_mean_layer = nn.Linear(
+#             self.layer_sizes_decoder[-2], self.layer_sizes_decoder[-1], bias=True
+#         )
+#         tmp_noise_par = torch.FloatTensor(1, self.input_size).fill_(self.init_logvar)
+#         self.logvar_out = Parameter(data=tmp_noise_par, requires_grad=True)
+
+#     def forward(self, z, c):
+#         c = c.reshape(-1, self.c_dim)
+#         x_rec = torch.cat((z, c), dim=1)
+#         for it_layer, layer in enumerate(self.decoder_layers):
+#             x_rec = layer(x_rec)
+#             if self.non_linear:
+#                 x_rec = F.relu(x_rec)
+
+#         mu_out = self.decoder_mean_layer(x_rec)
+#         return Normal(loc=mu_out, scale=self.logvar_out.exp().pow(0.5))
 
 
 class cVAE(nn.Module):
@@ -94,6 +151,7 @@ class cVAE(nn.Module):
         c_dim,
         learning_rate=0.001,
         non_linear=False,
+        dropout=False,
     ):
 
         super().__init__()
@@ -112,6 +170,7 @@ class cVAE(nn.Module):
             hidden_dim=self.hidden_dim,
             c_dim=c_dim,
             non_linear=non_linear,
+            dropout=dropout,
         )
         self.optimizer = torch.optim.Adam(
             list(self.encoder.parameters()) + list(self.decoder.parameters()),
