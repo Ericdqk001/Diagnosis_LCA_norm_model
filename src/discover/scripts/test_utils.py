@@ -63,8 +63,10 @@ def reconstruction_deviation(x, x_pred):
     return dev
 
 
-def recon_dev_weighted_by_uncertainty(model, x, x_cov, num_samples=500):
-    pass
+def weighted_reconstruction_deviation(x, x_pred, weights):
+    feat_dim = x.shape[1]
+    dev = np.sum(np.sqrt((x - x_pred) ** 2) * weights, axis=1) / feat_dim
+    return dev
 
 
 def uncertainty_deviation(model, x, x_cov, num_samples=500):
@@ -80,9 +82,11 @@ def uncertainty_deviation(model, x, x_cov, num_samples=500):
         dim=0,
     )
 
-    variance = torch.var(decoder_outputs, dim=0).mean(1).numpy()
+    varience = torch.var(decoder_outputs, dim=0).numpy()
 
-    return variance
+    total_variance = torch.var(decoder_outputs, dim=0).mean(1).numpy()
+
+    return total_variance, varience
 
 
 def U_test_p_values(
@@ -430,8 +434,16 @@ def compute_distance_deviation(
 
     if dropout:
 
-        output_data["uncertainty_deviation"] = uncertainty_deviation(
+        output_data["uncertainty_deviation"], variance = uncertainty_deviation(
             model, test_dataset, test_cov
+        )
+
+        output_data["weighted_reconstruction_deviation"] = (
+            weighted_reconstruction_deviation(
+                test_dataset.to_numpy(),
+                test_prediction,
+                variance,
+            )
         )
 
     return output_data

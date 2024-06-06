@@ -59,7 +59,7 @@ class DropoutDecoder(nn.Module):
         non_linear=False,
         init_logvar=-3,
         dropout=False,
-        dropout_rate=0.05,
+        dropout_rate=0.20,
     ):
         super().__init__()
         self.input_size = input_dim
