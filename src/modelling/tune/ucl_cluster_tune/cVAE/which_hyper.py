@@ -32,14 +32,7 @@ for feature in features_set:
         low_memory=False,
     )
 
-    # Remove the rows for which the list value of the 'hidden_dim' column only have one element
 
-    # Remove the rows for which the list value of the 'hidden_dim' key in the 'config' column only have one element
-    cVAE_volume_results = cVAE_volume_results[
-        cVAE_volume_results["config"].apply(
-            lambda x: len(ast.literal_eval(x)["hidden_dim"]) > 1
-        )
-    ]
     # Find the index of the row with the maximum average_separation
     max_average_separation_index = cVAE_volume_results["average_val_loss"].idxmin()
 

@@ -1,13 +1,13 @@
 Cohort,Syndrome,Correlation,P-Value,Feature
-Internalizing,cbcl_scr_syn_internal_t,0.019000084597759544,0.6253019336829773,Cortical Thickness
-Internalizing,cbcl_scr_syn_external_t,0.07344715793048148,0.05873656819704086,Cortical Thickness
-Internalizing,cbcl_scr_syn_totprob_t,0.04385531301749558,0.25947502771773084,Cortical Thickness
-Externalizing,cbcl_scr_syn_internal_t,-0.04256161492330942,0.5262588023183213,Cortical Thickness
-Externalizing,cbcl_scr_syn_external_t,0.09654016495257983,0.14982124472260944,Cortical Thickness
-Externalizing,cbcl_scr_syn_totprob_t,0.06935886414700355,0.3013672248566565,Cortical Thickness
-High Symptom,cbcl_scr_syn_internal_t,0.03362728766408006,0.6477485566720977,Cortical Thickness
-High Symptom,cbcl_scr_syn_external_t,0.1928064720444325,0.00819899991942816,Cortical Thickness
-High Symptom,cbcl_scr_syn_totprob_t,0.15414715346000202,0.03516937183040842,Cortical Thickness
+Internalizing,cbcl_scr_syn_internal_t,0.021872574329087714,0.57398197271669,Cortical Thickness
+Internalizing,cbcl_scr_syn_external_t,0.06084753419591555,0.11752565187037414,Cortical Thickness
+Internalizing,cbcl_scr_syn_totprob_t,0.04037367450845736,0.2992539000465093,Cortical Thickness
+Externalizing,cbcl_scr_syn_internal_t,-0.020284452365631988,0.7627111829782103,Cortical Thickness
+Externalizing,cbcl_scr_syn_external_t,0.10025769325183123,0.13468069064418411,Cortical Thickness
+Externalizing,cbcl_scr_syn_totprob_t,0.08327131038439169,0.2144301495891741,Cortical Thickness
+High Symptom,cbcl_scr_syn_internal_t,0.03679146196299577,0.6171373809198037,Cortical Thickness
+High Symptom,cbcl_scr_syn_external_t,0.16961994695564175,0.020297209982428684,Cortical Thickness
+High Symptom,cbcl_scr_syn_totprob_t,0.14243838079656865,0.05181321473520754,Cortical Thickness
 Internalizing,cbcl_scr_syn_internal_t,-0.001136540652503829,0.9766976405416264,Cortical Volume
 Internalizing,cbcl_scr_syn_external_t,-0.02054689535492355,0.5974194948249898,Cortical Volume
 Internalizing,cbcl_scr_syn_totprob_t,-0.01595520596133424,0.6817486868412537,Cortical Volume

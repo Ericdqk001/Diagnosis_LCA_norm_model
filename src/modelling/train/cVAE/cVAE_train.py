@@ -17,11 +17,12 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 parser = ArgumentParser(description="Tune cVAE")
 
 
-# python src/modelling/train/cVAE/cVAE_train.py --data_path "data/processed_data" --feature_type "cortical_thickness" --project_title "cVAE_rsfmri_final_train" --batch_size 256 --learning_rate 0.0005 --latent_dim 10 --hidden_dim "40-40" --dropout True
+# python src/modelling/train/cVAE/cVAE_train.py --data_path "data/processed_data" --feature_type "cortical_thickness" --project_title "cVAE_rsfmri_final_train" --batch_size 256 --learning_rate 0.0005 --latent_dim 10 --hidden_dim "40"
 
-# python src/modelling/train/cVAE/cVAE_train.py --data_path "data/processed_data" --feature_type "cortical_volume" --project_title "cVAE_rsfmri_final_train" --batch_size 256 --learning_rate 0.001 --latent_dim 10 --hidden_dim "30-30" --dropout True
+# python src/modelling/train/cVAE/cVAE_train.py --data_path "data/processed_data" --feature_type "cortical_volume" --project_title "cVAE_rsfmri_final_train" --batch_size 256 --learning_rate 0.001 --latent_dim 10 --hidden_dim "30-30"
 
-# python src/modelling/train/cVAE/cVAE_train.py --data_path "data/processed_data" --feature_type "cortical_surface_area" --project_title "cVAE_rsfmri_final_train" --batch_size 256 --learning_rate 0.0005 --latent_dim 10 --hidden_dim "30-30" --dropout True
+# python src/modelling/train/cVAE/cVAE_train.py --data_path "data/processed_data" --feature_type "cortical_surface_area" --project_title "cVAE_rsfmri_final_train" --batch_size 256 --learning_rate 0.0005 --latent_dim 10 --hidden_dim "30-30"
+
 
 def int_parse_list(arg_value):
     return [int(x) for x in arg_value.split("-")]
@@ -68,12 +69,6 @@ parser.add_argument(
     type=int_parse_list,
     default=[30],
     help="Pass dimensions of multiple hidden layers, use ';' to separate layers and '-' to separate dimensions within layers, e.g., '30-30;40-40-40'",
-)
-parser.add_argument(
-    "--dropout",
-    type=bool,
-    default=False,
-    help="Use dropout in the decoder",
 )
 
 args = parser.parse_args()
@@ -151,7 +146,6 @@ def build_model(
         c_dim=c_dim,
         learning_rate=config.learning_rate,
         non_linear=True,
-        dropout=config.dropout,
     ).to(DEVICE)
 
     # if isinstance(model, nn.Module):
@@ -273,9 +267,6 @@ def train(
 
             model_checkpoint_name = "model_weights_no_dx.pt"
 
-            if config.dropout:
-                model_checkpoint_name = "model_weights_dropout_no_dx.pt"
-
             torch.save(
                 best_model,
                 Path(CHECKPOINT_PATH, model_checkpoint_name),
@@ -372,7 +363,6 @@ if __name__ == "__main__":
     learning_rate = args.learning_rate
     latent_dim = args.latent_dim
     hidden_dim = args.hidden_dim
-    dropout = args.dropout
 
     with wandb.init(
         project=f"cVAE_{feature_type}_final_train",
@@ -381,7 +371,6 @@ if __name__ == "__main__":
             "hidden_dim": hidden_dim,
             "latent_dim": latent_dim,
             "learning_rate": learning_rate,
-            "dropout": dropout,
             "epochs": 5000,
         },
     ):
