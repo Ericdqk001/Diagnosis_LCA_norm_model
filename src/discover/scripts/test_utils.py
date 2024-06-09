@@ -8,7 +8,6 @@ import torch
 from scipy.stats import shapiro
 from sklearn.covariance import MinCovDet
 from sklearn.preprocessing import StandardScaler
-from torch import nn
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -58,35 +57,55 @@ def separate_latent_deviation(mu_train, mu_sample, var_sample):
 
 
 def reconstruction_deviation(x, x_pred):
-    feat_dim = x.shape[1]
-    dev = np.sum(np.sqrt((x - x_pred) ** 2), axis=1) / feat_dim
+
+    dev = np.mean(np.sqrt((x - x_pred) ** 2), axis=1)
     return dev
 
 
-def weighted_reconstruction_deviation(x, x_pred, weights):
-    feat_dim = x.shape[1]
-    dev = np.sum(np.sqrt((x - x_pred) ** 2) * weights, axis=1) / feat_dim
+def ind_reconstruction_deviation(x, x_pred):
+    dev = np.sqrt((x - x_pred) ** 2)
+
     return dev
 
 
-def uncertainty_deviation(model, x, x_cov, num_samples=500):
-    for m in model.modules():
-        if isinstance(m, nn.Dropout):
-            m.train()
+def standardise_reconstruction_deviation(output_data):
+    control_recon_dev = output_data["reconstruction_deviation"][
+        output_data["low_symp_test_subs"] == 1
+    ].values
 
-    decoder_outputs = torch.cat(
+    inter_test_recon_dev = output_data["reconstruction_deviation"][
+        output_data["inter_test_subs"] == 1
+    ].values
+
+    exter_test_recon_dev = output_data["reconstruction_deviation"][
+        output_data["exter_test_subs"] == 1
+    ].values
+
+    high_test_recon_dev = output_data["reconstruction_deviation"][
+        output_data["high_test_subs"] == 1
+    ].values
+
+    mu = np.mean(control_recon_dev)
+    sigma = np.std(control_recon_dev)
+
+    control_recon_dev = (control_recon_dev - mu) / sigma
+
+    inter_test_recon_dev = (inter_test_recon_dev - mu) / sigma
+
+    exter_test_recon_dev = (exter_test_recon_dev - mu) / sigma
+
+    high_test_recon_dev = (high_test_recon_dev - mu) / sigma
+
+    standardised_recon_dev = np.concatenate(
         [
-            torch.tensor(model.pred_recon(x, x_cov, DEVICE)).unsqueeze(0)
-            for _ in range(num_samples)
-        ],
-        dim=0,
+            control_recon_dev,
+            inter_test_recon_dev,
+            exter_test_recon_dev,
+            high_test_recon_dev,
+        ]
     )
 
-    varience = torch.var(decoder_outputs, dim=0).numpy()
-
-    total_variance = torch.var(decoder_outputs, dim=0).mean(1).numpy()
-
-    return total_variance, varience
+    return standardised_recon_dev
 
 
 def U_test_p_values(
@@ -100,28 +119,39 @@ def U_test_p_values(
     p_values = []
 
     # Extract mahalanobis distances for each group
-    control_distance = output_data[metric][
+    control_deviation = output_data[metric][
         output_data["low_symp_test_subs"] == 1
     ].values
-    inter_test_distance = output_data[metric][
+    inter_test_deviation = output_data[metric][
         output_data["inter_test_subs"] == 1
     ].values
-    exter_test_distance = output_data[metric][
+    exter_test_deviation = output_data[metric][
         output_data["exter_test_subs"] == 1
     ].values
-    high_test_distance = output_data[metric][output_data["high_test_subs"] == 1].values
+    high_test_deviation = output_data[metric][output_data["high_test_subs"] == 1].values
 
     # Define the groups to test against control
     test_groups = {
-        "inter_test": inter_test_distance,
-        "exter_test": exter_test_distance,
-        "high_test": high_test_distance,
+        "inter_test": inter_test_deviation,
+        "exter_test": exter_test_deviation,
+        "high_test": high_test_deviation,
     }
 
+    print("Metric:", metric)
+
+    _, shapiro_p = stats.shapiro(control_deviation)
+
+    print("Shapiro-Wilk Test p-value for control:", shapiro_p)
+
     # Perform Mann-Whitney U test for each group
-    for group, distances in test_groups.items():
+    for group, deviations in test_groups.items():
+
+        _, shapiro_p = stats.shapiro(deviations)
+
+        print("Shapiro-Wilk Test p-value for", group, ":", shapiro_p)
+
         u_stat, p_value = stats.mannwhitneyu(
-            control_distance, distances, alternative="two-sided"
+            control_deviation, deviations, alternative="two-sided"
         )
         cohorts.append(group)
         u_stats.append(u_stat)
@@ -366,6 +396,30 @@ def prepare_inputs_cVAE(
     # Create the DataFrame with indexes set by test_set_subs
     output_data = pd.DataFrame(output_data, index=test_subs)
 
+    # Join cbcl summary scales for later correlation tests
+    data_path = Path(
+        "data",
+        "raw_data",
+        "core",
+        "mental-health",
+        "mh_p_cbcl.csv",
+    )
+
+    # Load CBCL scores and variable names
+    cbcl = pd.read_csv(data_path, index_col=0, low_memory=False)
+
+    sum_syndrome = [
+        "cbcl_scr_syn_internal_t",
+        "cbcl_scr_syn_external_t",
+        "cbcl_scr_syn_totprob_t",
+    ]
+
+    baseline_cbcl = cbcl[cbcl["eventname"] == "baseline_year_1_arm_1"]
+
+    filtered_cbcl = baseline_cbcl[sum_syndrome]
+
+    output_data = output_data.join(filtered_cbcl, how="left")
+
     return (
         train_dataset,
         test_dataset,
@@ -385,7 +439,6 @@ def compute_distance_deviation(
     test_cov=None,
     latent_dim=None,
     output_data=None,
-    dropout=False,
 ) -> pd.DataFrame:
     """Computes the mahalanobis distance of test samples from the distribution of the
     training samples.
@@ -420,6 +473,19 @@ def compute_distance_deviation(
         test_prediction,
     )
 
+    # Record reconstruction deviation for each brain region
+
+    for i in range(test_prediction.shape[1]):
+
+        output_data[f"reconstruction_deviation_{i}"] = ind_reconstruction_deviation(
+            test_dataset.to_numpy()[:, i],
+            test_prediction[:, i],
+        )
+
+    output_data["standardised_reconstruction_deviation"] = (
+        standardise_reconstruction_deviation(output_data)
+    )
+
     output_data["latent_deviation"] = latent_deviation(
         train_latent, test_latent, test_var
     )
@@ -430,23 +496,27 @@ def compute_distance_deviation(
     for i in range(latent_dim):
         output_data["latent_deviation_{0}".format(i)] = individual_deviation[:, i]
 
-    # Uncertainty deviation here
-
-    if dropout:
-
-        output_data["uncertainty_deviation"], variance = uncertainty_deviation(
-            model, test_dataset, test_cov
-        )
-
-        output_data["weighted_reconstruction_deviation"] = (
-            weighted_reconstruction_deviation(
-                test_dataset.to_numpy(),
-                test_prediction,
-                variance,
-            )
-        )
-
     return output_data
+
+
+# def get_mean_std_recon_deviation(
+#     x_norm: np.ndarray,
+#     x_pred_norm: np.ndarray,
+# ):
+#     recon_deviation = individual_reconstruction_deviation(x_norm, x_pred_norm)
+#     mean_recon_deviation = np.mean(recon_deviation)
+#     std_recon_deviation = np.std(recon_deviation)
+#     return mean_recon_deviation, std_recon_deviation
+
+
+# def individual_brain_region_deviation(
+#     x, x_pred, mean_recon_deviation, std_recon_deviation
+# ):
+#     recon_deviation = individual_reconstruction_deviation(x, x_pred)
+#     normalised_recon_deviation = (
+#         recon_deviation - mean_recon_deviation
+#     ) / std_recon_deviation
+#     return normalised_recon_deviation
 
 
 def compute_interpret_distance_deviation(
@@ -615,53 +685,42 @@ def test_correlate_distance_symptom_severity(
     output_data,
     metric="mahalanobis_distance",
 ):
-    data_path = Path(
-        "data",
-        "raw_data",
-        "core",
-        "mental-health",
-        "mh_p_cbcl.csv",
-    )
-
-    # cbcl_t_vars_path = Path(
-    #     "data",
-    #     "var_dict",
-    #     "cbcl_8_dim_t.csv",
-    # )
-
-    # Load CBCL scores and variable names
-    cbcl = pd.read_csv(data_path, index_col=0, low_memory=False)
-
-    # cbcl_t_vars_df = pd.read_csv(cbcl_t_vars_path)
-    # cbcl_t_vars = cbcl_t_vars_df["var_name"].tolist()
-
     sum_syndrome = [
-        "cbcl_scr_syn_internal_t",
-        "cbcl_scr_syn_external_t",
+        # "cbcl_scr_syn_internal_t",
+        # "cbcl_scr_syn_external_t",
         "cbcl_scr_syn_totprob_t",
     ]
 
-    baseline_cbcl = cbcl[cbcl["eventname"] == "baseline_year_1_arm_1"]
+    control_data = output_data[output_data["low_symp_test_subs"] == 1]
 
-    # Filter columns with t variables
-    filtered_cbcl = baseline_cbcl[sum_syndrome].dropna()
+    inter_test_data = output_data[output_data["inter_test_subs"] == 1]
 
-    # Merge datasets
-    inter_test_data = output_data[output_data["inter_test_subs"] == 1].join(
-        filtered_cbcl, how="inner"
-    )
-    exter_test_data = output_data[output_data["exter_test_subs"] == 1].join(
-        filtered_cbcl, how="inner"
-    )
-    high_test_data = output_data[output_data["high_test_subs"] == 1].join(
-        filtered_cbcl, how="inner"
-    )
+    exter_test_data = output_data[output_data["exter_test_subs"] == 1]
+
+    high_test_data = output_data[output_data["high_test_subs"] == 1]
 
     # Prepare to store results
     results = []
 
+    # Calculate correlation for the entire test set
+    for syndrome in sum_syndrome:
+        # Compute the Spearman correlation and the p-value
+        correlation, p_value = stats.spearmanr(
+            output_data[metric], output_data[syndrome]
+        )
+        results.append(
+            {
+                "Cohort": "All",
+                "Syndrome": syndrome,
+                "Correlation": correlation,
+                "P-Value": p_value,
+                "Feature": feature,
+            }
+        )
+
     # Calculate correlation for each cohort
     cohorts = {
+        "Control": control_data,
         "Internalizing": inter_test_data,
         "Externalizing": exter_test_data,
         "High Symptom": high_test_data,

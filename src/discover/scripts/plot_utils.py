@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import torch
+from scipy.stats import linregress
 from statsmodels.stats.multitest import multipletests
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -34,9 +35,7 @@ def plot_histograms(
     # Create a figure with subplots (1 row, 3 columns)
     fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(18, 6))
     fig.suptitle(
-        "Distribution of Mahalanobis Distances by Group for Feature: {}".format(
-            feature
-        ),
+        "Distribution of Deviations by Group for Feature: {}".format(feature),
         fontweight="bold",
     )
 
@@ -74,7 +73,7 @@ def plot_histograms(
             bins=20,
             alpha=0.75,
             color=color,
-            label=group_name,
+            label="Case",
             histtype="stepfilled",
         )
         ax.set_title("{} vs Control".format(group_name))
@@ -90,7 +89,7 @@ def plot_histograms(
             np.median(group_distance),
             color=color,
             linestyle="--",
-            label=f"{group_name} Median",
+            label="Case Median",
         )
 
         # Fetch and annotate the p-value for the current group
@@ -113,7 +112,8 @@ def plot_histograms(
             ),
         )
 
-        ax.set_xlabel("Mahalanobis Distance")
+        ax.set_xlabel("Deviation Z-Score")
+
         ax.legend()
 
     # Adjust layout
@@ -141,7 +141,7 @@ def plot_boxplots(
     # Create a figure for the boxplots
     fig, ax = plt.subplots(figsize=(10, 6))  # Adjust the size as needed
     fig.suptitle(
-        f"Boxplots of Mahalanobis Distances by Group for Feature: {feature}",
+        f"Boxplots of Deviations by Group for Feature: {feature}",
         fontweight="bold",
     )
 
@@ -387,3 +387,51 @@ def plot_ind_dim_violin(feature, output_data, latent_dim, ind_dim_dev_U_test_res
         plt.legend(title="Group", title_fontsize="13", fontsize="12")
         plt.tight_layout()
         plt.show()
+
+
+def plot_correlations(
+    feature,
+    output_data,
+    metric="mahalanobis_distance",
+):
+    # Extract data for plotting
+    x = output_data["cbcl_scr_syn_totprob_t"]
+    y = output_data[metric]
+
+    # Compute the linear regression and correlation
+    slope, intercept, r_value, p_value, std_err = linregress(x, y)
+
+    # Create scatter plot
+
+    metric_names = {
+        "mahalanobis_distance": "Mahalanobis Distance",
+        "latent_deviation": "Latent Deviation",
+        "reconstruction_deviation": "Reconstruction Deviation",
+        "standardised_reconstruction_deviation": "Reconstruction Deviation Z-Score",
+    }
+
+    plt.figure(figsize=(10, 6))
+    plt.scatter(
+        x,
+        y,
+        alpha=0.6,
+        label="Deviations vs. CBCL Total Problem T-Score",
+    )
+
+    # Add regression line
+    plt.plot(
+        x,
+        intercept + slope * x,
+        "r",
+        label=f"Fit line: r={r_value:.2f} p={p_value:.4f}",
+    )
+
+    # Labeling the axes
+    plt.xlabel("CBCL Score Total Problem T-Score")
+    plt.ylabel(metric)
+    plt.title(f"Scatter Plot of Deviations against CBCL Score for {feature}")
+    plt.legend()
+    plt.grid(True)
+
+    # Show plot
+    plt.show()

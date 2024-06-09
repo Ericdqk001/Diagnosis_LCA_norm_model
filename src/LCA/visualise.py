@@ -11,7 +11,7 @@ lca_path = Path(
 # Load conditional probabilities for each latent class
 cbcl_LCA_path = Path(
     lca_path,
-    "lcmodel_prob_class_inter_exter.csv",
+    "lcmodel_prob_class.csv",
 )
 
 LCA_cond_prob = pd.read_csv(

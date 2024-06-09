@@ -17,7 +17,7 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 parser = ArgumentParser(description="Tune cVAE")
 
 
-# python src/modelling/train/cVAE/cVAE_train.py --data_path "data/processed_data" --feature_type "cortical_thickness" --project_title "cVAE_rsfmri_final_train" --batch_size 256 --learning_rate 0.0005 --latent_dim 10 --hidden_dim "40"
+# python src/modelling/train/cVAE/cVAE_train.py --data_path "data/processed_data" --feature_type "cortical_thickness" --project_title "cVAE_rsfmri_final_train" --batch_size 256 --learning_rate 0.0005 --latent_dim 25 --hidden_dim "40"
 
 # python src/modelling/train/cVAE/cVAE_train.py --data_path "data/processed_data" --feature_type "cortical_volume" --project_title "cVAE_rsfmri_final_train" --batch_size 256 --learning_rate 0.001 --latent_dim 10 --hidden_dim "30-30"
 

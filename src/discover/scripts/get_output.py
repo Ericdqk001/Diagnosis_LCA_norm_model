@@ -71,11 +71,6 @@ cVAE_feature_hyper = {
         "latent_dim": 10,
         "hidden_dim": [30, 30],
     },
-    "gordon_net_subcor_limbic_no_dup": {
-        "learning_rate": 0.001,
-        "latent_dim": 10,
-        "hidden_dim": [30, 30],
-    },
 }
 
 

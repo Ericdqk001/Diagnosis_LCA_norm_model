@@ -3,6 +3,7 @@ from pathlib import Path
 import pandas as pd
 from discover.scripts.plot_utils import (
     plot_boxplots,
+    plot_correlations,
     plot_histograms,
 )
 from discover.scripts.test_utils import (
@@ -31,7 +32,7 @@ feature_sets = {
 }
 
 
-def discover():
+def discover(metric="reconstruction_deviation"):
 
     U_test_results = []
 
@@ -58,14 +59,14 @@ def discover():
         plot_boxplots(
             feature=feature_sets[feature],
             output_data=feature_output_data,
-            metric="reconstruction_deviation",
+            metric=metric,
         )
 
         # Test assumptions of normality and homogeneity of variance
         assumption_test_result = test_assumptions_for_u_test(
             feature=feature,
             output_data=feature_output_data,
-            metric="reconstruction_deviation",
+            metric=metric,
         )
 
         assumption_test_results.append(
@@ -74,14 +75,20 @@ def discover():
 
         U_test_result = U_test_p_values(
             output_data=feature_output_data,
-            metric="reconstruction_deviation",
+            metric=metric,
         )
 
         plot_histograms(
             feature=feature_sets[feature],
             output_data=feature_output_data,
             p_values_df=U_test_result,
-            metric="reconstruction_deviation",
+            metric=metric,
+        )
+
+        plot_correlations(
+            feature=feature_sets[feature],
+            output_data=feature_output_data,
+            metric=metric,
         )
 
         U_test_result["Feature"] = feature_sets[feature]
@@ -93,7 +100,7 @@ def discover():
         correlation_result = test_correlate_distance_symptom_severity(
             feature=feature_sets[feature],
             output_data=feature_output_data,
-            metric="reconstruction_deviation",
+            metric=metric,
         )
 
         correlation_result["Feature"] = feature_sets[feature]
@@ -102,60 +109,60 @@ def discover():
             correlation_result,
         )
 
-    U_test_results_df = pd.concat(U_test_results)
+    # U_test_results_df = pd.concat(U_test_results)
 
-    assumption_test_results_df = pd.concat(assumption_test_results)
+    # assumption_test_results_df = pd.concat(assumption_test_results)
 
-    assumption_test_results_path = Path(
-        cVAE_discover_results_path,
-        "assumption_test_results",
-    )
+    # assumption_test_results_path = Path(
+    #     cVAE_discover_results_path,
+    #     "assumption_test_results",
+    # )
 
-    if not assumption_test_results_path.exists():
-        assumption_test_results_path.mkdir(parents=True)
+    # if not assumption_test_results_path.exists():
+    #     assumption_test_results_path.mkdir(parents=True)
 
-    assumption_test_results_df.to_csv(
-        Path(
-            assumption_test_results_path,
-            "recon_dev_assumption_test_results.csv",
-        ),
-        index=False,
-    )
+    # assumption_test_results_df.to_csv(
+    #     Path(
+    #         assumption_test_results_path,
+    #         "recon_dev_assumption_test_results.csv",
+    #     ),
+    #     index=False,
+    # )
 
-    U_test_save_results_path = Path(
-        cVAE_discover_results_path,
-        "U_test_results",
-    )
+    # U_test_save_results_path = Path(
+    #     cVAE_discover_results_path,
+    #     "U_test_results",
+    # )
 
-    if not U_test_save_results_path.exists():
-        U_test_save_results_path.mkdir(parents=True)
+    # if not U_test_save_results_path.exists():
+    #     U_test_save_results_path.mkdir(parents=True)
 
-    U_test_results_df.to_csv(
-        Path(
-            U_test_save_results_path,
-            "recon_dev_U_test_results.csv",
-        ),
-        index=False,
-    )
+    # U_test_results_df.to_csv(
+    #     Path(
+    #         U_test_save_results_path,
+    #         "recon_dev_U_test_results.csv",
+    #     ),
+    #     index=False,
+    # )
 
-    correlation_results_df = pd.concat(correlation_results)
+    # correlation_results_df = pd.concat(correlation_results)
 
-    correlation_results_save_path = Path(
-        cVAE_discover_results_path,
-        "correlation_results",
-    )
+    # correlation_results_save_path = Path(
+    #     cVAE_discover_results_path,
+    #     "correlation_results",
+    # )
 
-    if not correlation_results_save_path.exists():
-        correlation_results_save_path.mkdir(parents=True)
+    # if not correlation_results_save_path.exists():
+    #     correlation_results_save_path.mkdir(parents=True)
 
-    correlation_results_df.to_csv(
-        Path(
-            correlation_results_save_path,
-            "recon_dev_correlation_results.csv",
-        ),
-        index=False,
-    )
+    # correlation_results_df.to_csv(
+    #     Path(
+    #         correlation_results_save_path,
+    #         "recon_dev_correlation_results.csv",
+    #     ),
+    #     index=False,
+    # )
 
 
 if __name__ == "__main__":
-    discover()
+    discover(metric="reconstruction_deviation")
