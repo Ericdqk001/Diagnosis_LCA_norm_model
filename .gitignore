@@ -165,3 +165,4 @@ wandb
 
 # Discover test results
 # src/discover/results
+src/interpret/plots

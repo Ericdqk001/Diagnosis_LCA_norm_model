@@ -76,12 +76,12 @@ def discover(num_brain_features=148):
     if not ind_brain_region_U_test_results_path.exists():
         ind_brain_region_U_test_results_path.mkdir(parents=True)
 
-    # feature_U_test_results_df.to_csv(
-    #     Path(
-    #         ind_brain_region_U_test_results_path,
-    #         "ind_brain_region_U_test_results.csv",
-    #     )
-    # )
+    feature_U_test_results_df.to_csv(
+        Path(
+            ind_brain_region_U_test_results_path,
+            "ind_brain_region_U_test_results.csv",
+        )
+    )
 
 
 if __name__ == "__main__":

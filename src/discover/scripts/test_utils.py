@@ -108,6 +108,18 @@ def standardise_reconstruction_deviation(output_data):
     return standardised_recon_dev
 
 
+def cliffs_delta(x, y):
+    """Compute Cliff's Delta.
+    x: Test group deviations.
+    y: Control group deviations.
+    """
+    n, m = len(x), len(y)
+    more = sum(xi > yi for xi in x for yi in y)
+    less = sum(xi < yi for xi in x for yi in y)
+    delta = (more - less) / (n * m)
+    return delta
+
+
 def U_test_p_values(
     output_data,
     metric="mahalanobis_distance",
@@ -117,6 +129,7 @@ def U_test_p_values(
     cohorts = []
     u_stats = []
     p_values = []
+    effect_sizes = []
 
     # Extract mahalanobis distances for each group
     control_deviation = output_data[metric][
@@ -137,29 +150,36 @@ def U_test_p_values(
         "high_test": high_test_deviation,
     }
 
-    print("Metric:", metric)
-
     _, shapiro_p = stats.shapiro(control_deviation)
-
-    print("Shapiro-Wilk Test p-value for control:", shapiro_p)
 
     # Perform Mann-Whitney U test for each group
     for group, deviations in test_groups.items():
 
         _, shapiro_p = stats.shapiro(deviations)
 
-        print("Shapiro-Wilk Test p-value for", group, ":", shapiro_p)
-
         u_stat, p_value = stats.mannwhitneyu(
             control_deviation, deviations, alternative="two-sided"
         )
+
+        # Note the order here, as the effect size is calculated as group - control
+        # So positive values indicate that the group has higher values than the control
+        effect_size = cliffs_delta(deviations, control_deviation)
+
+        # Compute cliff's delta effect size
+
         cohorts.append(group)
         u_stats.append(u_stat)
         p_values.append(p_value)
+        effect_sizes.append(effect_size)
 
     # Create a DataFrame from the results
     results_df = pd.DataFrame(
-        {"Cohort": cohorts, "U_statistic": u_stats, "P_value": p_values}
+        {
+            "Cohort": cohorts,
+            "U_statistic": u_stats,
+            "P_value": p_values,
+            "Effect_size": effect_sizes,
+        }
     )
 
     return results_df

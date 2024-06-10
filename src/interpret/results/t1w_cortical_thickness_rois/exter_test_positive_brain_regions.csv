@@ -1,0 +1,11 @@
+brain_features,brain_regions,variable_label,effect_size
+mrisdp_4,L G_and_S_subcentral,Cortical thickness in mm for left hemisphere cortical Destrieux ROI subcentral gyrus and sulci,0.1076403435274403
+mrisdp_40,L Lat_Fis-ant-Vertical,Cortical thickness in mm for left hemisphere cortical Destrieux ROI vertical ramus of the anterior segment of the lateral sulcus,0.1009635525764558
+mrisdp_54,L S_front_sup,Cortical thickness in mm for left hemisphere cortical Destrieux ROI superior frontal sulcus,0.1145527859237536
+mrisdp_59,L S_occipital_ant,Cortical thickness in mm for left hemisphere cortical Destrieux ROI anterior occipital sulcus and preoccipital notch,0.1304985337243401
+mrisdp_69,L S_precentral-sup-part,Cortical thickness in mm for left hemisphere cortical Destrieux ROI superior part of the precentral sulcus,0.1241883116883117
+mrisdp_89,R G_front_middle,Cortical thickness in mm for right hemisphere cortical Destrieux ROI middle frontal gyrus,0.1063049853372434
+mrisdp_95,R G_oc-temp_lat-fusifor,Cortical thickness in mm for right hemisphere cortical Destrieux ROI lateral occipito-temporal gyrus,0.1068810222036028
+mrisdp_140,R S_pericallosal,Cortical thickness in mm for right hemisphere cortical Destrieux ROI pericallosal sulcus,0.1072999581064097
+mrisdp_141,R S_postcentral,Cortical thickness in mm for right hemisphere cortical Destrieux ROI postcentral sulcus,0.1381441139505655
+mrisdp_142,R S_precentral-inf-part,Cortical thickness in mm for right hemisphere cortical Destrieux ROI inferior part of the precentral sulcus,0.1391390867197318
