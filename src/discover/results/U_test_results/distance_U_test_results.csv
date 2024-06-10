@@ -1,10 +1,10 @@
-Cohort,U_statistic,P_value,Feature
-inter_test,101235.0,0.00666436483119187,Cortical Thickness
-exter_test,32950.0,0.005754575873364015,Cortical Thickness
-high_test,28873.0,0.0726096942768342,Cortical Thickness
-inter_test,110124.0,0.5026263839617457,Cortical Volume
-exter_test,39604.0,0.4570949716846944,Cortical Volume
-high_test,31520.0,0.8285927725724404,Cortical Volume
-inter_test,108361.0,0.28214087392596954,Cortical Surface Area
-exter_test,37675.0,0.7855340528455447,Cortical Surface Area
-high_test,29009.0,0.08649919891339289,Cortical Surface Area
+Cohort,U_statistic,P_value,Effect_size,Feature
+inter_test,101235.0,0.00666436483119187,0.10444394315362057,Cortical Thickness
+exter_test,32950.0,0.005754575873364015,0.13725387515710097,Cortical Thickness
+high_test,28873.0,0.0726096942768342,0.09442187965562125,Cortical Thickness
+inter_test,110124.0,0.5026263839617457,0.025809105505500193,Cortical Volume
+exter_test,39604.0,0.4570949716846944,-0.036971093422706325,Cortical Volume
+high_test,31520.0,0.8285927725724404,0.011400881333605156,Cortical Volume
+inter_test,108361.0,0.28214087392596954,0.04140514766700725,Cortical Surface Area
+exter_test,37675.0,0.7855340528455447,0.013536866359447005,Cortical Surface Area
+high_test,29009.0,0.08649919891339289,0.09015635046340584,Cortical Surface Area

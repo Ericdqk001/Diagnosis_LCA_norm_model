@@ -10,12 +10,6 @@ cVAE_discover_results_path = Path(
 )
 
 
-output_data_save_path = Path(
-    cVAE_discover_results_path,
-    "output_data",
-)
-
-
 feature_sets = {
     "t1w_cortical_thickness_rois": "Cortical Thickness",
     # "t1w_cortical_volume_rois": "Cortical Volume",
@@ -23,7 +17,28 @@ feature_sets = {
 }
 
 
-def discover(num_brain_features=148):
+def discover(
+    num_brain_features=148,
+    low_entropy: bool = False,
+    results_path: Path = cVAE_discover_results_path,
+):
+
+    if low_entropy:
+        results_path = Path(
+            results_path,
+            "low_entropy",
+        )
+
+    output_data_save_path = Path(
+        cVAE_discover_results_path,
+        "output_data",
+    )
+
+    if low_entropy:
+        output_data_save_path = Path(
+            cVAE_discover_results_path,
+            "output_data_low_entropy",
+        )
 
     ind_U_test_results = []
 
@@ -69,7 +84,7 @@ def discover(num_brain_features=148):
     feature_U_test_results_df = pd.concat(ind_U_test_results)
 
     ind_brain_region_U_test_results_path = Path(
-        cVAE_discover_results_path,
+        results_path,
         "ind_brain_region_U_test_results",
     )
 
@@ -85,7 +100,7 @@ def discover(num_brain_features=148):
 
 
 if __name__ == "__main__":
-    discover()
+    discover(low_entropy=True)
 
 
 ### NOTE All individual reconstruction deviation for all brain regions and groups failed

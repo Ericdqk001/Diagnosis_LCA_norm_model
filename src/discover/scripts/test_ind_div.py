@@ -19,12 +19,6 @@ cVAE_discover_results_path = Path(
 )
 
 
-output_data_save_path = Path(
-    cVAE_discover_results_path,
-    "output_data",
-)
-
-
 feature_sets = {
     "t1w_cortical_thickness_rois": "Cortical Thickness",
     "t1w_cortical_volume_rois": "Cortical Volume",
@@ -34,7 +28,28 @@ feature_sets = {
 latent_dim = 10
 
 
-def discover():
+def discover(
+    low_entropy: bool = False,
+    results_path: Path = cVAE_discover_results_path,
+):
+
+    if low_entropy:
+        results_path = Path(
+            results_path,
+            "low_entropy",
+        )
+
+    output_data_save_path = Path(
+        cVAE_discover_results_path,
+        "output_data",
+    )
+
+    if low_entropy:
+
+        output_data_save_path = Path(
+            cVAE_discover_results_path,
+            "output_data_low_entropy",
+        )
 
     all_ind_dim_dev_U_test_results = []
 
@@ -94,7 +109,7 @@ def discover():
     ind_dim_test_var_assump_results_df = pd.concat(ind_dim_test_var_assump_results)
 
     ind_dim_test_results_path = Path(
-        cVAE_discover_results_path,
+        results_path,
         "ind_dim_test_results",
     )
 
@@ -126,6 +141,6 @@ def discover():
 
 if __name__ == "__main__":
 
-    discover()
+    discover(low_entropy=True)
 
     # TODO Test the normality and equal variance assumptions test pipelines
