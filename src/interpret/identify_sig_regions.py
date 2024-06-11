@@ -40,6 +40,7 @@ brain_features_variable_label = pd.read_csv(
     brain_features_variable_label_path,
 )
 
+low_entropy = True
 
 # Get effect size
 ind_brain_region_effect_size_path = Path(
@@ -49,6 +50,16 @@ ind_brain_region_effect_size_path = Path(
     "ind_brain_region_U_test_results",
     "ind_brain_region_U_test_results.csv",
 )
+
+if low_entropy:
+    ind_brain_region_effect_size_path = Path(
+        "src",
+        "discover",
+        "results",
+        "low_entropy",
+        "ind_brain_region_U_test_results",
+        "ind_brain_region_U_test_results.csv",
+    )
 
 ind_brain_region_effect_size = pd.read_csv(
     ind_brain_region_effect_size_path,
@@ -80,12 +91,12 @@ for cohort in clinical_cohorts:
 
     significant_effect_size_metrics = cohort_ind_brain_region_effect_size[
         (cohort_ind_brain_region_effect_size["Effect_size"] > 0)
-        & (cohort_ind_brain_region_effect_size["P_value"] < 0.05)
+        & (cohort_ind_brain_region_effect_size["FDR_P_value"] < 0.05)
     ]["metric"].to_list()
 
     significant_effect_sizes = cohort_ind_brain_region_effect_size[
         (cohort_ind_brain_region_effect_size["Effect_size"] > 0)
-        & (cohort_ind_brain_region_effect_size["P_value"] < 0.05)
+        & (cohort_ind_brain_region_effect_size["FDR_P_value"] < 0.05)
     ]["Effect_size"].to_list()
 
     positive_brain_features = [
@@ -121,6 +132,12 @@ for cohort in clinical_cohorts:
         "results",
         f"{cortical_feature}",
     )
+
+    if low_entropy:
+        save_path = Path(
+            save_path,
+            "low_entropy",
+        )
 
     if not save_path.exists():
         save_path.mkdir(parents=True)
