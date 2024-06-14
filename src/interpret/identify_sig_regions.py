@@ -91,12 +91,12 @@ for cohort in clinical_cohorts:
 
     significant_effect_size_metrics = cohort_ind_brain_region_effect_size[
         (cohort_ind_brain_region_effect_size["Effect_size"] > 0)
-        & (cohort_ind_brain_region_effect_size["FDR_P_value"] < 0.05)
+        & (cohort_ind_brain_region_effect_size["P_value"] < 0.05)
     ]["metric"].to_list()
 
     significant_effect_sizes = cohort_ind_brain_region_effect_size[
         (cohort_ind_brain_region_effect_size["Effect_size"] > 0)
-        & (cohort_ind_brain_region_effect_size["FDR_P_value"] < 0.05)
+        & (cohort_ind_brain_region_effect_size["P_value"] < 0.05)
     ]["Effect_size"].to_list()
 
     positive_brain_features = [

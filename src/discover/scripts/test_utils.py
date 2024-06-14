@@ -62,6 +62,12 @@ def reconstruction_deviation(x, x_pred):
     return dev
 
 
+def weighted_reconstruction_deviation(x, x_pred):
+    dev = np.mean((x - x_pred) ** 2, axis=1)
+
+    return dev
+
+
 def ind_reconstruction_deviation(x, x_pred):
     dev = np.sqrt((x - x_pred) ** 2)
 
@@ -428,17 +434,31 @@ def prepare_inputs_cVAE(
     # Load CBCL scores and variable names
     cbcl = pd.read_csv(data_path, index_col=0, low_memory=False)
 
+    cbcl_scales = [
+        "cbcl_scr_syn_anxdep_t",
+        "cbcl_scr_syn_withdep_t",
+        "cbcl_scr_syn_somatic_t",
+        "cbcl_scr_syn_social_t",
+        "cbcl_scr_syn_thought_t",
+        "cbcl_scr_syn_attention_t",
+        "cbcl_scr_syn_rulebreak_t",
+        "cbcl_scr_syn_aggressive_t",
+    ]
     sum_syndrome = [
         "cbcl_scr_syn_internal_t",
         "cbcl_scr_syn_external_t",
         "cbcl_scr_syn_totprob_t",
     ]
 
+    all_scales = cbcl_scales + sum_syndrome
+
     baseline_cbcl = cbcl[cbcl["eventname"] == "baseline_year_1_arm_1"]
 
-    filtered_cbcl = baseline_cbcl[sum_syndrome]
+    filtered_cbcl = baseline_cbcl[all_scales]
 
     output_data = output_data.join(filtered_cbcl, how="left")
+
+    output_data["cbcl_sum_score"] = output_data[cbcl_scales].sum(axis=1)
 
     return (
         train_dataset,
@@ -493,6 +513,13 @@ def compute_distance_deviation(
         test_prediction,
     )
 
+    output_data["weighted_reconstruction_deviation"] = (
+        weighted_reconstruction_deviation(
+            test_dataset.to_numpy(),
+            test_prediction,
+        )
+    )
+
     # Record reconstruction deviation for each brain region
 
     for i in range(test_prediction.shape[1]):
@@ -537,46 +564,6 @@ def compute_distance_deviation(
 #         recon_deviation - mean_recon_deviation
 #     ) / std_recon_deviation
 #     return normalised_recon_deviation
-
-
-def compute_interpret_distance_deviation(
-    model,
-    train_dataset=None,
-    test_dataset=None,
-    train_cov=None,
-    test_cov=None,
-    latent_dim=None,
-    output_data=None,
-) -> pd.DataFrame:
-    """Computes the mahalanobis distance of test samples from the distribution of the
-    training samples.
-    """
-    train_latent, _ = model.pred_latent(
-        train_dataset,
-        train_cov,
-        DEVICE,
-    )
-
-    test_latent, test_var = model.pred_latent(
-        test_dataset,
-        test_cov,
-        DEVICE,
-    )
-
-    test_distance = latent_deviations_mahalanobis_across(
-        [test_latent],
-        [train_latent],
-    )
-
-    output_data["mahalanobis_distance"] = test_distance
-
-    individual_deviation = separate_latent_deviation(
-        train_latent, test_latent, test_var
-    )
-    for i in range(latent_dim):
-        output_data["latent_deviation_{0}".format(i)] = individual_deviation[:, i]
-
-    return output_data
 
 
 def get_individual_deviation_p_values(
@@ -704,12 +691,9 @@ def test_correlate_distance_symptom_severity(
     feature,
     output_data,
     metric="mahalanobis_distance",
+    scale="cbcl_sum_score",
 ):
-    sum_syndrome = [
-        # "cbcl_scr_syn_internal_t",
-        # "cbcl_scr_syn_external_t",
-        "cbcl_scr_syn_totprob_t",
-    ]
+    sum_syndrome = [scale]
 
     control_data = output_data[output_data["low_symp_test_subs"] == 1]
 

@@ -172,4 +172,4 @@ def plot_cbcl_means(
 
 
 # Example usage, assuming lca_psych_dx_low_entropy is the DataFrame you've prepared earlier
-plot_cbcl_means(cbcl_lca_memberships, low_entropy=False)
+plot_cbcl_means(cbcl_lca_memberships, low_entropy=True)

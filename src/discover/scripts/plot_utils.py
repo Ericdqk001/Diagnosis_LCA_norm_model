@@ -393,9 +393,10 @@ def plot_correlations(
     feature,
     output_data,
     metric="mahalanobis_distance",
+    scale="cbcl_sum_score",
 ):
     # Extract data for plotting
-    x = output_data["cbcl_scr_syn_totprob_t"]
+    x = output_data[scale]
     y = output_data[metric]
 
     # Compute the linear regression and correlation

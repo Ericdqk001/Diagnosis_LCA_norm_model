@@ -45,7 +45,7 @@ plt.rcParams["axes.labelweight"] = "bold"
 plt.rcParams["axes.titleweight"] = "bold"
 
 
-def plot_diagnosis_proportion(df):
+def plot_diagnosis_proportion(df, low_entropy=False):
     diagnoses = [
         "Has_ADHD",
         "Has_Depression",
@@ -64,6 +64,19 @@ def plot_diagnosis_proportion(df):
         "Predominantly Externalising",
         "Highly Dysregulated",
     ]
+
+    if low_entropy:
+        # Remove subjects with high entropy
+        high_entropy_subs_path = Path(
+            "data",
+            "LCA",
+            "subjects_with_high_entropy.csv",
+        )
+        high_entropy_subs = pd.read_csv(
+            high_entropy_subs_path,
+            low_memory=False,
+        )["subject"].tolist()
+        df = df[~df.index.isin(high_entropy_subs)]
 
     max_proportion_class_4 = df[df["predicted_class"] == 4][diagnoses].mean().max()
 
@@ -94,5 +107,4 @@ def plot_diagnosis_proportion(df):
     plt.show()
 
 
-# Example usage, assuming lca_psych_dx_low_entropy is the DataFrame you've prepared earlier
-plot_diagnosis_proportion(lca_psych_dx_low_entropy)
+plot_diagnosis_proportion(lca_psych_dx_low_entropy, low_entropy=True)

@@ -20,12 +20,23 @@ labels = destrieux_atlas["labels"]
 
 cortical_feature = "t1w_cortical_thickness_rois"
 
+low_entropy = False
+
 feature_brain_region_results_path = Path(
     "src",
     "interpret",
     "results",
     f"{cortical_feature}",
 )
+
+if low_entropy:
+    feature_brain_region_results_path = Path(
+        "src",
+        "interpret",
+        "results",
+        f"{cortical_feature}",
+        "low_entropy",
+    )
 
 clinical_cohorts = [
     "inter_test",
@@ -131,7 +142,12 @@ for cohort in clinical_cohorts:
     # Adjust layout
     plt.tight_layout()
 
-    # Save the combined plot
+    if low_entropy:
+        image_save_path = Path(image_save_path, "low_entropy")
+
+    if not image_save_path.exists():
+        image_save_path.mkdir(parents=True)
+
     fig.savefig(Path(image_save_path, f"{cohort}_combined_plot.png"))
 
     # Show the plot
