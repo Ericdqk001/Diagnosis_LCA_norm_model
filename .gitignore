@@ -166,3 +166,4 @@ wandb
 # Discover test results
 # src/discover/results
 src/interpret/plots
+src/discover/results/bootstrap

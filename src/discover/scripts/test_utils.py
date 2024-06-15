@@ -58,18 +58,13 @@ def separate_latent_deviation(mu_train, mu_sample, var_sample):
 
 def reconstruction_deviation(x, x_pred):
 
-    dev = np.mean(np.sqrt((x - x_pred) ** 2), axis=1)
-    return dev
-
-
-def weighted_reconstruction_deviation(x, x_pred):
     dev = np.mean((x - x_pred) ** 2, axis=1)
 
     return dev
 
 
 def ind_reconstruction_deviation(x, x_pred):
-    dev = np.sqrt((x - x_pred) ** 2)
+    dev = (x - x_pred) ** 2
 
     return dev
 
@@ -423,7 +418,7 @@ def prepare_inputs_cVAE(
     output_data = pd.DataFrame(output_data, index=test_subs)
 
     # Join cbcl summary scales for later correlation tests
-    data_path = Path(
+    cbcl_data_path = Path(
         "data",
         "raw_data",
         "core",
@@ -432,7 +427,7 @@ def prepare_inputs_cVAE(
     )
 
     # Load CBCL scores and variable names
-    cbcl = pd.read_csv(data_path, index_col=0, low_memory=False)
+    cbcl = pd.read_csv(cbcl_data_path, index_col=0, low_memory=False)
 
     cbcl_scales = [
         "cbcl_scr_syn_anxdep_t",
@@ -511,13 +506,6 @@ def compute_distance_deviation(
     output_data["reconstruction_deviation"] = reconstruction_deviation(
         test_dataset.to_numpy(),
         test_prediction,
-    )
-
-    output_data["weighted_reconstruction_deviation"] = (
-        weighted_reconstruction_deviation(
-            test_dataset.to_numpy(),
-            test_prediction,
-        )
     )
 
     # Record reconstruction deviation for each brain region

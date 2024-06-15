@@ -1,34 +1,27 @@
 import json
 from argparse import ArgumentParser
-from itertools import product
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from sklearn.model_selection import StratifiedKFold
+from modelling.load.load import MyDataset_labels
+from modelling.models.cVAE import cVAE
+from sklearn.covariance import MinCovDet
 from sklearn.preprocessing import StandardScaler
-from torch.distributions import Normal
-from torch.nn import Parameter
-from torch.utils.data import DataLoader, Dataset
-from tqdm import tqdm
+from torch import nn
+from torch.utils.data import DataLoader
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-print(DEVICE)
 
 parser = ArgumentParser(description="Tune cVAE")
 
 
-def parse_list_of_lists(arg_value):
-    # Converts a string format like "30-30;40-40-40" into a list of lists [[30, 30], [40, 40, 40]]
-    return [[int(y) for y in x.split("-")] for x in arg_value.split(";")]
+# python src/modelling/train/cVAE/cVAE_bootsrap.py --data_path "data/processed_data" --feature_type "cortical_thickness" --project_title "cVAE_rsfmri_final_train" --batch_size 256 --learning_rate 0.0005 --latent_dim 10 --hidden_dim "40" --bootstrap_num 10
 
+# python src/modelling/train/cVAE/cVAE_bootsrap.py --data_path "data/processed_data" --feature_type "cortical_volume" --project_title "cVAE_rsfmri_final_train" --batch_size 256 --learning_rate 0.001 --latent_dim 10 --hidden_dim "30-30"
 
-def float_parse_list(arg_value):
-    return [float(x) for x in arg_value.split("-")]
+# python src/modelling/train/cVAE/cVAE_bootsrap.py --data_path "data/processed_data" --feature_type "cortical_surface_area" --project_title "cVAE_rsfmri_final_train" --batch_size 256 --learning_rate 0.0005 --latent_dim 10 --hidden_dim "30-30"
 
 
 def int_parse_list(arg_value):
@@ -50,44 +43,38 @@ parser.add_argument(
 parser.add_argument(
     "--project_title",
     type=str,
-    default="Tune cVAE",
+    default="Train cVAE",
     help="Title of the project for weights and biases",
 )
 parser.add_argument(
     "--batch_size",
-    type=int_parse_list,
-    default=[64, 128, 256],
+    type=int,
+    default=128,
     help="Batch size for training, e.g., '64-128-256', which will be parsed into [64, 128, 256]",
 )
 parser.add_argument(
     "--learning_rate",
-    type=float_parse_list,
-    default=[
-        0.01,
-        0.005,
-        0.001,
-        0.0005,
-    ],
+    type=float,
+    default=0.01,
     help="Learning rate for the optimizer, e.g., '0.005-0.001-0.0005-0.0001', which will be parsed into [0.005, 0.001, 0.0005, 0.0001]",
 )
 parser.add_argument(
     "--latent_dim",
-    type=int_parse_list,
-    default=[10],
+    type=int,
+    default=5,
     help="Dimensions of the latent space, e.g., '10-11-12', which will be parsed into [10, 11, 12]",
 )
 parser.add_argument(
     "--hidden_dim",
-    type=parse_list_of_lists,
-    default=[
-        [30],
-        [30, 30],
-        [40],
-        [40, 40],
-        [50],
-        [50, 50],
-    ],
+    type=int_parse_list,
+    default=[30],
     help="Pass dimensions of multiple hidden layers, use ';' to separate layers and '-' to separate dimensions within layers, e.g., '30-30;40-40-40'",
+)
+parser.add_argument(
+    "--bootstrap_num",
+    type=int,
+    default=1000,
+    help="Number of bootstrap iterations",
 )
 
 args = parser.parse_args()
@@ -118,6 +105,20 @@ TRAIN_DATA_PATH = Path(
     "all_brain_features_resid_exc_sex.csv",
 )
 
+# CBCL data path for getting the outputs
+CBCL_DATA_PATH = Path(
+    processed_data_path,
+    "mh_p_cbcl.csv",
+)
+
+CHECKPOINT_PATH = Path(
+    "checkpoints",
+    feature_type,
+)
+
+if not CHECKPOINT_PATH.exists():
+    CHECKPOINT_PATH.mkdir(parents=True)
+
 data_splits_path = Path(
     processed_data_path,
     "data_splits_with_clinical_val.json",
@@ -127,221 +128,14 @@ with open(data_splits_path, "r") as f:
     data_splits = json.load(f)
 
 if "cortical" in feature_type:
-    modality_data_split = data_splits["structural"]
+    DATA_SPLITS = data_splits["structural"]
 
 else:
-    modality_data_split = data_splits["functional"]
+    DATA_SPLITS = data_splits["functional"]
 
 
-TRAIN_SUBS = modality_data_split["train"]
-
-
-### Model and Dataset class
-def compute_ll(x, x_recon):
-    return x_recon.log_prob(x).sum(1, keepdims=True).mean(0)
-
-
-class Encoder(nn.Module):
-    def __init__(self, input_dim, hidden_dim, c_dim, non_linear=False):
-        super().__init__()
-
-        self.input_size = input_dim
-        self.hidden_dims = hidden_dim
-        self.z_dim = hidden_dim[-1]
-        self.c_dim = c_dim
-        self.non_linear = non_linear
-        self.layer_sizes_encoder = [input_dim + c_dim] + self.hidden_dims
-        lin_layers = [
-            nn.Linear(dim0, dim1, bias=True)
-            for dim0, dim1 in zip(
-                self.layer_sizes_encoder[:-1], self.layer_sizes_encoder[1:]
-            )
-        ]
-
-        self.encoder_layers = nn.Sequential(*lin_layers[0:-1])
-        self.enc_mean_layer = nn.Linear(
-            self.layer_sizes_encoder[-2], self.layer_sizes_encoder[-1], bias=True
-        )
-        self.enc_logvar_layer = nn.Linear(
-            self.layer_sizes_encoder[-2], self.layer_sizes_encoder[-1], bias=True
-        )
-
-    def forward(self, x, c):
-        c = c.reshape(-1, self.c_dim)
-        h1 = torch.cat((x, c), dim=1)
-        for it_layer, layer in enumerate(self.encoder_layers):
-            h1 = layer(h1)
-            if self.non_linear:
-                h1 = F.relu(h1)
-
-        mu = self.enc_mean_layer(h1)
-        logvar = self.enc_logvar_layer(h1)
-
-        return mu, logvar
-
-
-class Decoder(nn.Module):
-    def __init__(self, input_dim, hidden_dim, c_dim, non_linear=False, init_logvar=-3):
-        super().__init__()
-        self.input_size = input_dim
-        self.hidden_dims = hidden_dim[::-1]
-        self.non_linear = non_linear
-        self.init_logvar = init_logvar
-        self.c_dim = c_dim
-        self.layer_sizes_decoder = self.hidden_dims + [input_dim]
-        self.layer_sizes_decoder[0] = self.hidden_dims[0] + c_dim
-        lin_layers = [
-            nn.Linear(dim0, dim1, bias=True)
-            for dim0, dim1 in zip(
-                self.layer_sizes_decoder[:-1], self.layer_sizes_decoder[1:]
-            )
-        ]
-        self.decoder_layers = nn.Sequential(*lin_layers[0:-1])
-        self.decoder_mean_layer = nn.Linear(
-            self.layer_sizes_decoder[-2], self.layer_sizes_decoder[-1], bias=True
-        )
-        tmp_noise_par = torch.FloatTensor(1, self.input_size).fill_(self.init_logvar)
-        self.logvar_out = Parameter(data=tmp_noise_par, requires_grad=True)
-
-    def forward(self, z, c):
-        c = c.reshape(-1, self.c_dim)
-        x_rec = torch.cat((z, c), dim=1)
-        for it_layer, layer in enumerate(self.decoder_layers):
-            x_rec = layer(x_rec)
-            if self.non_linear:
-                x_rec = F.relu(x_rec)
-
-        mu_out = self.decoder_mean_layer(x_rec)
-        return Normal(loc=mu_out, scale=self.logvar_out.exp().pow(0.5))
-
-
-class cVAE(nn.Module):
-    def __init__(
-        self,
-        input_dim,
-        hidden_dim,
-        latent_dim,
-        c_dim,
-        learning_rate=0.001,
-        non_linear=False,
-    ):
-
-        super().__init__()
-        self.input_dim = input_dim
-        self.hidden_dim = hidden_dim + [latent_dim]
-        self.latent_dim = latent_dim
-        self.c_dim = c_dim
-        self.encoder = Encoder(
-            input_dim=input_dim,
-            hidden_dim=self.hidden_dim,
-            c_dim=c_dim,
-            non_linear=non_linear,
-        )
-        self.decoder = Decoder(
-            input_dim=input_dim,
-            hidden_dim=self.hidden_dim,
-            c_dim=c_dim,
-            non_linear=non_linear,
-        )
-        self.optimizer = torch.optim.Adam(
-            list(self.encoder.parameters()) + list(self.decoder.parameters()),
-            lr=learning_rate,
-        )
-
-    def encode(self, x, c):
-        return self.encoder(x, c)
-
-    def reparameterise(self, mu, logvar):
-        std = torch.exp(0.5 * logvar)
-        eps = torch.randn_like(mu)
-        return mu + eps * std
-
-    def decode(self, z, c):
-        return self.decoder(z, c)
-
-    def calc_kl(self, mu, logvar):
-        return -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp(), dim=1).mean(0)
-
-    def calc_ll(self, x, x_recon):
-        return compute_ll(x, x_recon)
-
-    def forward(self, x, c):
-        self.zero_grad()
-        mu, logvar = self.encode(x, c)
-        z = self.reparameterise(mu, logvar)
-        x_recon = self.decode(z, c)
-        fwd_rtn = {"x_recon": x_recon, "mu": mu, "logvar": logvar}
-        return fwd_rtn
-
-    def sample_from_normal(self, normal):
-        return normal.loc
-
-    def loss_function(self, x, fwd_rtn):
-        x_recon = fwd_rtn["x_recon"]
-        mu = fwd_rtn["mu"]
-        logvar = fwd_rtn["logvar"]
-
-        kl = self.calc_kl(mu, logvar)
-        recon = self.calc_ll(x, x_recon)
-
-        total = kl - recon
-        losses = {"total": total, "kl": kl, "ll": recon}
-        return losses
-
-    def pred_latent(self, x, c, DEVICE):
-        x = torch.FloatTensor(x.to_numpy()).to(DEVICE)
-        c = torch.LongTensor(c).to(DEVICE)
-        with torch.no_grad():
-            mu, logvar = self.encode(x, c)
-        latent = mu.cpu().detach().numpy()
-        latent_var = logvar.exp().cpu().detach().numpy()
-        return latent, latent_var
-
-    def pred_recon(self, x, c, DEVICE):
-        x = torch.FloatTensor(x.to_numpy()).to(DEVICE)
-        c = torch.LongTensor(c).to(DEVICE)
-        with torch.no_grad():
-            mu, _ = self.encode(x, c)
-            x_pred = self.decode(mu, c).loc.cpu().detach().numpy()
-        return x_pred
-
-
-class MyDataset_labels(Dataset):
-    def __init__(self, data, labels, indices=False, transform=None):
-        self.data = data
-        self.labels = labels
-        if isinstance(data, list) or isinstance(data, tuple):
-            self.data = [
-                torch.from_numpy(d).float() if isinstance(d, np.ndarray) else d
-                for d in self.data
-            ]
-            self.N = len(self.data[0])
-            self.shape = np.shape(self.data[0])
-        elif isinstance(data, np.ndarray):
-            self.data = torch.from_numpy(self.data).float()
-            self.N = len(self.data)
-            self.shape = np.shape(self.data)
-
-        self.labels = torch.from_numpy(self.labels).long()
-
-        self.transform = transform
-        self.indices = indices
-
-    def __getitem__(self, index):
-        if isinstance(self.data, list):
-            x = [d[index] for d in self.data]
-        else:
-            x = self.data[index]
-
-        if self.transform:
-            x = self.transform(x)
-        t = self.labels[index]
-        if self.indices:
-            return x, t, index
-        return x, t
-
-    def __len__(self):
-        return self.N
+TRAIN_SUBS = DATA_SPLITS["train"]
+VAL_SUBS = DATA_SPLITS["val"]
 
 
 def build_model(
@@ -366,9 +160,9 @@ def build_model(
         non_linear=True,
     ).to(DEVICE)
 
-    # if isinstance(model, nn.Module):
-    #     first_layer_params = list(model.parameters())[0]
-    #     print("Parameter values of the first layer:", first_layer_params)
+    if isinstance(model, nn.Module):
+        first_layer_params = list(model.parameters())[0]
+        print("Parameter values of the first layer:", first_layer_params)
 
     return model
 
@@ -377,12 +171,14 @@ def one_hot_encode_covariate(
     data,
     covariate,
     subjects,
-) -> np.ndarray:
+):
     """Return one hot encoded covariate for the given subjects as required by the cVAE model."""
     covariate_data = data.loc[
         subjects,
         [covariate],
     ]
+
+    print(covariate_data)
 
     covariate_data[covariate] = pd.Categorical(covariate_data[covariate])
 
@@ -391,6 +187,8 @@ def one_hot_encode_covariate(
     num_categories = len(covariate_data[covariate].cat.categories)
 
     one_hot_encoded_covariate = np.eye(num_categories)[category_codes]
+
+    print(one_hot_encoded_covariate)
 
     return one_hot_encoded_covariate
 
@@ -413,9 +211,237 @@ def validate(model, val_loader, device):
             total_kl_loss += val_loss["kl"].item()
 
     mean_val_loss = total_val_loss / len(val_loader)
-    mean_recon = total_recon / len(val_loader)
 
-    return mean_val_loss, mean_recon
+    return mean_val_loss
+
+
+def latent_deviations_mahalanobis_across(cohort, train):
+    dists = calc_robust_mahalanobis_distance(cohort[0], train[0])
+    return dists
+
+
+def calc_robust_mahalanobis_distance(values, train_values):
+
+    # Compute the robust covariance matrix
+    robust_cov = MinCovDet(random_state=42).fit(train_values)
+
+    # Calculate the Mahalanobis distance using the robust covariance matrix
+    mahal_robust_cov = robust_cov.mahalanobis(values)
+    return mahal_robust_cov
+
+
+def latent_deviation(mu_train, mu_sample, var_sample):
+    var = np.var(mu_train, axis=0)
+    return (
+        np.sum(
+            np.abs(mu_sample - np.mean(mu_train, axis=0)) / np.sqrt(var + var_sample),
+            axis=1,
+        )
+        / mu_sample.shape[1]
+    )
+
+
+def reconstruction_deviation(x, x_pred):
+
+    dev = np.mean((x - x_pred) ** 2, axis=1)
+
+    return dev
+
+
+def ind_reconstruction_deviation(x, x_pred):
+    dev = (x - x_pred) ** 2
+
+    return dev
+
+
+def standardise_reconstruction_deviation(output_data):
+    control_recon_dev = output_data["reconstruction_deviation"][
+        output_data["low_symp_test_subs"] == 1
+    ].values
+
+    inter_test_recon_dev = output_data["reconstruction_deviation"][
+        output_data["inter_test_subs"] == 1
+    ].values
+
+    exter_test_recon_dev = output_data["reconstruction_deviation"][
+        output_data["exter_test_subs"] == 1
+    ].values
+
+    high_test_recon_dev = output_data["reconstruction_deviation"][
+        output_data["high_test_subs"] == 1
+    ].values
+
+    mu = np.mean(control_recon_dev)
+    sigma = np.std(control_recon_dev)
+
+    control_recon_dev = (control_recon_dev - mu) / sigma
+
+    inter_test_recon_dev = (inter_test_recon_dev - mu) / sigma
+
+    exter_test_recon_dev = (exter_test_recon_dev - mu) / sigma
+
+    high_test_recon_dev = (high_test_recon_dev - mu) / sigma
+
+    standardised_recon_dev = np.concatenate(
+        [
+            control_recon_dev,
+            inter_test_recon_dev,
+            exter_test_recon_dev,
+            high_test_recon_dev,
+        ]
+    )
+
+    return standardised_recon_dev
+
+
+def separate_latent_deviation(mu_train, mu_sample, var_sample):
+    var = np.var(mu_train, axis=0)
+    return (mu_sample - np.mean(mu_train, axis=0)) / np.sqrt(var + var_sample)
+
+
+def compute_distance_deviation(
+    model,
+    train_dataset=None,
+    test_dataset=None,
+    train_cov=None,
+    test_cov=None,
+    latent_dim=None,
+    output_data=None,
+) -> pd.DataFrame:
+    """Computes the mahalanobis distance of test samples from the distribution of the
+    training samples.
+    """
+    train_latent, _ = model.pred_latent(
+        train_dataset,
+        train_cov,
+        DEVICE,
+    )
+
+    test_latent, test_var = model.pred_latent(
+        test_dataset,
+        test_cov,
+        DEVICE,
+    )
+
+    test_prediction = model.pred_recon(
+        test_dataset,
+        test_cov,
+        DEVICE,
+    )
+
+    test_distance = latent_deviations_mahalanobis_across(
+        [test_latent],
+        [train_latent],
+    )
+
+    output_data["mahalanobis_distance"] = test_distance
+
+    output_data["reconstruction_deviation"] = reconstruction_deviation(
+        test_dataset.to_numpy(),
+        test_prediction,
+    )
+
+    # Record reconstruction deviation for each brain region
+
+    for i in range(test_prediction.shape[1]):
+
+        output_data[f"reconstruction_deviation_{i}"] = ind_reconstruction_deviation(
+            test_dataset.to_numpy()[:, i],
+            test_prediction[:, i],
+        )
+
+    output_data["standardised_reconstruction_deviation"] = (
+        standardise_reconstruction_deviation(output_data)
+    )
+
+    output_data["latent_deviation"] = latent_deviation(
+        train_latent, test_latent, test_var
+    )
+
+    individual_deviation = separate_latent_deviation(
+        train_latent, test_latent, test_var
+    )
+    for i in range(latent_dim):
+        output_data["latent_deviation_{0}".format(i)] = individual_deviation[:, i]
+
+    return output_data
+
+
+def prepare_output(
+    data,
+    scaler,
+):
+    test_subs = DATA_SPLITS["total_test"]
+    low_symp_test_subs = DATA_SPLITS["low_symptom_test"]
+    inter_test_subs = DATA_SPLITS["internalising_test"]
+    exter_test_subs = DATA_SPLITS["externalising_test"]
+    high_test_subs = DATA_SPLITS["high_symptom_test"]
+
+    test_dataset = data.loc[
+        test_subs,
+        FEATURES,
+    ]
+
+    test_dataset_scaled = scaler.transform(test_dataset)
+
+    test_dataset = pd.DataFrame(
+        test_dataset_scaled,
+        index=test_dataset.index,
+        columns=test_dataset.columns,
+    )
+
+    test_cov = one_hot_encode_covariate(
+        data,
+        "demo_sex_v2",
+        test_subs,
+    )
+
+    output_data = {
+        "low_symp_test_subs": [
+            1 if sub in low_symp_test_subs else 0 for sub in test_subs
+        ],
+        "inter_test_subs": [1 if sub in inter_test_subs else 0 for sub in test_subs],
+        "exter_test_subs": [1 if sub in exter_test_subs else 0 for sub in test_subs],
+        "high_test_subs": [1 if sub in high_test_subs else 0 for sub in test_subs],
+    }
+
+    # Create the DataFrame with indexes set by test_set_subs
+    output_data = pd.DataFrame(output_data, index=test_subs)
+
+    cbcl = pd.read_csv(
+        CBCL_DATA_PATH,
+        index_col=0,
+        low_memory=False,
+    )
+
+    cbcl_scales = [
+        "cbcl_scr_syn_anxdep_t",
+        "cbcl_scr_syn_withdep_t",
+        "cbcl_scr_syn_somatic_t",
+        "cbcl_scr_syn_social_t",
+        "cbcl_scr_syn_thought_t",
+        "cbcl_scr_syn_attention_t",
+        "cbcl_scr_syn_rulebreak_t",
+        "cbcl_scr_syn_aggressive_t",
+    ]
+
+    sum_syndrome = [
+        "cbcl_scr_syn_internal_t",
+        "cbcl_scr_syn_external_t",
+        "cbcl_scr_syn_totprob_t",
+    ]
+
+    all_scales = cbcl_scales + sum_syndrome
+
+    baseline_cbcl = cbcl[cbcl["eventname"] == "baseline_year_1_arm_1"]
+
+    filtered_cbcl = baseline_cbcl[all_scales]
+
+    output_data = output_data.join(filtered_cbcl, how="left")
+
+    output_data["cbcl_sum_score"] = output_data[cbcl_scales].sum(axis=1)
+
+    return output_data, test_dataset, test_cov
 
 
 def train(
@@ -424,17 +450,24 @@ def train(
     train_loader,
     val_loader,
     tolerance=50,
+    output_data=None,
+    train_dataset=None,
+    train_cov=None,
+    test_dataset=None,
+    test_cov=None,
 ):
 
     model.to(DEVICE)
 
     best_val_loss = float("inf")
 
-    best_mean_recon = float("-inf")
-
     epochs_no_improve = 0
 
     for epoch in range(1, config["epochs"] + 1):
+
+        total_loss = 0.0
+        total_recon = 0.0
+        kl_loss = 0.0
 
         model.train()
 
@@ -447,35 +480,45 @@ def train(
             loss["total"].backward()
             model.optimizer.step()
 
-        val_loss, mean_recon = validate(model, val_loader, DEVICE)
+            total_loss += loss["total"].item()
+            total_recon += loss["ll"].item()
+            kl_loss += loss["kl"].item()
+
+        val_loss = validate(model, val_loader, DEVICE)
 
         if val_loss < best_val_loss:
             epochs_no_improve = 0
             best_val_loss = val_loss
 
-            best_mean_recon = mean_recon
-
-            # print("New best val loss:", val_loss)
-            # print("New best mean recon:", mean_recon)
-            # print("at epoch:", epoch)
-
-            # print("Improved at epoch:", epoch)
+            best_model = model.state_dict()
 
         else:
             epochs_no_improve += 1
 
         if epochs_no_improve >= tolerance:
-            # print("Early stopping at epoch:", epoch)
+            print("Early stopping at epoch:", epoch)
 
             break
 
-    return best_val_loss, best_mean_recon
+    # Get output
+    model.load_state_dict(best_model)
+
+    output_data = compute_distance_deviation(
+        model,
+        train_dataset=train_dataset,
+        test_dataset=test_dataset,
+        train_cov=train_cov,
+        test_cov=test_cov,
+        latent_dim=config["latent_dim"],
+        output_data=output_data,
+    )
+
+    return output_data
 
 
-def train_k_fold(
-    config,
-    n_splits=10,
-):
+def main(config):
+
+    np.random.seed(123)
 
     data = pd.read_csv(
         Path(TRAIN_DATA_PATH),
@@ -483,58 +526,52 @@ def train_k_fold(
         low_memory=False,
     )
 
-    data["strata"] = (
-        data["demo_sex_v2"].astype(str) + "_" + data["demo_comb_income_v2"].astype(str)
-    )
+    combined_output_data = []
 
-    data["strata"] = pd.Categorical(data["strata"])
-
-    train_strata = data.loc[TRAIN_SUBS, "strata"].cat.codes
-
-    train_dataset = data.loc[
-        TRAIN_SUBS,
-        FEATURES,
-    ].to_numpy()
-
-    ### Covariate one hot encoding
-
-    encoded_covariate_train = one_hot_encode_covariate(
-        data,
-        "demo_sex_v2",
-        TRAIN_SUBS,
-    )
-
-    c_dim = encoded_covariate_train.shape[1]
-
-    kf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
-
-    fold = 0
-    total_loss = 0.0
-    total_recon = 0.0
-
-    ### TODO Stratified sampling
-    for train_index, val_index in kf.split(train_dataset, train_strata):
-        # print(f"Training on fold {fold+1}...")
-        # Split dataset into training and validation sets for the current fold
-
-        train_data, val_data = (
-            train_dataset[train_index],
-            train_dataset[val_index],
+    for i in range(config["bootstrap_num"]):
+        # Bootstrap sampling with replacement
+        bootstrap_train_subs = np.random.choice(
+            TRAIN_SUBS, size=len(TRAIN_SUBS), replace=True
         )
 
-        train_cov, val_cov = (
-            encoded_covariate_train[train_index],
-            encoded_covariate_train[val_index],
+        train_dataset = data.loc[
+            bootstrap_train_subs,
+            FEATURES,
+        ]
+
+        # Covariate one hot encoding
+        encoded_covariate_train = one_hot_encode_covariate(
+            data,
+            "demo_sex_v2",
+            bootstrap_train_subs,
         )
+
+        val_dataset = data.loc[
+            VAL_SUBS,
+            FEATURES,
+        ].to_numpy()
+
+        val_cov = one_hot_encode_covariate(
+            data,
+            "demo_sex_v2",
+            VAL_SUBS,
+        )
+
+        c_dim = encoded_covariate_train.shape[1]
 
         scaler = StandardScaler()
 
-        train_data = scaler.fit_transform(train_data)
+        train_data = scaler.fit_transform(train_dataset)
 
-        val_data = scaler.transform(val_data)
+        output_data, test_dataset, test_cov = prepare_output(data, scaler)
+
+        val_data = scaler.transform(val_dataset)
+
+        # Test if scaler is refreshed
+        print("Scaled val data mean:", np.mean(val_data))
 
         train_loader = DataLoader(
-            MyDataset_labels(train_data, train_cov),
+            MyDataset_labels(train_data, encoded_covariate_train),
             batch_size=config["batch_size"],
             shuffle=True,
         )
@@ -545,7 +582,6 @@ def train_k_fold(
             shuffle=False,
         )
 
-        # Get input_dim based on the dataset
         input_dim = train_data.shape[1]
 
         model = build_model(
@@ -554,73 +590,52 @@ def train_k_fold(
             c_dim,
         )
 
-        (
-            val_loss,
-            recon,
-        ) = train(
+        output_data = train(
             config,
             model,
             train_loader,
             val_loader,
+            output_data=output_data,
+            train_dataset=train_dataset,
+            train_cov=encoded_covariate_train,
+            test_dataset=test_dataset,
+            test_cov=test_cov,
         )
 
-        print("val loss:", val_loss)
+        # Add bootstrap_num column
+        output_data["bootstrap_num"] = i
 
-        total_loss += val_loss
+        combined_output_data.append(output_data)
 
-        total_recon += recon
+    # Combine all output data from bootstrap iterations
+    combined_output_df = pd.concat(combined_output_data, axis=0)
 
-        fold += 1
-
-    return total_loss / n_splits, total_recon / n_splits
-
-
-def main(config):
-    average_val_loss, average_recon = train_k_fold(config)
-
-    return average_val_loss, average_recon
+    # Save the combined output data to a CSV file
+    combined_output_df.to_csv(
+        Path(
+            processed_data_path.parent,
+            f"{feature_type}_bootstrap_results.csv",
+            index=True,
+        )
+    )
 
 
 if __name__ == "__main__":
 
     project_title = args.project_title
-    batch_sizes = args.batch_size
-    learning_rates = args.learning_rate
-    latent_dims = args.latent_dim
-    hidden_dims = args.hidden_dim
-    epochs = 5000
+    batch_size = args.batch_size
+    learning_rate = args.learning_rate
+    latent_dim = args.latent_dim
+    hidden_dim = args.hidden_dim
+    bootstrap_num = args.bootstrap_num
 
-    results = []
-    all_combinations = list(
-        product(batch_sizes, learning_rates, latent_dims, hidden_dims)
-    )
+    config = {
+        "batch_size": batch_size,
+        "hidden_dim": hidden_dim,
+        "latent_dim": latent_dim,
+        "learning_rate": learning_rate,
+        "bootstrap_num": bootstrap_num,
+        "epochs": 5000,
+    }
 
-    # Loop through each combination with a progress bar
-    for batch_size, learning_rate, latent_dim, hidden_dim in tqdm(
-        all_combinations, desc="Processing combinations"
-    ):
-        config = {
-            "batch_size": batch_size,
-            "learning_rate": learning_rate,
-            "latent_dim": latent_dim,
-            "epochs": epochs,
-            "hidden_dim": hidden_dim,
-        }
-        # Assuming 'main' is your function that returns the validation loss and separation
-        average_val_loss, average_recon = main(config)
-        results.append((config, average_val_loss, average_recon))
-
-    results_df = pd.DataFrame(
-        results,
-        columns=["config", "average_val_loss", "average_recon"],
-    )
-
-    results_df.to_csv(Path(processed_data_path.parent, f"{project_title}_results.csv"))
-
-# TESTs
-# 1. The combined modality dataframe works when selecting using features
-# and subject ids.
-# 2. The one hot encoding of the covariate is correct and correct in order.
-
-# Local test command: python src/modelling/tune/ucl_cluster_tune/cVAE/cVAE_tune_local.py --data_path "data/processed_data" --feature_type "cortical_thickness" --project_title "local_grid_search_test"
-# --batch_size "128" --learning_rate "0.005" --latent_dim "10" --hidden_dim "30"
+    main(config)

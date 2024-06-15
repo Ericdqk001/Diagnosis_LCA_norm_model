@@ -161,5 +161,5 @@ def get_output(
 
 if __name__ == "__main__":
     get_output(
-        if_low_entropy=False,
+        if_low_entropy=True,
     )
