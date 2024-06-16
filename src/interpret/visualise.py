@@ -20,7 +20,7 @@ labels = destrieux_atlas["labels"]
 
 cortical_feature = "t1w_cortical_thickness_rois"
 
-low_entropy = False
+low_entropy = True
 
 feature_brain_region_results_path = Path(
     "src",
@@ -152,34 +152,3 @@ for cohort in clinical_cohorts:
 
     # Show the plot
     plt.show()
-
-# %%
-# Plot the images together
-
-# image_paths = [
-#     Path("src/interpret/ct_plots/left_lateral.png"),
-#     Path("src/interpret/ct_plots/left_medial.png"),
-#     Path("src/interpret/ct_plots/right_lateral.png"),
-#     Path("src/interpret/ct_plots/right_medial.png"),
-# ]
-
-# sorted_image_paths = sorted(image_paths, key=lambda x: x.stem.split("_")[1])
-
-# # Create figure with subplots
-# fig, axes = plt.subplots(nrows=1, ncols=4, figsize=(24, 6))
-
-# # Loop over axes and image paths
-# for ax, image_path in zip(axes, image_paths):
-#     img = Image.open(image_path)
-#     ax.imshow(img)
-#     ax.axis("off")
-
-# # Adjust layout
-# plt.subplots_adjust(
-#     left=0.01, right=0.99, top=0.99, bottom=0.01, wspace=0.01, hspace=0.01
-# )
-# plt.tight_layout(pad=0.1)
-
-# # Adjust layout to ensure the plots are nicely spaced
-# plt.tight_layout()
-# plt.show()

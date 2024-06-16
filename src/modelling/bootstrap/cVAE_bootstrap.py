@@ -11,17 +11,18 @@ from sklearn.covariance import MinCovDet
 from sklearn.preprocessing import StandardScaler
 from torch import nn
 from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 parser = ArgumentParser(description="Tune cVAE")
 
 
-# python src/modelling/train/cVAE/cVAE_bootsrap.py --data_path "data/processed_data" --feature_type "cortical_thickness" --project_title "cVAE_rsfmri_final_train" --batch_size 256 --learning_rate 0.0005 --latent_dim 10 --hidden_dim "40" --bootstrap_num 10
+# python src/modelling/bootstrap/cVAE_bootstrap.py --data_path "data/processed_data" --feature_type "cortical_thickness" --project_title "cVAE_rsfmri_final_train" --batch_size 256 --learning_rate 0.0005 --latent_dim 10 --hidden_dim "40" --bootstrap_num 10
 
-# python src/modelling/train/cVAE/cVAE_bootsrap.py --data_path "data/processed_data" --feature_type "cortical_volume" --project_title "cVAE_rsfmri_final_train" --batch_size 256 --learning_rate 0.001 --latent_dim 10 --hidden_dim "30-30"
+# python src/modelling/bootstrap/cVAE_bootstrap.py --data_path "data/processed_data" --feature_type "cortical_volume" --project_title "cVAE_rsfmri_final_train" --batch_size 256 --learning_rate 0.001 --latent_dim 10 --hidden_dim "30-30"
 
-# python src/modelling/train/cVAE/cVAE_bootsrap.py --data_path "data/processed_data" --feature_type "cortical_surface_area" --project_title "cVAE_rsfmri_final_train" --batch_size 256 --learning_rate 0.0005 --latent_dim 10 --hidden_dim "30-30"
+# python src/modelling/bootstrap/cVAE_bootstrap.py --data_path "data/processed_data" --feature_type "cortical_surface_area" --project_title "cVAE_rsfmri_final_train" --batch_size 256 --learning_rate 0.0005 --latent_dim 10 --hidden_dim "30-30"
 
 
 def int_parse_list(arg_value):
@@ -178,8 +179,6 @@ def one_hot_encode_covariate(
         [covariate],
     ]
 
-    print(covariate_data)
-
     covariate_data[covariate] = pd.Categorical(covariate_data[covariate])
 
     category_codes = covariate_data[covariate].cat.codes
@@ -187,8 +186,6 @@ def one_hot_encode_covariate(
     num_categories = len(covariate_data[covariate].cat.categories)
 
     one_hot_encoded_covariate = np.eye(num_categories)[category_codes]
-
-    print(one_hot_encoded_covariate)
 
     return one_hot_encoded_covariate
 
@@ -496,7 +493,6 @@ def train(
             epochs_no_improve += 1
 
         if epochs_no_improve >= tolerance:
-            print("Early stopping at epoch:", epoch)
 
             break
 
@@ -528,7 +524,7 @@ def main(config):
 
     combined_output_data = []
 
-    for i in range(config["bootstrap_num"]):
+    for i in tqdm(range(config["bootstrap_num"]), desc="Bootstrapping"):
         # Bootstrap sampling with replacement
         bootstrap_train_subs = np.random.choice(
             TRAIN_SUBS, size=len(TRAIN_SUBS), replace=True
@@ -568,7 +564,7 @@ def main(config):
         val_data = scaler.transform(val_dataset)
 
         # Test if scaler is refreshed
-        print("Scaled val data mean:", np.mean(val_data))
+        # print("Scaled val data mean:", np.mean(val_data))
 
         train_loader = DataLoader(
             MyDataset_labels(train_data, encoded_covariate_train),
