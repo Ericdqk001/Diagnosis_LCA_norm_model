@@ -60,6 +60,7 @@ def plot_diagnosis_proportion(df, low_entropy=False):
     short_diagnoses = [diag.replace("Has_", "") for diag in diagnoses]
 
     class_names = [
+        "Low Symptom",
         "Predominantly Internalising",
         "Predominantly Externalising",
         "Highly Dysregulated",
@@ -80,24 +81,30 @@ def plot_diagnosis_proportion(df, low_entropy=False):
 
     max_proportion_class_4 = df[df["predicted_class"] == 4][diagnoses].mean().max()
 
-    # Set up the plot in a 1x3 grid
+    # Set up the plot in a 2x2 grid
     fig, axes = plt.subplots(
-        nrows=1, ncols=3, figsize=(18, 6), sharey=True
-    )  # sharey to use the same y-scale for all subplots
+        nrows=2,
+        ncols=2,
+        figsize=(12, 12),
+        sharey=True,  # Use the same y-scale for all subplots
+    )
 
-    class_ids_to_plot = [2, 3, 4]  # Exclude class 1 (Low Symptom)
+    class_ids_to_plot = [1, 2, 3, 4]  # Include all classes
 
     for i, class_id in enumerate(class_ids_to_plot):
-        ax = axes[i]  # Determine position in the grid
+        # Determine position in the 2x2 grid using integer division and modulus
+        ax = axes[i // 2, i % 2]
         class_df = df[df["predicted_class"] == class_id]
         proportions = class_df[diagnoses].mean()
 
+        print(proportions)
+
         ax.bar(short_diagnoses, proportions, color="skyblue")
-        ax.set_title(f"{class_names[i]}", fontweight="bold")
+        ax.set_title(f"{class_names[class_id - 1]}", fontweight="bold")
         ax.set_xticklabels(short_diagnoses, rotation=45)
         ax.set_xlabel("Diagnosis")
 
-        if i == 0:  # only the first subplot gets the y-label
+        if i % 2 == 0:  # Add y-label to the first column only
             ax.set_ylabel("Proportion")
 
     # Set the limit of the y-axis to the maximum proportion observed in class 4
@@ -107,4 +114,4 @@ def plot_diagnosis_proportion(df, low_entropy=False):
     plt.show()
 
 
-plot_diagnosis_proportion(lca_psych_dx_low_entropy, low_entropy=True)
+plot_diagnosis_proportion(lca_psych_dx_low_entropy, low_entropy=False)

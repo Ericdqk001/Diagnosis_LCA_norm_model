@@ -1,115 +1,105 @@
-from pathlib import Path
-
 import matplotlib.pyplot as plt
 import pandas as pd
 
+# Load the data
+file_path = "data/LCA/lcmodel_prob_class.csv"  # Replace with your actual file path
+LCA_cond_prob = pd.read_csv(file_path, index_col=0, low_memory=False)
 
-def plot_syndrome_class_probability(file_path, low_entropy=False):
-    # Load the data
-    LCA_cond_prob = pd.read_csv(file_path, index_col=0, low_memory=False)
+# Define mappings
+syndrome_map = {
+    "Anxiety/Depress": "cbcl_scr_syn_anxdep_t",
+    "Withdraw/Depress": "cbcl_scr_syn_withdep_t",
+    "Somatic": "cbcl_scr_syn_somatic_t",
+    "Social": "cbcl_scr_syn_social_t",
+    "Thought": "cbcl_scr_syn_thought_t",
+    "Attention": "cbcl_scr_syn_attention_t",
+    "RuleBreak": "cbcl_scr_syn_rulebreak_t",
+    "Aggressive": "cbcl_scr_syn_aggressive_t",
+}
 
-    # Define mappings
-    syndrome_map = {
-        "Anxiety/Depress": "cbcl_scr_syn_anxdep_t",
-        "Withdraw/Depress": "cbcl_scr_syn_withdep_t",
-        "Somatic": "cbcl_scr_syn_somatic_t",
-        "Social": "cbcl_scr_syn_social_t",
-        "Thought": "cbcl_scr_syn_thought_t",
-        "Attention": "cbcl_scr_syn_attention_t",
-        "RuleBreak": "cbcl_scr_syn_rulebreak_t",
-        "Aggressive": "cbcl_scr_syn_aggressive_t",
-    }
+inverse_syndrome_map = {v: k for k, v in syndrome_map.items()}
 
-    inverse_syndrome_map = {v: k for k, v in syndrome_map.items()}
+# Process data
+LCA_cond_prob = LCA_cond_prob.rename(columns={"L2": "Syndrome"})
+LCA_cond_prob = LCA_cond_prob[LCA_cond_prob["Var2"] == "Pr(2)"]
+LCA_cond_prob["Syndrome"] = LCA_cond_prob["Syndrome"].map(inverse_syndrome_map)
+LCA_cond_prob["Class"] = LCA_cond_prob["Var1"].str.extract(r"class (\d+):").astype(int)
 
-    # Process data
-    LCA_cond_prob = LCA_cond_prob.rename(columns={"L2": "Syndrome"})
-    LCA_cond_prob = LCA_cond_prob[LCA_cond_prob["Var2"] == "Pr(2)"]
-    LCA_cond_prob["Syndrome"] = LCA_cond_prob["Syndrome"].map(inverse_syndrome_map)
-    LCA_cond_prob["Class"] = (
-        LCA_cond_prob["Var1"].str.extract(r"class (\d+):").astype(int)
+syndrome_class_prob = LCA_cond_prob.pivot(
+    index="Syndrome", columns="Class", values="value"
+)
+
+# Reorder for better visualization
+new_order = [
+    "Aggressive",
+    "RuleBreak",
+    "Attention",
+    "Thought",
+    "Anxiety/Depress",
+    "Withdraw/Depress",
+    "Somatic",
+    "Social",
+]
+syndrome_class_prob = syndrome_class_prob.reindex(new_order)
+
+# Plotting
+plt.figure(figsize=(10, 6.7))
+ax = plt.gca()
+
+bright_colors = [
+    "#FF5733",
+    "#33FF57",
+    "#3357FF",
+    "#FF33A1",
+    "#FFDB33",
+    "#33FFF0",
+    "#FF3333",
+    "#8D33FF",
+]
+
+# 1    0.883642
+# 2    0.071332
+# 3    0.024621
+# 4    0.020405
+
+class_names = [
+    "Class 1 (88.36%)",
+    "Class 2 (7.13%)",
+    "Class 3 (2.46%)",
+    "Class 4 (2.04%)",
+]
+
+plt.figure(figsize=(10, 6.7))
+
+for idx, class_col in enumerate(syndrome_class_prob.columns):
+    plt.plot(
+        syndrome_class_prob.index,
+        syndrome_class_prob[class_col],
+        marker="o",
+        markersize=8,
+        markerfacecolor="white",
+        markeredgewidth=1.5,
+        markeredgecolor=bright_colors[idx % len(bright_colors)],
+        color=bright_colors[idx % len(bright_colors)],
+        label=class_names[idx],
+        linewidth=2,
     )
 
-    syndrome_class_prob = LCA_cond_prob.pivot(
-        index="Syndrome", columns="Class", values="value"
-    )
+plt.title(
+    "Syndrome Class Probability",
+    fontsize=14,
+    fontweight="bold",
+    family="Times New Roman",
+)
+plt.xlabel("", fontsize=12, fontweight="bold", family="Times New Roman")
+plt.ylabel("Probability", fontsize=12, fontweight="bold", family="Times New Roman")
+plt.xticks(rotation=45, fontsize=10, fontweight="bold", family="Times New Roman")
+plt.yticks(fontsize=10, fontweight="bold", family="Times New Roman")
+plt.legend(
+    prop={"family": "Times New Roman", "weight": "bold", "size": 10}, frameon=False
+)
+plt.grid(False)
+ax.set_facecolor("white")
+plt.tight_layout()
+plt.show()
 
-    # Reorder for better visualization
-    new_order = [
-        "Aggressive",
-        "RuleBreak",
-        "Attention",
-        "Thought",
-        "Anxiety/Depress",
-        "Withdraw/Depress",
-        "Somatic",
-        "Social",
-    ]
-    syndrome_class_prob = syndrome_class_prob.reindex(new_order)
-
-    # Filter by entropy if required
-    if low_entropy:
-        # Remove subjects with high entropy
-        high_entropy_subs_path = Path("data", "LCA", "subjects_with_high_entropy.csv")
-        high_entropy_subs = pd.read_csv(high_entropy_subs_path, low_memory=False)[
-            "subject"
-        ].tolist()
-        print(len(LCA_cond_prob))
-        LCA_cond_prob = LCA_cond_prob[~LCA_cond_prob.index.isin(high_entropy_subs)]
-        print(len(LCA_cond_prob))
-
-    # Plotting
-    plt.figure(figsize=(14, 10), facecolor="white")
-    ax = plt.gca()
-
-    bright_colors = [
-        "#FF5733",
-        "#33FF57",
-        "#3357FF",
-        "#FF33A1",
-        "#FFDB33",
-        "#33FFF0",
-        "#FF3333",
-        "#8D33FF",
-    ]
-
-    class_names = [
-        "Low Symptom",
-        "Predominantly Internalising",
-        "Predominantly Externalising",
-        "Highly Dysregulated",
-    ]
-
-    plt.figure(figsize=(10, 6.7))
-
-    for idx, class_col in enumerate(syndrome_class_prob.columns):
-        plt.plot(
-            syndrome_class_prob.index,
-            syndrome_class_prob[class_col],
-            marker="o",
-            markersize=10,
-            markerfacecolor="none",  # Make the marker an empty circle
-            markeredgewidth=2,
-            markeredgecolor=bright_colors[
-                idx % len(bright_colors)
-            ],  # Add this line to color the marker edge
-            color=bright_colors[idx % len(bright_colors)],
-            label=class_names[idx],
-            linewidth=4,  # Increase the line width
-        )
-
-    plt.title("Syndrome Class Probability", color="black", fontweight="bold")
-    plt.xlabel("", color="black", fontweight="bold")
-    plt.ylabel("Probability", color="black", fontweight="bold")
-    plt.xticks(rotation=45, color="black", fontweight="bold")
-    plt.yticks(color="black", fontweight="bold")
-    plt.legend(prop={"weight": "bold"})  # Set legend labels to bold
-    plt.grid(False)  # This line removes the grid
-    ax.set_facecolor("white")  # This sets the plot background color to white
-    plt.tight_layout()
-    plt.show()
-
-
-# Example usage
-file_path = "data/LCA/lcmodel_prob_class.csv"
-plot_syndrome_class_probability(file_path, low_entropy=False)

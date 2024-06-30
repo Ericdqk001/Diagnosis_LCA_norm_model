@@ -99,16 +99,14 @@ def plot_individual_cbcl_patterns_separate(df, low_entropy=False):
     ]
 
     if low_entropy:
-        # Remove subjects with high entropy
-        high_entropy_subs_path = Path(
-            "data",
-            "LCA",
-            "subjects_with_high_entropy.csv",
-        )
-        high_entropy_subs = pd.read_csv(
-            high_entropy_subs_path,
-            low_memory=False,
-        )["subject"].tolist()
+        # Load subjects with high entropy
+        high_entropy_subs_path = Path("data", "LCA", "subjects_with_high_entropy.csv")
+        high_entropy_subs = pd.read_csv(high_entropy_subs_path, low_memory=False)[
+            "subject"
+        ].tolist()
+        # Filter the dataframe to include only high entropy subjects
+        high_entropy_df = df[df.index.isin(high_entropy_subs)]
+        # Filter the dataframe to exclude high entropy subjects
         df = df[~df.index.isin(high_entropy_subs)]
 
     class_names = [
@@ -153,69 +151,23 @@ def plot_individual_cbcl_patterns_separate(df, low_entropy=False):
         plt.tight_layout()
         plt.show()
 
-
-plot_individual_cbcl_patterns_separate(cbcl_lca_memberships, low_entropy=True)
-
-
-def plot_cbcl_patterns_by_syndrome(df, low_entropy=False):
-    cbcl_scales = [
-        "cbcl_scr_syn_anxdep_t",
-        "cbcl_scr_syn_withdep_t",
-        "cbcl_scr_syn_somatic_t",
-        "cbcl_scr_syn_social_t",
-        "cbcl_scr_syn_thought_t",
-        "cbcl_scr_syn_attention_t",
-        "cbcl_scr_syn_rulebreak_t",
-        "cbcl_scr_syn_aggressive_t",
-    ]
-
-    sum_syndrome = [
-        "cbcl_scr_syn_internal_t",
-        "cbcl_scr_syn_external_t",
-        "cbcl_scr_syn_totprob_t",
-    ]
-
     if low_entropy:
-        # Remove subjects with high entropy
-        high_entropy_subs_path = Path(
-            "data",
-            "LCA",
-            "subjects_with_high_entropy.csv",
-        )
-        high_entropy_subs = pd.read_csv(
-            high_entropy_subs_path,
-            low_memory=False,
-        )["subject"].tolist()
-        df = df[~df.index.isin(high_entropy_subs)]
-
-    bright_colors = [
-        "#FF5733",
-        "#33FF57",
-        "#3357FF",
-    ]
-
-    syndrome_names = [
-        "Internalizing Problems",
-        "Externalizing Problems",
-        "Total Problems",
-    ]
-
-    for i, syndrome in enumerate(sum_syndrome):
-        syndrome_df = df[df[syndrome] == 2]
-
+        # Plot high entropy subjects
         plt.figure(figsize=(10, 6.7))
-        # Plot each individual's pattern as a line
-        for _, row in syndrome_df.iterrows():
+        for _, row in high_entropy_df.iterrows():
             plt.plot(
                 cbcl_scales,
                 row[cbcl_scales],
-                color=bright_colors[i],
+                color="grey",
                 alpha=0.1,  # Make lines semi-transparent
                 linewidth=1,  # Make lines thinner
             )
 
         # Set plot title and labels
-        plt.title(f"Individual CBCL Score Patterns - {syndrome_names[i]}", fontweight='bold')
+        plt.title(
+            "Individual CBCL Score Patterns - High Entropy Subjects",
+            fontweight="bold",
+        )
         plt.xlabel("CBCL Scales", color="black", fontweight="bold")
         plt.ylabel("Scores", color="black", fontweight="bold")
         plt.xticks(rotation=45, color="black", fontweight="bold")
@@ -225,5 +177,77 @@ def plot_cbcl_patterns_by_syndrome(df, low_entropy=False):
         plt.tight_layout()
         plt.show()
 
-# Example usage
-# plot_cbcl_patterns_by_syndrome(cbcl_lca_memberships, low_entropy=False)
+
+# Assuming cbcl_lca_memberships is already defined
+plot_individual_cbcl_patterns_separate(cbcl_lca_memberships, low_entropy=True)
+
+# def plot_cbcl_patterns_by_syndrome(df, low_entropy=False):
+#     cbcl_scales = [
+#         "cbcl_scr_syn_anxdep_t",
+#         "cbcl_scr_syn_withdep_t",
+#         "cbcl_scr_syn_somatic_t",
+#         "cbcl_scr_syn_social_t",
+#         "cbcl_scr_syn_thought_t",
+#         "cbcl_scr_syn_attention_t",
+#         "cbcl_scr_syn_rulebreak_t",
+#         "cbcl_scr_syn_aggressive_t",
+#     ]
+
+#     sum_syndrome = [
+#         "cbcl_scr_syn_internal_t",
+#         "cbcl_scr_syn_external_t",
+#         "cbcl_scr_syn_totprob_t",
+#     ]
+
+#     if low_entropy:
+#         # Remove subjects with high entropy
+#         high_entropy_subs_path = Path(
+#             "data",
+#             "LCA",
+#             "subjects_with_high_entropy.csv",
+#         )
+#         high_entropy_subs = pd.read_csv(
+#             high_entropy_subs_path,
+#             low_memory=False,
+#         )["subject"].tolist()
+#         df = df[~df.index.isin(high_entropy_subs)]
+
+#     bright_colors = [
+#         "#FF5733",
+#         "#33FF57",
+#         "#3357FF",
+#     ]
+
+#     syndrome_names = [
+#         "Internalizing Problems",
+#         "Externalizing Problems",
+#         "Total Problems",
+#     ]
+
+#     for i, syndrome in enumerate(sum_syndrome):
+#         syndrome_df = df[df[syndrome] == 2]
+
+#         plt.figure(figsize=(10, 6.7))
+#         # Plot each individual's pattern as a line
+#         for _, row in syndrome_df.iterrows():
+#             plt.plot(
+#                 cbcl_scales,
+#                 row[cbcl_scales],
+#                 color=bright_colors[i],
+#                 alpha=0.1,  # Make lines semi-transparent
+#                 linewidth=1,  # Make lines thinner
+#             )
+
+#         # Set plot title and labels
+#         plt.title(f"Individual CBCL Score Patterns - {syndrome_names[i]}", fontweight='bold')
+#         plt.xlabel("CBCL Scales", color="black", fontweight="bold")
+#         plt.ylabel("Scores", color="black", fontweight="bold")
+#         plt.xticks(rotation=45, color="black", fontweight="bold")
+#         plt.yticks(color="black", fontweight="bold")
+#         plt.grid(False)
+#         plt.gca().set_facecolor("white")
+#         plt.tight_layout()
+#         plt.show()
+
+# # Example usage
+# plot_cbcl_patterns_by_syndrome(cbcl_lca_memberships, low_entropy=True)
