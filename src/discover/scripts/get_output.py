@@ -46,7 +46,7 @@ features_of_interest_path = Path(
 
 data_splits_path = Path(
     processed_data_path,
-    "data_splits_with_clinical_val.json",
+    "data_splits.json",
 )
 
 cVAE_discover_results_path = Path(
@@ -71,6 +71,11 @@ cVAE_feature_hyper = {
         "latent_dim": 10,
         "hidden_dim": [30, 30],
     },
+    "gordon_net_subcor_limbic_no_dup": {
+        "learning_rate": 0.001,
+        "latent_dim": 10,
+        "hidden_dim": [30, 30],
+    },
 }
 
 
@@ -79,9 +84,10 @@ def get_output(
 ):
 
     feature_sets = {
-        "t1w_cortical_thickness_rois": "cortical_thickness",
-        "t1w_cortical_volume_rois": "cortical_volume",
-        "t1w_cortical_surface_area_rois": "cortical_surface_area",
+        # "t1w_cortical_thickness_rois": "cortical_thickness",
+        # "t1w_cortical_volume_rois": "cortical_volume",
+        # "t1w_cortical_surface_area_rois": "cortical_surface_area",
+        "gordon_net_subcor_limbic_no_dup": "rsfmri",
     }
 
     for feature in feature_sets:
@@ -161,5 +167,5 @@ def get_output(
 
 if __name__ == "__main__":
     get_output(
-        if_low_entropy=True,
+        if_low_entropy=False,
     )

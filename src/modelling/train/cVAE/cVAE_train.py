@@ -5,12 +5,11 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import torch
+import wandb
 from modelling.load.load import MyDataset_labels
 from modelling.models.cVAE import cVAE
 from sklearn.preprocessing import StandardScaler
 from torch.utils.data import DataLoader
-
-import wandb
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -22,6 +21,8 @@ parser = ArgumentParser(description="Tune cVAE")
 # python src/modelling/train/cVAE/cVAE_train.py --data_path "data/processed_data" --feature_type "cortical_volume" --project_title "cVAE_rsfmri_final_train" --batch_size 256 --learning_rate 0.001 --latent_dim 10 --hidden_dim "30-30"
 
 # python src/modelling/train/cVAE/cVAE_train.py --data_path "data/processed_data" --feature_type "cortical_surface_area" --project_title "cVAE_rsfmri_final_train" --batch_size 256 --learning_rate 0.0005 --latent_dim 10 --hidden_dim "30-30"
+
+# python src/modelling/train/cVAE/cVAE_train.py --data_path "data/processed_data" --feature_type "rsfmri" --project_title "cVAE_rsfmri_final_train" --batch_size 256 --learning_rate 0.001 --latent_dim 10 --hidden_dim "30-30"
 
 
 def int_parse_list(arg_value):
@@ -109,7 +110,7 @@ if not CHECKPOINT_PATH.exists():
 
 data_splits_path = Path(
     processed_data_path,
-    "data_splits_with_clinical_val.json",
+    "data_splits.json",
 )
 
 with open(data_splits_path, "r") as f:

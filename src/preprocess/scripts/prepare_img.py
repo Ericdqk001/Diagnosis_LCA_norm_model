@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 
 import pandas as pd
@@ -145,6 +144,7 @@ def prepare_image():
 
     subs_t1w_pass = subs_t1w_pass[subs_t1w_pass.index.isin(predicted_class.index)]
 
+    # 6 removed
     subs_rsfmri_pass = subs_rsfmri_pass[
         subs_rsfmri_pass.index.isin(predicted_class.index)
     ]
@@ -165,6 +165,7 @@ def prepare_image():
 
     subs_t1w_pass = subs_t1w_pass[subs_t1w_pass.index.isin(psych_dx.index)]
 
+    # 113 removed
     subs_rsfmri_pass = subs_rsfmri_pass[subs_rsfmri_pass.index.isin(psych_dx.index)]
 
     # Genetics and relatedness (NDA 4.0 acspsw03), used to remove familial members.
@@ -182,6 +183,7 @@ def prepare_image():
 
     family_id = genetics_relatedness["rel_family_id"]
 
+    # No missing value of family_id after joining
     subs_t1w_pass_fam_id = subs_t1w_pass.join(
         family_id,
         how="inner",
@@ -194,6 +196,8 @@ def prepare_image():
 
     seed = 42
 
+    # Before removing familial members, a total of 11771 - 10733 = 1038 subjects were removed
+    # 10733 - 9031 = 1702
     unrelated_subs_t1w = subs_t1w_pass_fam_id.loc[
         subs_t1w_pass_fam_id.groupby(["rel_family_id"]).apply(
             lambda x: x.sample(n=1, random_state=seed).index[0]
@@ -277,17 +281,18 @@ def prepare_image():
         mri_y_smr_thk_dst.eventname == "baseline_year_1_arm_1"
     ]
 
+    # 10 with missing values are dropped here for t1w
     t1w_cortical_thickness_bl_pass = mri_y_smr_thk_dst_bl[
         mri_y_smr_thk_dst_bl.index.isin(unrelated_subs_t1w.index)
     ].dropna()
 
-    t1w_cortical_thickness_bl_pass.to_csv(
-        Path(
-            processed_data_path,
-            "t1w_cortical_thickness_bl_pass.csv",
-        ),
-        index=True,
-    )
+    # t1w_cortical_thickness_bl_pass.to_csv(
+    #     Path(
+    #         processed_data_path,
+    #         "t1w_cortical_thickness_bl_pass.csv",
+    #     ),
+    #     index=True,
+    # )
 
     # Cortical volume data
     mri_y_smr_vol_dst_bl = mri_y_smr_vol_dst[
@@ -298,13 +303,13 @@ def prepare_image():
         mri_y_smr_vol_dst_bl.index.isin(unrelated_subs_t1w.index)
     ].dropna()
 
-    t1w_cortical_volume_bl_pass.to_csv(
-        Path(
-            processed_data_path,
-            "t1w_cortical_volume_bl_pass.csv",
-        ),
-        index=True,
-    )
+    # t1w_cortical_volume_bl_pass.to_csv(
+    #     Path(
+    #         processed_data_path,
+    #         "t1w_cortical_volume_bl_pass.csv",
+    #     ),
+    #     index=True,
+    # )
 
     # Cortical surface area data
 
@@ -316,13 +321,13 @@ def prepare_image():
         mri_y_smr_area_dst_bl.index.isin(unrelated_subs_t1w.index)
     ].dropna()
 
-    t1w_cortical_surface_area_bl_pass.to_csv(
-        Path(
-            processed_data_path,
-            "t1w_cortical_surface_area_bl_pass.csv",
-        ),
-        index=True,
-    )
+    # t1w_cortical_surface_area_bl_pass.to_csv(
+    #     Path(
+    #         processed_data_path,
+    #         "t1w_cortical_surface_area_bl_pass.csv",
+    #     ),
+    #     index=True,
+    # )
 
     # rs-fMRI data
     # First combine the Gordon Network correlations and their correlations with subcortical
@@ -344,13 +349,13 @@ def prepare_image():
         gordon_cor_subcortical.index.isin(unrelated_subs_rsfmri.index)
     ].dropna()
 
-    gordon_cor_subcortical_bl_pass.to_csv(
-        Path(
-            processed_data_path,
-            "gordon_cor_subcortical_bl_pass.csv",
-        ),
-        index=True,
-    )
+    # gordon_cor_subcortical_bl_pass.to_csv(
+    #     Path(
+    #         processed_data_path,
+    #         "gordon_cor_subcortical_bl_pass.csv",
+    #     ),
+    #     index=True,
+    # )
 
     # %%
     ### Now select the columns that are the phenotypes of interest for each modality
@@ -441,8 +446,8 @@ def prepare_image():
         "brain_features_of_interest.json",
     )
 
-    with open(brain_features_of_interest_path, "w") as f:
-        json.dump(brain_features_of_interest, f)
+    # with open(brain_features_of_interest_path, "w") as f:
+    #     json.dump(brain_features_of_interest, f)
 
 
 if __name__ == "__main__":

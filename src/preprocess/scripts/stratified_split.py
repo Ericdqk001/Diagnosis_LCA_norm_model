@@ -7,7 +7,7 @@ from typing import List
 import pandas as pd
 
 
-def split_data():
+def split_data(if_exp_2=True):
 
     # %%
     processed_data_path = Path(
@@ -207,17 +207,26 @@ def split_data():
     ### Remove subjects with any psychiatric diagnoses or positive for any of the CBCL
     # syndrome scales (Tested: works)
 
-    t1w_low_symptom = t1w_low_symptom[t1w_low_symptom["psych_dx"] == "control"]
+    # Two experiments described in the dissertation, the first just uses the low-symptom
+    # class identified by LCA as the normative cohort, while the second removed subjects
+    # with any psychiatric diagnoses or positive for any of the CBCL syndrome scales from
+    # the low-symptom cohort.
 
-    rsfmri_low_symptom = rsfmri_low_symptom[rsfmri_low_symptom["psych_dx"] == "control"]
+    if if_exp_2:
 
-    t1w_low_symptom = t1w_low_symptom[
-        ~t1w_low_symptom[cbcl_columns_to_join[:-1]].eq(2).any(axis=1)
-    ]
+        t1w_low_symptom = t1w_low_symptom[t1w_low_symptom["psych_dx"] == "control"]
 
-    rsfmri_low_symptom = rsfmri_low_symptom[
-        ~rsfmri_low_symptom[cbcl_columns_to_join[:-1]].eq(2).any(axis=1)
-    ]
+        rsfmri_low_symptom = rsfmri_low_symptom[
+            rsfmri_low_symptom["psych_dx"] == "control"
+        ]
+
+        t1w_low_symptom = t1w_low_symptom[
+            ~t1w_low_symptom[cbcl_columns_to_join[:-1]].eq(2).any(axis=1)
+        ]
+
+        rsfmri_low_symptom = rsfmri_low_symptom[
+            ~rsfmri_low_symptom[cbcl_columns_to_join[:-1]].eq(2).any(axis=1)
+        ]
 
     ###
 
@@ -232,7 +241,6 @@ def split_data():
     ) = split_low_symptom(rsfmri_low_symptom)
 
     # %%
-    ### NOTE This cell prepares data with clinical cohorts in the validation set
 
     t1w_data_splits_with_clinical_val = {
         "train": t1w_low_symptom_train_subs,
@@ -260,7 +268,7 @@ def split_data():
         "high_symptom_test": rsfmri_high_symptom.index.to_list(),
     }
 
-    data_splits_with_clinical_val = {
+    data_splits = {
         "structural": t1w_data_splits_with_clinical_val,
         "functional": rsfmri_data_splits_with_clinical_val,
     }
@@ -275,10 +283,15 @@ def split_data():
     # ) as f:
     #     json.dump(rsfmri_data_splits_with_clinical_val, f)
 
-    # with open(
-    #     Path(processed_data_path, "data_splits_with_clinical_val.json"), "w"
-    # ) as f:
-    #     json.dump(data_splits_with_clinical_val, f)
+    if if_exp_2:
+
+        with open(Path(processed_data_path, "data_splits.json"), "w") as f:
+            json.dump(data_splits, f)
+
+    else:
+
+        with open(Path(processed_data_path, "data_splits_exp_1.json"), "w") as f:
+            json.dump(data_splits, f)
 
     for key, value in t1w_data_splits_with_clinical_val.items():
         print(f"Length of {key} in t1w_data_splits: {len(value)}")
@@ -288,15 +301,10 @@ def split_data():
     for key, value in rsfmri_data_splits_with_clinical_val.items():
         print(f"Length of {key} in rsfmri_data_splits: {len(value)}")
 
-    with open(
-        Path(processed_data_path, "data_splits_with_clinical_val.json"), "r"
-    ) as f:
-        t1w_data_splits_with_clinical_val = json.load(f)
-
 
 # %%
 if __name__ == "__main__":
-    split_data()
+    split_data(if_exp_2=True)
 
 
 # The average total_dx for rsfmri_internalising is 2.33
