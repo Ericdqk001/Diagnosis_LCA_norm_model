@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 
 psych_dx_path = Path(
@@ -86,7 +87,7 @@ cbcl_lca_memberships = lca_class_memberships.join(
 )
 
 
-def plot_individual_cbcl_patterns_separate(df, low_entropy=False):
+def plot_mean_variance_cbcl_patterns(df, low_entropy=False):
     cbcl_scales = [
         "cbcl_scr_syn_anxdep_t",
         "cbcl_scr_syn_withdep_t",
@@ -98,7 +99,6 @@ def plot_individual_cbcl_patterns_separate(df, low_entropy=False):
         "cbcl_scr_syn_aggressive_t",
     ]
 
-    # Invert the syndrome_map to use as labels
     syndrome_map = {
         "cbcl_scr_syn_anxdep_t": "Anxiety/Depress",
         "cbcl_scr_syn_withdep_t": "Withdraw/Depress",
@@ -110,17 +110,13 @@ def plot_individual_cbcl_patterns_separate(df, low_entropy=False):
         "cbcl_scr_syn_aggressive_t": "Aggressive",
     }
 
-    # Map the cbcl_scales to their respective names for the x-axis labels
     axis_labels = [syndrome_map[scale] for scale in cbcl_scales]
 
     if low_entropy:
-        # Load subjects with high entropy
         high_entropy_subs_path = Path("data", "LCA", "subjects_with_high_entropy.csv")
         high_entropy_subs = pd.read_csv(high_entropy_subs_path, low_memory=False)[
             "subject"
         ].tolist()
-        # Separate the dataframe into high entropy and non-high entropy subjects
-        high_entropy_df = df[df.index.isin(high_entropy_subs)]
         df = df[~df.index.isin(high_entropy_subs)]
 
     class_names = [
@@ -130,57 +126,38 @@ def plot_individual_cbcl_patterns_separate(df, low_entropy=False):
         "Highly Dysregulated",
     ]
 
-    bright_colors = [
-        "#FF5733",
-        "#33FF57",
-        "#3357FF",
-        "#FF33A1",
-    ]
-
-    # Set up a 2x2 subplot grid
-    fig, axes = plt.subplots(2, 2, figsize=(15, 10))
+    colors = ["blue", "green", "red", "purple"]
+    fig, axes = plt.subplots(2, 2, figsize=(15, 10), dpi=100)
 
     for i, class_id in enumerate(sorted(df["predicted_class"].unique())):
-        ax = axes[i // 2, i % 2]  # Determine subplot position
+        ax = axes[i // 2, i % 2]
         class_df = df[df["predicted_class"] == class_id]
 
-        for _, row in class_df.iterrows():
-            ax.plot(
-                axis_labels,
-                row[cbcl_scales],
-                color=bright_colors[class_id - 1],
-                alpha=0.1,  # Make lines semi-transparent
-                linewidth=1,  # Make lines thinner
-            )
+        means = class_df[cbcl_scales].mean()
+        stds = class_df[cbcl_scales].std()
+
+        ax.errorbar(
+            axis_labels,
+            means,
+            yerr=stds,
+            fmt="o-",
+            color=colors[i],
+            ecolor="black",
+            elinewidth=3,
+            capsize=5,
+            label=f"{class_names[class_id - 1]} (Mean ± 1 SD)",
+        )
 
         ax.set_title(f"{class_names[class_id - 1]}", fontweight="bold")
-        ax.set_xticks(range(len(cbcl_scales)))
+        ax.set_xticks(np.arange(len(cbcl_scales)))
         ax.set_xticklabels(axis_labels, rotation=45)
         ax.set_ylabel("Scores")
         ax.grid(True)
+        ax.legend()
 
     plt.tight_layout()
-
-    if low_entropy:
-        # Plot high entropy subjects separately
-        plt.figure(figsize=(10, 6.7))
-        for _, row in high_entropy_df.iterrows():
-            plt.plot(
-                axis_labels,
-                row[cbcl_scales],
-                color="grey",
-                alpha=0.1,  # Make lines semi-transparent
-                linewidth=1,  # Make lines thinner
-            )
-
-        plt.title("High Entropy Subjects", fontweight="bold")
-        plt.xlabel("CBCL Scales")
-        plt.ylabel("Scores")
-        plt.xticks(range(len(cbcl_scales)), labels=axis_labels, rotation=45)
-        plt.grid(True)
-        plt.tight_layout()
-        plt.show()
+    plt.show()
 
 
-# Assuming cbcl_lca_memberships is already defined and loaded as before
-plot_individual_cbcl_patterns_separate(cbcl_lca_memberships, low_entropy=True)
+# Example usage, assuming 'cbcl_lca_memberships' is already defined and loaded as before
+plot_mean_variance_cbcl_patterns(cbcl_lca_memberships, low_entropy=False)

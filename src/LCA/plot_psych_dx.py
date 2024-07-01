@@ -114,4 +114,4 @@ def plot_diagnosis_proportion(df, low_entropy=False):
     plt.show()
 
 
-plot_diagnosis_proportion(lca_psych_dx_low_entropy, low_entropy=False)
+plot_diagnosis_proportion(lca_psych_dx_low_entropy, low_entropy=True)

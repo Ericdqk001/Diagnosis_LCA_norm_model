@@ -6,6 +6,8 @@ import seaborn as sns
 
 
 def plot_entropy_distribution_by_class(df):
+    # Set the figure size and create subplots
+    fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 12))
 
     class_names = [
         "Low Symptom",
@@ -13,9 +15,6 @@ def plot_entropy_distribution_by_class(df):
         "Predominantly Externalising",
         "Highly Dysregulated",
     ]
-
-    # Set the figure size and create subplots
-    fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 12))
 
     # Iterate through each predicted class and plot the histogram
     for i in range(1, 5):
@@ -26,10 +25,12 @@ def plot_entropy_distribution_by_class(df):
         high_entropy_percentage = (
             class_entropy > 0.2
         ).mean() * 100  # mean() gives proportion, *100 to convert to percentage
+        mean_entropy = class_entropy.mean()
+        sd_entropy = class_entropy.std()
 
         sns.histplot(class_entropy, bins=30, kde=True, ax=ax)
-        ax.set_title(f"{class_names[i-1]} Class")
-        ax.set_xlabel("Shannon's Entropy")
+        ax.set_title(f"Distribution of Entropy for {class_names[i-1]} Class")
+        ax.set_xlabel("Entropy")
         ax.set_ylabel("Frequency")
         ax.grid(True)
 
@@ -37,7 +38,7 @@ def plot_entropy_distribution_by_class(df):
         ax.text(
             0.95,
             0.95,
-            f"{high_entropy_percentage:.2f}% > 0.2 (entropy)",
+            f"{high_entropy_percentage:.2f}% > 0.2\nMean: {mean_entropy:.2f}\nSD: {sd_entropy:.2f}",
             transform=ax.transAxes,
             verticalalignment="top",
             horizontalalignment="right",
@@ -50,12 +51,14 @@ def plot_entropy_distribution_by_class(df):
             ),
         )
 
+    # Add a main title to the figure
     fig.suptitle(
-        "Entropy Distributions for LCA Classes", fontsize=16, fontweight="light"
+        "Entropy Distribution Across Predicted Classes", fontsize=16, fontweight="bold"
     )
 
     # Improve layout and avoid label cut-off
     plt.tight_layout()
+    plt.subplots_adjust(top=0.9)  # Adjust the top of the subplots to fit the main title
     plt.show()
 
 
