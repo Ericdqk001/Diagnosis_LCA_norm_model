@@ -84,9 +84,9 @@ def get_output(
 ):
 
     feature_sets = {
-        # "t1w_cortical_thickness_rois": "cortical_thickness",
-        # "t1w_cortical_volume_rois": "cortical_volume",
-        # "t1w_cortical_surface_area_rois": "cortical_surface_area",
+        "t1w_cortical_thickness_rois": "cortical_thickness",
+        "t1w_cortical_volume_rois": "cortical_volume",
+        "t1w_cortical_surface_area_rois": "cortical_surface_area",
         "gordon_net_subcor_limbic_no_dup": "rsfmri",
     }
 
@@ -167,5 +167,5 @@ def get_output(
 
 if __name__ == "__main__":
     get_output(
-        if_low_entropy=False,
+        if_low_entropy=True,
     )

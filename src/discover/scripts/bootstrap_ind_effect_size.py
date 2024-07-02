@@ -3,30 +3,44 @@ from pathlib import Path
 
 import pandas as pd
 from discover.scripts.test_utils import cliffs_delta
+from tqdm import tqdm
 
-bootstrap_result_paths = Path(
+bootstrap_result_path = Path(
     "src",
     "discover",
     "results",
     "bootstrap",
-).glob("*.csv")
+)
 
+features = [
+    "cortical_thickness",
+    # "cortical_volume",
+    # "cortical_surface_area",
+]
 
-bootstrap_num = 10
+bootstrap_num = 1000
 low_entropy = True
 metric = "reconstruction_deviation"
+
 metric_lists = [metric] + [f"{metric}_{i}" for i in range(148)]
 
-effect_size_CIs = {metric: defaultdict(list) for metric in metric_lists}
+feature_effect_sizes_CIs = {}
 
-for bootstrap_result_path in bootstrap_result_paths:
+for feature in features:
+
+    feature_bootstrap_result_path = Path(
+        bootstrap_result_path,
+        f"{feature}_bootstrap_results.csv",
+    )
+
+    effect_size_CIs = {metric: defaultdict(list) for metric in metric_lists}
 
     bootstrap_result = pd.read_csv(
-        bootstrap_result_path,
+        feature_bootstrap_result_path,
         index_col=0,
     )
 
-    for i in range(bootstrap_num):
+    for i in tqdm(range(bootstrap_num), desc=f"Processing {feature}"):
 
         output_data = bootstrap_result[bootstrap_result["bootstrap_num"] == i]
 
@@ -74,3 +88,5 @@ for bootstrap_result_path in bootstrap_result_paths:
                 effect_size = cliffs_delta(deviations, control_deviation)
 
                 effect_size_CIs[metric][group].append(effect_size)
+
+    feature_effect_sizes_CIs[feature] = effect_size_CIs

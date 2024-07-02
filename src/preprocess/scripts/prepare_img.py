@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import pandas as pd
@@ -286,13 +287,13 @@ def prepare_image():
         mri_y_smr_thk_dst_bl.index.isin(unrelated_subs_t1w.index)
     ].dropna()
 
-    # t1w_cortical_thickness_bl_pass.to_csv(
-    #     Path(
-    #         processed_data_path,
-    #         "t1w_cortical_thickness_bl_pass.csv",
-    #     ),
-    #     index=True,
-    # )
+    t1w_cortical_thickness_bl_pass.to_csv(
+        Path(
+            processed_data_path,
+            "t1w_cortical_thickness_bl_pass.csv",
+        ),
+        index=True,
+    )
 
     # Cortical volume data
     mri_y_smr_vol_dst_bl = mri_y_smr_vol_dst[
@@ -303,13 +304,13 @@ def prepare_image():
         mri_y_smr_vol_dst_bl.index.isin(unrelated_subs_t1w.index)
     ].dropna()
 
-    # t1w_cortical_volume_bl_pass.to_csv(
-    #     Path(
-    #         processed_data_path,
-    #         "t1w_cortical_volume_bl_pass.csv",
-    #     ),
-    #     index=True,
-    # )
+    t1w_cortical_volume_bl_pass.to_csv(
+        Path(
+            processed_data_path,
+            "t1w_cortical_volume_bl_pass.csv",
+        ),
+        index=True,
+    )
 
     # Cortical surface area data
 
@@ -321,13 +322,13 @@ def prepare_image():
         mri_y_smr_area_dst_bl.index.isin(unrelated_subs_t1w.index)
     ].dropna()
 
-    # t1w_cortical_surface_area_bl_pass.to_csv(
-    #     Path(
-    #         processed_data_path,
-    #         "t1w_cortical_surface_area_bl_pass.csv",
-    #     ),
-    #     index=True,
-    # )
+    t1w_cortical_surface_area_bl_pass.to_csv(
+        Path(
+            processed_data_path,
+            "t1w_cortical_surface_area_bl_pass.csv",
+        ),
+        index=True,
+    )
 
     # rs-fMRI data
     # First combine the Gordon Network correlations and their correlations with subcortical
@@ -349,13 +350,13 @@ def prepare_image():
         gordon_cor_subcortical.index.isin(unrelated_subs_rsfmri.index)
     ].dropna()
 
-    # gordon_cor_subcortical_bl_pass.to_csv(
-    #     Path(
-    #         processed_data_path,
-    #         "gordon_cor_subcortical_bl_pass.csv",
-    #     ),
-    #     index=True,
-    # )
+    gordon_cor_subcortical_bl_pass.to_csv(
+        Path(
+            processed_data_path,
+            "gordon_cor_subcortical_bl_pass.csv",
+        ),
+        index=True,
+    )
 
     # %%
     ### Now select the columns that are the phenotypes of interest for each modality
@@ -416,7 +417,7 @@ def prepare_image():
 
     gordon_net_subcor_no_dup.extend(list(mri_y_rsfmr_cor_gp_aseg_bl.columns)[1:])
 
-    # Add only amygdala and accumbens and hippocampus
+    # Add only amygdala and accumbens
 
     gordon_net_subcor_limbic_no_dup = gordon_net_cor_no_dup.copy()
 
@@ -446,8 +447,8 @@ def prepare_image():
         "brain_features_of_interest.json",
     )
 
-    # with open(brain_features_of_interest_path, "w") as f:
-    #     json.dump(brain_features_of_interest, f)
+    with open(brain_features_of_interest_path, "w") as f:
+        json.dump(brain_features_of_interest, f)
 
 
 if __name__ == "__main__":
