@@ -69,7 +69,6 @@ family_income = demographics_bl["demo_comb_income_v2"].copy()
 family_income = family_income.replace(777, 999)
 
 # Select relevant demographic variables
-# Select relevant demographic variables
 des_vars = pd.DataFrame(
     {
         "demo_sex_v2": demographics_bl.demo_sex_v2,
@@ -171,9 +170,79 @@ for i in range(1, 5):
     print("Class", i)
     print(class_interview_age_stats.T)
 
-# # Display the results for each class
-# for i in range(1, 5):
-#     print(
-#         f"\nDescriptive Statistics for Predicted Class {i} (Count and Proportion):\n",
-#         class_stats[i],
-#     )
+# Display the results for each class
+for i in range(1, 5):
+    print(
+        f"\nDescriptive Statistics for Predicted Class {i} (Count and Proportion):\n",
+        class_stats[i],
+    )
+
+
+## Now get the sample characteristics for each class without high entropy subjects
+
+high_entropy_subs_path = Path(
+    "data",
+    "LCA",
+    "subjects_with_high_entropy.csv",
+)
+
+high_entropy_subs = pd.read_csv(
+    high_entropy_subs_path,
+    index_col=0,
+    low_memory=False,
+)
+
+cbcl_dummy_des_vars_no_high_entropy = cbcl_dummy_des_vars[
+    ~cbcl_dummy_des_vars.index.isin(high_entropy_subs.index)
+]
+
+class_stats_no_high_entropy = {}
+
+for i in range(1, 5):
+    cbcl_dummy_des_vars_class_no_high_entropy = cbcl_dummy_des_vars_no_high_entropy[
+        cbcl_dummy_des_vars_no_high_entropy.predicted_class == i
+    ]
+
+    class_demographic_stats_no_high_entropy = {
+        "demo_sex_v2": cbcl_dummy_des_vars_class_no_high_entropy["demo_sex_v2"]
+        .value_counts()
+        .to_frame(name="count"),
+        "race_ethnicity": cbcl_dummy_des_vars_class_no_high_entropy["race_ethnicity"]
+        .value_counts()
+        .to_frame(name="count"),
+        "family_income": cbcl_dummy_des_vars_class_no_high_entropy["family_income"]
+        .value_counts()
+        .to_frame(name="count"),
+    }
+
+    for key in class_demographic_stats_no_high_entropy:
+        class_demographic_stats_no_high_entropy[key]["proportion"] = (
+            cbcl_dummy_des_vars_class_no_high_entropy[key].value_counts(normalize=True)
+        )
+
+    # Calculate mean and SD for interview age for the class
+
+    class_interview_age_stats_no_high_entropy = (
+        cbcl_dummy_des_vars_class_no_high_entropy["interview_age"]
+        .agg(["mean", "std"])
+        .to_frame(name="interview_age")
+    )
+
+    # Combine demographics and interview age stats
+    class_stats_no_high_entropy[i] = pd.concat(
+        [
+            pd.concat(class_demographic_stats_no_high_entropy, axis=1),
+            class_interview_age_stats_no_high_entropy.T,
+        ]
+    )
+
+    # print("Class", i)
+    # print(class_interview_age_stats_no_high_entropy.T)
+
+# Display the results for each class
+print("\nSample Characteristics for Each Class without High Entropy Subjects:")
+for i in range(1, 5):
+    print(
+        f"\nDescriptive Statistics for Predicted Class {i} (Count and Proportion) without High Entropy Subjects:\n",
+        class_stats_no_high_entropy[i],
+    )
