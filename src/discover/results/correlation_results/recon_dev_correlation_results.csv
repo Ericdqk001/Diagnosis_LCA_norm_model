@@ -1,21 +1,21 @@
 Cohort,Syndrome,Correlation,P-Value,Feature
-All,cbcl_sum_score,0.10762536833452183,4.9771303281880344e-05,Cortical Thickness
-Control,cbcl_sum_score,0.0012213739513264312,0.9820719976142647,Cortical Thickness
-Internalizing,cbcl_sum_score,0.04754277608394384,0.2214996510866845,Cortical Thickness
-Externalizing,cbcl_sum_score,0.0281952962410958,0.6746965153984245,Cortical Thickness
-High Symptom,cbcl_sum_score,0.13226699370825887,0.0711478280459764,Cortical Thickness
-All,cbcl_sum_score,0.007630579877222113,0.7742761021151834,Cortical Volume
-Control,cbcl_sum_score,-0.017490361432973105,0.7475898739594409,Cortical Volume
-Internalizing,cbcl_sum_score,-0.011985613599052966,0.7580490723927689,Cortical Volume
-Externalizing,cbcl_sum_score,0.09958878263104538,0.13731465366584464,Cortical Volume
-High Symptom,cbcl_sum_score,-0.027319919900232845,0.7105194224158808,Cortical Volume
-All,cbcl_sum_score,-0.011165190386655043,0.6747505573975692,Cortical Surface Area
-Control,cbcl_sum_score,-0.022832958267966864,0.6743801051254843,Cortical Surface Area
-Internalizing,cbcl_sum_score,-0.04785410141914,0.2184856188462583,Cortical Surface Area
-Externalizing,cbcl_sum_score,0.129425854628951,0.05306702444697129,Cortical Surface Area
-High Symptom,cbcl_sum_score,0.01139270669627769,0.8770157863523045,Cortical Surface Area
-All,cbcl_sum_score,0.10589856870717002,0.00034136539574738505,Functional Connectivity
-Control,cbcl_sum_score,0.06221001890168844,0.2844234710211648,Functional Connectivity
-Internalizing,cbcl_sum_score,0.08712488114084257,0.04518350684737581,Functional Connectivity
-Externalizing,cbcl_sum_score,0.1252943351878469,0.10560681116065486,Functional Connectivity
-High Symptom,cbcl_sum_score,0.0905451429011414,0.2787650546796851,Functional Connectivity
+All,cbcl_sum_score,0.1080210810458057,4.6670955689847936e-05,Cortical Thickness
+Control,cbcl_sum_score,0.0030349984701186616,0.9554699206283073,Cortical Thickness
+Internalizing,cbcl_sum_score,0.04690824481048221,0.22773451129894268,Cortical Thickness
+Externalizing,cbcl_sum_score,0.02500678085258581,0.7097204802582793,Cortical Thickness
+High Symptom,cbcl_sum_score,0.1312987880078744,0.07326001621048309,Cortical Thickness
+All,cbcl_sum_score,0.008650197391893362,0.7450989218896112,Cortical Volume
+Control,cbcl_sum_score,-0.013636847385693067,0.8018855776145415,Cortical Volume
+Internalizing,cbcl_sum_score,-0.016688046891211214,0.6679843692209806,Cortical Volume
+Externalizing,cbcl_sum_score,0.1027730267330336,0.1251222076753428,Cortical Volume
+High Symptom,cbcl_sum_score,-0.027856792255422348,0.7050925138406818,Cortical Volume
+All,cbcl_sum_score,-0.008379930284617464,0.7527992541119424,Cortical Surface Area
+Control,cbcl_sum_score,-0.020941474207117772,0.6999918615540616,Cortical Surface Area
+Internalizing,cbcl_sum_score,-0.04654336410512433,0.23137580871921481,Cortical Surface Area
+Externalizing,cbcl_sum_score,0.1322502428414791,0.048046312662649006,Cortical Surface Area
+High Symptom,cbcl_sum_score,0.014878247217661827,0.8398354603459393,Cortical Surface Area
+All,cbcl_sum_score,0.10945497394648267,0.00021331643017248838,Functional Connectivity
+Control,cbcl_sum_score,0.05673489605286443,0.3290315557217587,Functional Connectivity
+Internalizing,cbcl_sum_score,0.0877456040354779,0.04366763976426877,Functional Connectivity
+Externalizing,cbcl_sum_score,0.13675571863072153,0.07712161154744682,Functional Connectivity
+High Symptom,cbcl_sum_score,0.08825153999014079,0.29117261878139666,Functional Connectivity

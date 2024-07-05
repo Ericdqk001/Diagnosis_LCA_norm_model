@@ -7,7 +7,6 @@ import pandas as pd
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from sklearn.covariance import MinCovDet
 from sklearn.preprocessing import StandardScaler
 from torch.distributions import Normal
 from torch.nn import Parameter
@@ -496,32 +495,6 @@ def validate(model, val_loader, device):
     return mean_val_loss
 
 
-def latent_deviations_mahalanobis_across(cohort, train):
-    dists = calc_robust_mahalanobis_distance(cohort[0], train[0])
-    return dists
-
-
-def calc_robust_mahalanobis_distance(values, train_values):
-
-    # Compute the robust covariance matrix
-    robust_cov = MinCovDet(random_state=42).fit(train_values)
-
-    # Calculate the Mahalanobis distance using the robust covariance matrix
-    mahal_robust_cov = robust_cov.mahalanobis(values)
-    return mahal_robust_cov
-
-
-def latent_deviation(mu_train, mu_sample, var_sample):
-    var = np.var(mu_train, axis=0)
-    return (
-        np.sum(
-            np.abs(mu_sample - np.mean(mu_train, axis=0)) / np.sqrt(var + var_sample),
-            axis=1,
-        )
-        / mu_sample.shape[1]
-    )
-
-
 def reconstruction_deviation(x, x_pred):
 
     dev = np.mean((x - x_pred) ** 2, axis=1)
@@ -533,51 +506,6 @@ def ind_reconstruction_deviation(x, x_pred):
     dev = (x - x_pred) ** 2
 
     return dev
-
-
-def standardise_reconstruction_deviation(output_data):
-    control_recon_dev = output_data["reconstruction_deviation"][
-        output_data["low_symp_test_subs"] == 1
-    ].values
-
-    inter_test_recon_dev = output_data["reconstruction_deviation"][
-        output_data["inter_test_subs"] == 1
-    ].values
-
-    exter_test_recon_dev = output_data["reconstruction_deviation"][
-        output_data["exter_test_subs"] == 1
-    ].values
-
-    high_test_recon_dev = output_data["reconstruction_deviation"][
-        output_data["high_test_subs"] == 1
-    ].values
-
-    mu = np.mean(control_recon_dev)
-    sigma = np.std(control_recon_dev)
-
-    control_recon_dev = (control_recon_dev - mu) / sigma
-
-    inter_test_recon_dev = (inter_test_recon_dev - mu) / sigma
-
-    exter_test_recon_dev = (exter_test_recon_dev - mu) / sigma
-
-    high_test_recon_dev = (high_test_recon_dev - mu) / sigma
-
-    standardised_recon_dev = np.concatenate(
-        [
-            control_recon_dev,
-            inter_test_recon_dev,
-            exter_test_recon_dev,
-            high_test_recon_dev,
-        ]
-    )
-
-    return standardised_recon_dev
-
-
-def separate_latent_deviation(mu_train, mu_sample, var_sample):
-    var = np.var(mu_train, axis=0)
-    return (mu_sample - np.mean(mu_train, axis=0)) / np.sqrt(var + var_sample)
 
 
 def compute_distance_deviation(
@@ -610,13 +538,6 @@ def compute_distance_deviation(
         DEVICE,
     )
 
-    test_distance = latent_deviations_mahalanobis_across(
-        [test_latent],
-        [train_latent],
-    )
-
-    output_data["mahalanobis_distance"] = test_distance
-
     output_data["reconstruction_deviation"] = reconstruction_deviation(
         test_dataset.to_numpy(),
         test_prediction,
@@ -630,20 +551,6 @@ def compute_distance_deviation(
             test_dataset.to_numpy()[:, i],
             test_prediction[:, i],
         )
-
-    output_data["standardised_reconstruction_deviation"] = (
-        standardise_reconstruction_deviation(output_data)
-    )
-
-    output_data["latent_deviation"] = latent_deviation(
-        train_latent, test_latent, test_var
-    )
-
-    individual_deviation = separate_latent_deviation(
-        train_latent, test_latent, test_var
-    )
-    for i in range(latent_dim):
-        output_data["latent_deviation_{0}".format(i)] = individual_deviation[:, i]
 
     return output_data
 

@@ -62,9 +62,9 @@ cVAE_feature_hyper = {
         "hidden_dim": [40],
     },
     "t1w_cortical_volume_rois": {
-        "learning_rate": 0.001,
+        "learning_rate": 0.005,
         "latent_dim": 10,
-        "hidden_dim": [30, 30],
+        "hidden_dim": [30],
     },
     "t1w_cortical_surface_area_rois": {
         "learning_rate": 0.0005,
