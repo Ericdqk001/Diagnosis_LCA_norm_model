@@ -6,10 +6,9 @@ import numpy as np
 import pandas as pd
 from neuroCombat import neuroCombat
 from sklearn.preprocessing import LabelEncoder
-from statsmodels.formula.api import ols
 
 
-def deconfound_image_exc_sex():
+def pre_deconfound_image_exc_sex():
 
     # %%
     processed_data_path = Path(
@@ -194,19 +193,14 @@ def deconfound_image_exc_sex():
         columns=["eventname"]
     )
 
-    # Join the covariates to the cortical thickness data and cortical volume data (no missing data here)
+    # Join the covariates to the cortical features (no missing data here)
 
     t1w_cortical_features_bl_pass = (
         t1w_cortical_thickness_bl_pass.join(
             t1w_cortical_volume_bl_pass,
             how="left",
-        )
-        .join(
+        ).join(
             t1w_cortical_surface_area_bl_pass,
-            how="left",
-        )
-        .join(
-            covariates,
             how="left",
         )
     ).dropna()
@@ -223,38 +217,26 @@ def deconfound_image_exc_sex():
         low_memory=False,
     )
 
-    # Join the covariates to the rs-fMRI data
-    gordon_cor_subcortical_bl_pass = gordon_cor_subcortical_bl_pass.join(
-        covariates, how="left"
-    ).dropna()
-
     # %%
     ### Merge all features here before deconfounding for descriptive analysis
 
-    # all_features_precon = (
-    #     t1w_cortical_features_bl_pass.merge(
-    #         gordon_cor_subcortical_bl_pass.dropna(),
-    #         left_index=True,
-    #         right_index=True,
-    #         how="outer",
-    #     )
-    #     .join(
-    #         covariates,
-    #         how="inner",
-    #     )
-    #     .join(
-    #         family_income,
-    #         how="inner",
-    #     )
-    # )
+    all_features_precon = t1w_cortical_features_bl_pass.merge(
+        gordon_cor_subcortical_bl_pass.dropna(),
+        left_index=True,
+        right_index=True,
+        how="outer",
+    ).join(
+        covariates,
+        how="inner",
+    )
 
-    # all_features_precon.to_csv(
-    #     Path(
-    #         processed_data_path,
-    #         "all_brain_features_precon.csv",
-    #     ),
-    #     index=True,
-    # )
+    all_features_precon.to_csv(
+        Path(
+            processed_data_path,
+            "all_brain_features_precon.csv",
+        ),
+        index=True,
+    )
 
     # %%
     ### Apply NeuroCombat to the imaging data
@@ -292,6 +274,11 @@ def deconfound_image_exc_sex():
         + t1w_cortical_surface_area_rois
     )
 
+    t1w_cortical_features_bl_pass = t1w_cortical_features_bl_pass.join(
+        covariates,
+        how="left",
+    )
+
     t1w_cortical_features_covariates = t1w_cortical_features_bl_pass[
         covariates.columns
     ].drop(
@@ -327,6 +314,10 @@ def deconfound_image_exc_sex():
 
     rsfmri_brain_features = gordon_net_subcor_no_dup + ["smri_vol_scs_intracranialv"]
 
+    gordon_cor_subcortical_bl_pass = gordon_cor_subcortical_bl_pass.join(
+        covariates, how="left"
+    ).dropna()
+
     rsfmri_covariates_no_intracranialv = gordon_cor_subcortical_bl_pass[
         covariates.columns
     ].drop(
@@ -351,87 +342,16 @@ def deconfound_image_exc_sex():
         how="left",
     )
 
-    # %%
-    ### Now regressing out other confounders
-    # For cortical features
-    cortical_features_resid_df = pd.DataFrame(
-        index=cortical_features_post_combat_covar.index,
-        columns=t1w_cortical_features_list,
-    )
-
-    for img_feature in t1w_cortical_features_list:
-
-        formula = "%s ~ smri_vol_scs_intracranialv + interview_age" % img_feature
-        model = ols(formula, cortical_features_post_combat_covar).fit()
-
-        cortical_features_resid_df[img_feature] = model.resid
-
-    cortical_features_resid_df_covars = cortical_features_resid_df.join(
-        covariates_no_intracranialv,
-        how="left",
-    )
-
-    cortical_features_resid_df_covars = cortical_features_resid_df_covars.assign(
-        smri_vol_scs_intracranialv=cortical_features_post_combat_covar[
-            "smri_vol_scs_intracranialv"
-        ]
-    )
-
-    # For rs-fMRI
-
-    rsfmri_resid_df = pd.DataFrame(
-        index=rsfmri_post_combat_covars.index,
-        columns=gordon_net_subcor_no_dup,
-    )
-
-    for img_feature in gordon_net_subcor_no_dup:
-
-        formula = "%s ~ smri_vol_scs_intracranialv + interview_age" % img_feature
-        model = ols(formula, rsfmri_post_combat_covars).fit()
-
-        rsfmri_resid_df[img_feature] = model.resid
-
-    rsfmri_resid_df_covars = rsfmri_resid_df.join(
-        covariates_no_intracranialv,
-        how="left",
-    )
-
-    rsfmri_resid_df_covars = rsfmri_resid_df_covars.assign(
-        smri_vol_scs_intracranialv=rsfmri_post_combat_covars[
-            "smri_vol_scs_intracranialv"
-        ]
-    )
-
-    # NOTE the effect of de-confounding is tested in the test folder
-
-    # %%
-    ### Save the deconfounded data
-
-    cortical_features_resid_df_covars.to_csv(
-        Path(processed_data_path, "t1w_cortical_features_resid_exc_sex.csv"),
+    cortical_features_post_combat_covar.to_csv(
+        Path(processed_data_path, "t1w_cortical_features_post_combat.csv"),
         index=True,
     )
 
-    rsfmri_resid_df_covars.to_csv(
-        Path(processed_data_path, "gordon_cor_subcortical_resid_exc_sex.csv"),
-        index=True,
-    )
-
-    all_brain_features_resid = cortical_features_resid_df.merge(
-        rsfmri_resid_df, left_index=True, right_index=True, how="outer"
-    ).join(
-        covariates_no_intracranialv,
-        how="inner",
-    )
-
-    all_brain_features_resid.to_csv(
-        Path(
-            processed_data_path,
-            "all_brain_features_resid_exc_sex.csv",
-        ),
+    rsfmri_post_combat_covars.to_csv(
+        Path(processed_data_path, "gordon_cor_subcortical_post_combat.csv"),
         index=True,
     )
 
 
 if __name__ == "__main__":
-    deconfound_image_exc_sex()
+    pre_deconfound_image_exc_sex()

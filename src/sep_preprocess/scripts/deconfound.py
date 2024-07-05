@@ -5,6 +5,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from neuroCombat import neuroCombat
+from sep_preprocess.scripts.split import split
 from sklearn.preprocessing import LabelEncoder
 from statsmodels.formula.api import ols
 
@@ -194,7 +195,7 @@ def deconfound_image_exc_sex():
         columns=["eventname"]
     )
 
-    # Join the covariates to the cortical thickness data and cortical volume data (no missing data here)
+    # Join the covariates to the cortical features (no missing data here)
 
     t1w_cortical_features_bl_pass = (
         t1w_cortical_thickness_bl_pass.join(
@@ -351,20 +352,76 @@ def deconfound_image_exc_sex():
         how="left",
     )
 
+    # Not get the data splits first
+
+    t1w_data_splits, rsfmri_data_splits = split(
+        t1w_cortical_features_bl_pass,
+        gordon_cor_subcortical_bl_pass,
+    )
+
     # %%
-    ### Now regressing out other confounders
+    ### Now regressing out other confounders by sets,
+    # train the regression models on the training set and apply to the validation and test sets
+
     # For cortical features
-    cortical_features_resid_df = pd.DataFrame(
-        index=cortical_features_post_combat_covar.index,
+    # Fit the model on the training set
+
+    cortical_features_post_combat_covar_train = cortical_features_post_combat_covar.loc[
+        t1w_data_splits["train"]
+    ]
+
+    cortical_features_post_combat_covar_val = cortical_features_post_combat_covar.loc[
+        t1w_data_splits["val"]
+    ]
+
+    cortical_features_post_combat_covar_test = cortical_features_post_combat_covar.loc[
+        t1w_data_splits["total_test"]
+    ]
+
+    cortical_features_resid_train_df = pd.DataFrame(
+        index=cortical_features_post_combat_covar_train.index,
+        columns=t1w_cortical_features_list,
+    )
+
+    cortical_features_resid_val_df = pd.DataFrame(
+        index=cortical_features_post_combat_covar_val.index,
+        columns=t1w_cortical_features_list,
+    )
+
+    cortical_features_resid_test_df = pd.DataFrame(
+        index=cortical_features_post_combat_covar_test.index,
         columns=t1w_cortical_features_list,
     )
 
     for img_feature in t1w_cortical_features_list:
-
+        # Define and fit the model
         formula = "%s ~ smri_vol_scs_intracranialv + interview_age" % img_feature
-        model = ols(formula, cortical_features_post_combat_covar).fit()
+        model = ols(formula, cortical_features_post_combat_covar_train).fit()
 
-        cortical_features_resid_df[img_feature] = model.resid
+        # Calculate residuals for the training set
+        cortical_features_resid_train_df[img_feature] = model.resid
+
+        # Predict on the validation set and calculate residuals
+        val_predictions = model.predict(cortical_features_post_combat_covar_val)
+        cortical_features_resid_val_df[img_feature] = (
+            cortical_features_post_combat_covar_val[img_feature] - val_predictions
+        )
+
+        # Predict on the test set and calculate residuals
+        test_predictions = model.predict(cortical_features_post_combat_covar_test)
+        cortical_features_resid_test_df[img_feature] = (
+            cortical_features_post_combat_covar_test[img_feature] - test_predictions
+        )
+
+    # Combine all residuals into one DataFrame
+    cortical_features_resid_df = pd.concat(
+        [
+            cortical_features_resid_train_df,
+            cortical_features_resid_val_df,
+            cortical_features_resid_test_df,
+        ],
+        axis=0,
+    ).reindex(cortical_features_post_combat_covar.index)
 
     cortical_features_resid_df_covars = cortical_features_resid_df.join(
         covariates_no_intracranialv,
@@ -379,17 +436,59 @@ def deconfound_image_exc_sex():
 
     # For rs-fMRI
 
-    rsfmri_resid_df = pd.DataFrame(
-        index=rsfmri_post_combat_covars.index,
+    rsfmri_post_combat_covar_train = rsfmri_post_combat_covars.loc[
+        rsfmri_data_splits["train"]
+    ]
+
+    rsfmri_post_combat_covar_val = rsfmri_post_combat_covars.loc[
+        rsfmri_data_splits["val"]
+    ]
+
+    rsfmri_post_combat_covar_test = rsfmri_post_combat_covars.loc[
+        rsfmri_data_splits["total_test"]
+    ]
+
+    rsfmri_resid_train_df = pd.DataFrame(
+        index=rsfmri_post_combat_covar_train.index,
+        columns=gordon_net_subcor_no_dup,
+    )
+
+    rsfmri_resid_val_df = pd.DataFrame(
+        index=rsfmri_post_combat_covar_val.index,
+        columns=gordon_net_subcor_no_dup,
+    )
+
+    rsfmri_resid_test_df = pd.DataFrame(
+        index=rsfmri_post_combat_covar_test.index,
         columns=gordon_net_subcor_no_dup,
     )
 
     for img_feature in gordon_net_subcor_no_dup:
 
         formula = "%s ~ smri_vol_scs_intracranialv + interview_age" % img_feature
-        model = ols(formula, rsfmri_post_combat_covars).fit()
+        model = ols(formula, rsfmri_post_combat_covar_train).fit()
 
-        rsfmri_resid_df[img_feature] = model.resid
+        rsfmri_resid_train_df[img_feature] = model.resid
+
+        val_predictions = model.predict(rsfmri_post_combat_covar_val)
+        rsfmri_resid_val_df[img_feature] = (
+            rsfmri_post_combat_covar_val[img_feature] - val_predictions
+        )
+
+        test_predictions = model.predict(rsfmri_post_combat_covar_test)
+
+        rsfmri_resid_test_df[img_feature] = (
+            rsfmri_post_combat_covar_test[img_feature] - test_predictions
+        )
+
+    rsfmri_resid_df = pd.concat(
+        [
+            rsfmri_resid_train_df,
+            rsfmri_resid_val_df,
+            rsfmri_resid_test_df,
+        ],
+        axis=0,
+    ).reindex(rsfmri_post_combat_covars.index)
 
     rsfmri_resid_df_covars = rsfmri_resid_df.join(
         covariates_no_intracranialv,

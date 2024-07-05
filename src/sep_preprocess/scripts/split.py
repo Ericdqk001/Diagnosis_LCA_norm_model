@@ -1,4 +1,3 @@
-# %%
 import json
 import random
 from pathlib import Path
@@ -7,12 +6,10 @@ from typing import List
 import pandas as pd
 
 
-def split_data():
-    # %%
-    processed_data_path = Path(
-        "data",
-        "processed_data",
-    )
+def split(
+    ct_features: pd.DataFrame,
+    fmri_features: pd.DataFrame,
+):
 
     # load CBCL data
 
@@ -42,19 +39,6 @@ def split_data():
         low_memory=False,
     )
 
-    # %%
-    # Load de-confounded data
-    t1w_cortical_features_resid = Path(
-        processed_data_path,
-        "t1w_cortical_features_resid_exc_sex.csv",
-    )
-
-    t1w_cortical_features_resid = pd.read_csv(
-        t1w_cortical_features_resid,
-        index_col=0,
-        low_memory=False,
-    )
-
     cbcl_columns_to_join = [
         "cbcl_scr_syn_anxdep_t",
         "cbcl_scr_syn_withdep_t",
@@ -70,7 +54,7 @@ def split_data():
         "entropy",
     ]
 
-    t1w_cortical_features_resid = t1w_cortical_features_resid.join(
+    ct_features = ct_features.join(
         cbcl_LCA[cbcl_columns_to_join],
         how="left",
     ).join(
@@ -78,18 +62,7 @@ def split_data():
         how="left",
     )
 
-    gordon_cor_subcortical_resid = Path(
-        processed_data_path,
-        "gordon_cor_subcortical_resid_exc_sex.csv",
-    )
-
-    gordon_cor_subcortical_resid = pd.read_csv(
-        gordon_cor_subcortical_resid,
-        index_col=0,
-        low_memory=False,
-    )
-
-    gordon_cor_subcortical_resid = gordon_cor_subcortical_resid.join(
+    fmri_features = fmri_features.join(
         cbcl_LCA[cbcl_columns_to_join],
         how="left",
     ).join(
@@ -97,76 +70,45 @@ def split_data():
         how="left",
     )
 
-    # Remove high entropy
-    # t1w_cortical_features_resid = t1w_cortical_features_resid[
-    #     t1w_cortical_features_resid["entropy"] <= 0.20
-    # ]
-
-    # gordon_cor_subcortical_resid = gordon_cor_subcortical_resid[
-    #     gordon_cor_subcortical_resid["entropy"] <= 0.20
-    # ]
-
-    # %%
-    ### Split the 'low symptom' cohort into train/val/test sets using a ratio of 80/10/10
-    # Identify the 'low symptom' cohort
-    t1w_low_symptom = t1w_cortical_features_resid[
-        t1w_cortical_features_resid["predicted_class"] == 1
-    ]
+    t1w_low_symptom = ct_features[ct_features["predicted_class"] == 1]
 
     print("t1w_low_symptom")
     print(len(t1w_low_symptom))
 
-    t1w_internalising = t1w_cortical_features_resid[
-        t1w_cortical_features_resid["predicted_class"] == 2
-    ]
+    t1w_internalising = ct_features[ct_features["predicted_class"] == 2]
 
     print("t1w_internalising")
     print(len(t1w_internalising))
 
-    t1w_externalising = t1w_cortical_features_resid[
-        t1w_cortical_features_resid["predicted_class"] == 3
-    ]
+    t1w_externalising = ct_features[ct_features["predicted_class"] == 3]
 
     print("t1w_externalising")
     print(len(t1w_externalising))
 
-    t1w_high_symptom = t1w_cortical_features_resid[
-        t1w_cortical_features_resid["predicted_class"] == 4
-    ]
+    t1w_high_symptom = ct_features[ct_features["predicted_class"] == 4]
 
     print("t1w_high_symptom")
     print(len(t1w_high_symptom))
 
-    rsfmri_low_symptom = gordon_cor_subcortical_resid[
-        gordon_cor_subcortical_resid["predicted_class"] == 1
-    ]
+    rsfmri_low_symptom = fmri_features[fmri_features["predicted_class"] == 1]
 
     print("rsfmri_low_symptom")
     print(len(rsfmri_low_symptom))
 
-    rsfmri_internalising = gordon_cor_subcortical_resid[
-        gordon_cor_subcortical_resid["predicted_class"] == 2
-    ]
+    rsfmri_internalising = fmri_features[fmri_features["predicted_class"] == 2]
 
     print("rsfmri_internalising")
     print(len(rsfmri_internalising))
 
-    rsfmri_externalising = gordon_cor_subcortical_resid[
-        gordon_cor_subcortical_resid["predicted_class"] == 3
-    ]
+    rsfmri_externalising = fmri_features[fmri_features["predicted_class"] == 3]
 
     print("rsfmri_externalising")
     print(len(rsfmri_externalising))
 
-    rsfmri_high_symptom = gordon_cor_subcortical_resid[
-        gordon_cor_subcortical_resid["predicted_class"] == 4
-    ]
+    rsfmri_high_symptom = fmri_features[fmri_features["predicted_class"] == 4]
 
     print("rsfmri_high_symptom")
     print(len(rsfmri_high_symptom))
-
-    # Define a function here to split the 'low symptom' cohort into train/val/test sets
-    # stratified using household income
 
     def split_low_symptom(
         data: pd.DataFrame,
@@ -218,8 +160,6 @@ def split_data():
         ~rsfmri_low_symptom[cbcl_columns_to_join[:-1]].eq(2).any(axis=1)
     ]
 
-    ###
-
     t1w_low_symptom_train_subs, t1w_low_symptom_val_subs, t1w_low_symptom_test_subs = (
         split_low_symptom(t1w_low_symptom)
     )
@@ -230,9 +170,7 @@ def split_data():
         rsfmri_low_symptom_test_subs,
     ) = split_low_symptom(rsfmri_low_symptom)
 
-    # %%
-
-    t1w_data_splits_with_clinical_val = {
+    t1w_data_splits = {
         "train": t1w_low_symptom_train_subs,
         "val": t1w_low_symptom_val_subs,
         "total_test": t1w_low_symptom_test_subs
@@ -245,7 +183,7 @@ def split_data():
         "high_symptom_test": t1w_high_symptom.index.to_list(),
     }
 
-    rsfmri_data_splits_with_clinical_val = {
+    rsfmri_data_splits = {
         "train": rsfmri_low_symptom_train_subs,
         "val": rsfmri_low_symptom_val_subs,
         "total_test": rsfmri_low_symptom_test_subs
@@ -259,47 +197,24 @@ def split_data():
     }
 
     data_splits = {
-        "structural": t1w_data_splits_with_clinical_val,
-        "functional": rsfmri_data_splits_with_clinical_val,
+        "structural": t1w_data_splits,
+        "functional": rsfmri_data_splits,
     }
 
-    # with open(
-    #     Path(processed_data_path, "t1w_data_splits_with_clinical_val.json"), "w"
-    # ) as f:
-    #     json.dump(t1w_data_splits_with_clinical_val, f)
-
-    # with open(
-    #     Path(processed_data_path, "rsfmri_data_splits_with_clinical_val.json"), "w"
-    # ) as f:
-    #     json.dump(rsfmri_data_splits_with_clinical_val, f)
+    processed_data_path = Path(
+        "data",
+        "processed_data",
+    )
 
     with open(Path(processed_data_path, "data_splits.json"), "w") as f:
         json.dump(data_splits, f)
 
-    for key, value in t1w_data_splits_with_clinical_val.items():
+    for key, value in t1w_data_splits.items():
         print(f"Length of {key} in t1w_data_splits: {len(value)}")
 
     print("\n")
 
-    for key, value in rsfmri_data_splits_with_clinical_val.items():
+    for key, value in rsfmri_data_splits.items():
         print(f"Length of {key} in rsfmri_data_splits: {len(value)}")
 
-
-# %%
-if __name__ == "__main__":
-    split_data()
-
-
-# The average total_dx for rsfmri_internalising is 2.33
-# The average total_dx for rsfmri_externalising is 2.62
-# The average total_dx for rsfmri_high_symptom is 4.86
-# The average total_dx for t1w_internalising is 2.42
-# The average total_dx for t1w_externalising is 2.58
-# The average total_dx for t1w_high_symptom is 4.85
-
-# rsfmri_internalising has 11 subjects with total_dx = 0
-# rsfmri_externalising has 3 subjects with total_dx = 0
-# rsfmri_high_symptom has 0 subjects with total_dx = 0
-# t1w_internalising has 12 subjects with total_dx = 0
-# t1w_externalising has 3 subjects with total_dx = 0
-# t1w_high_symptom has 0 subjects with total_dx = 0
+    return t1w_data_splits, rsfmri_data_splits

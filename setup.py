@@ -11,6 +11,7 @@ setup(
             "modelling*",
             "preprocess*",
             "discover*",
+            "sep_preprocess*",
         ],
     ),
 )
