@@ -1,4 +1,3 @@
-import ast
 from pathlib import Path
 
 import pandas as pd
@@ -16,7 +15,7 @@ tune_resuls_path = Path(
     "tune",
     "ucl_cluster_tune",
     "cVAE",
-    "tune_results",
+    "tune_results_v2",
 )
 
 for feature in features_set:
@@ -31,7 +30,6 @@ for feature in features_set:
         index_col=0,
         low_memory=False,
     )
-
 
     # Find the index of the row with the maximum average_separation
     max_average_separation_index = cVAE_volume_results["average_val_loss"].idxmin()
