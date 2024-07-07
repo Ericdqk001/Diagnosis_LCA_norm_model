@@ -82,8 +82,6 @@ print("Cortical Thickness Mean MCC is ", np.mean(np.asarray(list_mcc)))
 # De-confounded data: Mean MCC is  0.0026443056227516567
 
 # Cortical volume
-
-
 X = np.asarray(t1w_cortical_features_resid[t1w_cortical_volume_rois])
 y = np.asarray(t1w_cortical_features_resid["label_site"])
 skf = StratifiedKFold(n_splits=5)
@@ -100,6 +98,27 @@ for i, (train_index, test_index) in enumerate(gen_split):
     print(mcc(y_test, y_pred))
     list_mcc.append(mcc(y_test, y_pred))
 print("Cortical Volume Mean MCC is ", np.mean(np.asarray(list_mcc)))
+
+
+# Cortical surface area
+
+X = np.asarray(t1w_cortical_features_resid[t1w_cortical_surface_area_rois])
+y = np.asarray(t1w_cortical_features_resid["label_site"])
+skf = StratifiedKFold(n_splits=5)
+gen_split = skf.split(X, y)
+list_mcc = []
+for i, (train_index, test_index) in enumerate(gen_split):
+    X_train = X[train_index, :]
+    y_train = y[train_index]
+    X_test = X[test_index, :]
+    y_test = y[test_index]
+    RF = RFC()
+    RF.fit(X_train, y_train)
+    y_pred = RF.predict(X_test)
+    print(mcc(y_test, y_pred))
+    list_mcc.append(mcc(y_test, y_pred))
+print("Cortical Surface Area Mean MCC is ", np.mean(np.asarray(list_mcc)))
+
 
 # rsfmri data
 
@@ -204,3 +223,17 @@ intracranialv = t1w_cortical_features_resid["smri_vol_scs_intracranialv"]
 age_intracranialv_corr = np.corrcoef(age, intracranialv)
 
 print("Correlation between age and intracranial volume is ", age_intracranialv_corr)
+
+
+###### Results:
+
+# Cortical Thickness Mean MCC is  0.00424117198470851
+# Cortical Volume Mean MCC is  -0.0024278819641240304
+# Cortical Surface Area Mean MCC is  0.0015034616022021083
+# Rsfmri Mean MCC is  -0.0013686338808554972
+# Mean R2 is  0.0028205417784081307
+# Mean R2 is  0.004762112440477417
+# Mean R2 is  0.0040376202244955615
+# Mean R2 is  0.0027466036155035433
+# Correlation between age and intracranial volume is  [[1.         0.05749344]
+#  [0.05749344 1.        ]]
