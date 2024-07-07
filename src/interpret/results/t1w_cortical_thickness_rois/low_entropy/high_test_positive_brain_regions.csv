@@ -1,12 +1,1 @@
 brain_features,brain_regions,variable_label,effect_size
-mrisdp_3,L G_and_S_paracentral,Cortical thickness in mm for left hemisphere cortical Destrieux ROI paracentral lobule and sulcus,0.1557964289691525
-mrisdp_5,L G_and_S_transv_frontopol,Cortical thickness in mm for left hemisphere cortical Destrieux ROI transverse frontopolar gyri and sulci,0.1521585804966777
-mrisdp_16,L G_front_sup,Cortical thickness in mm for left hemisphere cortical Destrieux ROI superior frontal gyrus,0.1543115928579383
-mrisdp_20,L G_occipital_sup,Cortical thickness in mm for left hemisphere cortical Destrieux ROI superior occipital gyrus,0.1565388470247596
-mrisdp_25,L G_pariet_inf-Angular,Cortical thickness in mm for left hemisphere cortical Destrieux ROI angular gyrus,0.1451056089684101
-mrisdp_57,L S_oc_middle_and_Lunatus,Cortical thickness in mm for left hemisphere cortical Destrieux ROI middle occipital sulcus and lunatus sulcus,0.1929173317495081
-mrisdp_61,L S_oc-temp_med_and_Lingual,Cortical thickness in mm for left hemisphere cortical Destrieux ROI medial occipito-temporal sulcus and lingual sulcus,0.1667099743865771
-mrisdp_69,L S_precentral-sup-part,Cortical thickness in mm for left hemisphere cortical Destrieux ROI superior part of the precentral sulcus,0.1989309179999257
-mrisdp_91,R G_Ins_lg_and_S_cent_ins,Cortical thickness in mm for right hemisphere cortical Destrieux ROI long insular gyrus and central sulcus of the insula,0.1526040313300419
-mrisdp_99,R G_pariet_inf-Angular,Cortical thickness in mm for right hemisphere cortical Destrieux ROI angular gyrus,0.1635918185530272
-mrisdp_144,R S_suborbital,Cortical thickness in mm for right hemisphere cortical Destrieux ROI suborbital sulcus,0.1456995434128958

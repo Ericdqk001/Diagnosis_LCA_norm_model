@@ -39,6 +39,7 @@ cbcl_lca_path = Path(
     "cbcl_class_member_prob.csv",
 )
 
+
 features_of_interest_path = Path(
     processed_data_path,
     "brain_features_of_interest.json",
@@ -81,6 +82,7 @@ cVAE_feature_hyper = {
 
 def get_output(
     if_low_entropy=False,
+    entropy_threshold=0.2,
 ):
 
     feature_sets = {
@@ -116,6 +118,7 @@ def get_output(
             brain_features_of_interest_path=features_of_interest_path,
             data_splits_path=data_splits_path,
             if_low_entropy=if_low_entropy,
+            entropy_threshold=entropy_threshold,
         )
 
         hyperparameters = cVAE_feature_hyper.get(feature)
@@ -168,4 +171,5 @@ def get_output(
 if __name__ == "__main__":
     get_output(
         if_low_entropy=True,
+        entropy_threshold=0.20,
     )

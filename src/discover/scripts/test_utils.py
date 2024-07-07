@@ -272,6 +272,7 @@ def prepare_inputs_cVAE(
     if_low_entropy=False,
     interpret=False,
     interpret_features_indices=None,
+    entropy_threshold=0.2,
 ):
     """Prepare the inputs for the compute_mahalanobis_distance_cVAE function below.
 
@@ -324,16 +325,10 @@ def prepare_inputs_cVAE(
 
     if if_low_entropy == True:
         # Remove subjects with high entropy
-        high_entropy_subs_path = Path(
-            "data",
-            "LCA",
-            "subjects_with_high_entropy.csv",
-        )
 
-        high_entropy_subs = pd.read_csv(
-            high_entropy_subs_path,
-            low_memory=False,
-        )["subject"].tolist()
+        high_entropy_subs = data[
+            data["entropy"] > entropy_threshold
+        ].index.tolist()
 
         train_subs = [sub for sub in train_subs if sub not in high_entropy_subs]
 

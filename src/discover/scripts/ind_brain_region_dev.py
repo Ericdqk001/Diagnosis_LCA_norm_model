@@ -12,8 +12,9 @@ cVAE_discover_results_path = Path(
 
 feature_sets = {
     "t1w_cortical_thickness_rois": "Cortical Thickness",
-    # "t1w_cortical_volume_rois": "Cortical Volume",
-    # "t1w_cortical_surface_area_rois": "Cortical Surface Area",
+    "t1w_cortical_volume_rois": "Cortical Volume",
+    "t1w_cortical_surface_area_rois": "Cortical Surface Area",
+    "gordon_net_subcor_limbic_no_dup": "Functional Connectivity",
 }
 
 
@@ -43,6 +44,9 @@ def discover(
     ind_U_test_results = []
 
     for feature in feature_sets:
+
+        if feature == "gordon_net_subcor_limbic_no_dup":
+            num_brain_features = 143
 
         U_test_results = []
 
@@ -100,7 +104,7 @@ def discover(
 
 
 if __name__ == "__main__":
-    discover(low_entropy=True)
+    discover(low_entropy=False)
 
 
 ### NOTE All individual reconstruction deviation for all brain regions and groups failed
