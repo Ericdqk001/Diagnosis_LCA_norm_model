@@ -1,3 +1,4 @@
+# %%
 from pathlib import Path
 
 import pandas as pd
@@ -118,12 +119,12 @@ interview_age_stats = (
 # Convert to a single DataFrame for easier viewing
 demographic_stats_df = pd.concat(demographic_stats, axis=1)
 
-# Display the results
-print("Missing values in each column:\n", missing_values)
-print("\nDescriptive Statistics (Count and Proportion):\n", demographic_stats_df)
-print(
-    "\nDescriptive Statistics for Interview Age (Mean and SD):\n", interview_age_stats
-)
+# # Display the results
+# print("Missing values in each column:\n", missing_values)
+# print("\nDescriptive Statistics (Count and Proportion):\n", demographic_stats_df)
+# print(
+#     "\nDescriptive Statistics for Interview Age (Mean and SD):\n", interview_age_stats
+# )
 
 
 ### Now get the descriptive statistics stratified by LCA class membership
@@ -137,6 +138,9 @@ for i in range(1, 5):
     cbcl_dummy_des_vars_class = cbcl_dummy_des_vars[
         cbcl_dummy_des_vars.predicted_class == i
     ]
+
+    print("Class", i)
+    print(len(cbcl_dummy_des_vars_class))
 
     class_demographic_stats = {
         "demo_sex_v2": cbcl_dummy_des_vars_class["demo_sex_v2"]
@@ -167,17 +171,24 @@ for i in range(1, 5):
         [pd.concat(class_demographic_stats, axis=1), class_interview_age_stats.T]
     )
 
-    print("Class", i)
-    print(class_interview_age_stats.T)
+#     print("Class", i)
+#     print(class_interview_age_stats.T)
 
-# Display the results for each class
-for i in range(1, 5):
-    print(
-        f"\nDescriptive Statistics for Predicted Class {i} (Count and Proportion):\n",
-        class_stats[i],
-    )
+# # Display the results for each class
+# for i in range(1, 5):
+#     print(
+#         f"\nDescriptive Statistics for Predicted Class {i} (Count and Proportion):\n",
+#         class_stats[i],
+#     )
 
 
+# 1 = Male Masculino; 2 = Female Femenino; 3 = Intersex-Male Entre sexo-masculino; 4 = Intersex-Female
+
+# 1 = White; 2 = Black; 3 = Hispanic; 4 = Asian; 5 = Other
+
+# 1= Less than $5,000; 2=$5,000 through $11,999; 3=$12,000 through $15,999; 4=$16,000 through $24,999; 5=$25,000 through $34,999; 6=$35,000 through $49,999; 7=$50,000 through $74,999; 8= $75,000 through $99,999; 9=$100,000 through $199,999; 10=$200,000 and greater. 999 = not provided
+
+# %%
 ## Now get the sample characteristics for each class without high entropy subjects
 
 high_entropy_subs_path = Path(
@@ -202,6 +213,9 @@ for i in range(1, 5):
     cbcl_dummy_des_vars_class_no_high_entropy = cbcl_dummy_des_vars_no_high_entropy[
         cbcl_dummy_des_vars_no_high_entropy.predicted_class == i
     ]
+
+    print("Class", i)
+    print(len(cbcl_dummy_des_vars_class_no_high_entropy))
 
     class_demographic_stats_no_high_entropy = {
         "demo_sex_v2": cbcl_dummy_des_vars_class_no_high_entropy["demo_sex_v2"]
