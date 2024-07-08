@@ -1,5 +1,17 @@
 cohort,proportion_extreme_deviation,Feature
-low_symp_test_subs,0.12080536912751678,Functional Connectivity
-inter_test_subs,0.10112359550561797,Functional Connectivity
+low_symp_test_subs,0.07917888563049853,Cortical Thickness
+inter_test_subs,0.08849557522123894,Cortical Thickness
+exter_test_subs,0.21052631578947367,Cortical Thickness
+high_test_subs,0.0759493670886076,Cortical Thickness
+low_symp_test_subs,0.093841642228739,Cortical Volume
+inter_test_subs,0.11504424778761062,Cortical Volume
+exter_test_subs,0.07368421052631578,Cortical Volume
+high_test_subs,0.08860759493670886,Cortical Volume
+low_symp_test_subs,0.09970674486803519,Cortical Surface Area
+inter_test_subs,0.07079646017699115,Cortical Surface Area
+exter_test_subs,0.10526315789473684,Cortical Surface Area
+high_test_subs,0.08860759493670886,Cortical Surface Area
+low_symp_test_subs,0.1342281879194631,Functional Connectivity
+inter_test_subs,0.11235955056179775,Functional Connectivity
 exter_test_subs,0.08333333333333333,Functional Connectivity
 high_test_subs,0.16923076923076924,Functional Connectivity

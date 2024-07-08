@@ -183,6 +183,6 @@ def discover(
 
 if __name__ == "__main__":
     discover(
-        low_entropy=False,
+        low_entropy=True,
         metric="reconstruction_deviation",
     )

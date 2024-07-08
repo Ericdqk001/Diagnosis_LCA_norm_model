@@ -32,10 +32,18 @@ def plot_histograms(
     ].values
     high_test_distance = output_data[metric][output_data["high_test_subs"] == 1].values
 
+    if metric == "mahalanobis_distance":
+        title = f"Distribution of Latent Deviations by Group for Feature: {feature}"
+
+    if metric == "reconstruction_deviation":
+        title = (
+            f"Distribution of Reconstruction Deviations by Group for Feature: {feature}"
+        )
+
     # Create a figure with subplots (1 row, 3 columns)
     fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(18, 6))
     fig.suptitle(
-        "Distribution of Deviations by Group for Feature: {}".format(feature),
+        title,
         fontweight="bold",
     )
 
@@ -65,7 +73,7 @@ def plot_histograms(
             bins=20,
             alpha=0.5,
             color="grey",
-            label="Control",
+            label="Healthy Control",
             histtype="stepfilled",
         )
         ax.hist(
@@ -73,7 +81,7 @@ def plot_histograms(
             bins=20,
             alpha=0.75,
             color=color,
-            label="Case",
+            label="Psychopathological Cohort",
             histtype="stepfilled",
         )
         ax.set_title("{} vs Control".format(group_name))
@@ -83,18 +91,18 @@ def plot_histograms(
             np.median(control_distance),
             color="grey",
             linestyle="--",
-            label="Control Median",
+            label="Healthy Control Median",
         )
         ax.axvline(
             np.median(group_distance),
             color=color,
             linestyle="--",
-            label="Case Median",
+            label="Psychopathological Cohort Median",
         )
 
         # Fetch and annotate the p-value for the current group
         p_value = p_values_df.loc[
-            p_values_df["Cohort"] == p_value_cohort_map[group_name], "P_value"
+            p_values_df["Cohort"] == p_value_cohort_map[group_name], "FDR_p_value"
         ].values[0]
         ax.text(
             0.95,
@@ -112,7 +120,7 @@ def plot_histograms(
             ),
         )
 
-        ax.set_xlabel("Deviation Z-Score")
+        ax.set_xlabel("Deviation Score")
 
         ax.legend()
 

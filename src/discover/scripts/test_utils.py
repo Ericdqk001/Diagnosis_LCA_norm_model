@@ -8,6 +8,7 @@ import torch
 from scipy.stats import shapiro
 from sklearn.covariance import MinCovDet
 from sklearn.preprocessing import StandardScaler
+from statsmodels.stats.multitest import multipletests
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -173,12 +174,16 @@ def U_test_p_values(
         p_values.append(p_value)
         effect_sizes.append(effect_size)
 
+    # Adjust p-values for multiple testing using FDR
+    _, fdr_p_values, _, _ = multipletests(p_values, alpha=0.05, method="fdr_bh")
+
     # Create a DataFrame from the results
     results_df = pd.DataFrame(
         {
             "Cohort": cohorts,
             "U_statistic": u_stats,
             "P_value": p_values,
+            "FDR_p_value": fdr_p_values,
             "Effect_size": effect_sizes,
         }
     )
@@ -326,9 +331,7 @@ def prepare_inputs_cVAE(
     if if_low_entropy == True:
         # Remove subjects with high entropy
 
-        high_entropy_subs = data[
-            data["entropy"] > entropy_threshold
-        ].index.tolist()
+        high_entropy_subs = data[data["entropy"] > entropy_threshold].index.tolist()
 
         train_subs = [sub for sub in train_subs if sub not in high_entropy_subs]
 

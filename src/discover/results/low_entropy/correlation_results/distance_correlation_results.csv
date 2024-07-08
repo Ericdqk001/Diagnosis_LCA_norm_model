@@ -1,6 +1,21 @@
 Cohort,Syndrome,Correlation,P-Value,Feature
-All,cbcl_sum_score,0.00019790779860249234,0.9963939748490461,Functional Connectivity
-Control,cbcl_sum_score,0.05508821517277229,0.34328567395668563,Functional Connectivity
-Internalizing,cbcl_sum_score,0.03628405894200952,0.7356832351093048,Functional Connectivity
-Externalizing,cbcl_sum_score,-0.09555223393056009,0.4246228050608395,Functional Connectivity
-High Symptom,cbcl_sum_score,0.11905387227033741,0.344871262011197,Functional Connectivity
+All,cbcl_sum_score,0.06467561468233853,0.10539717568283871,Cortical Thickness
+Control,cbcl_sum_score,-0.010401791031580941,0.8482268874707521,Cortical Thickness
+Internalizing,cbcl_sum_score,0.034201228551273756,0.7191261283493598,Cortical Thickness
+Externalizing,cbcl_sum_score,0.1426711115761974,0.16781954736490326,Cortical Thickness
+High Symptom,cbcl_sum_score,-0.04878405296410199,0.6694192213907779,Cortical Thickness
+All,cbcl_sum_score,0.007195171682816757,0.8571890050335979,Cortical Volume
+Control,cbcl_sum_score,0.019297434170339803,0.7225337150663148,Cortical Volume
+Internalizing,cbcl_sum_score,0.010571137543946795,0.9115161177066198,Cortical Volume
+Externalizing,cbcl_sum_score,0.1551409182070659,0.13330022780184314,Cortical Volume
+High Symptom,cbcl_sum_score,0.057355047046140376,0.6156176577533667,Cortical Volume
+All,cbcl_sum_score,0.05698971869967442,0.1537320090980485,Cortical Surface Area
+Control,cbcl_sum_score,0.06702533345119627,0.21699944118053946,Cortical Surface Area
+Internalizing,cbcl_sum_score,-0.03598180583140332,0.7051619803501761,Cortical Surface Area
+Externalizing,cbcl_sum_score,0.06451252009928267,0.53452481632737,Cortical Surface Area
+High Symptom,cbcl_sum_score,0.1841059268587847,0.10433244863682732,Cortical Surface Area
+All,cbcl_sum_score,0.0014196608345133654,0.9741371687932364,Functional Connectivity
+Control,cbcl_sum_score,0.051168012640617135,0.3787719478586913,Functional Connectivity
+Internalizing,cbcl_sum_score,0.03552618960480257,0.7410071967273564,Functional Connectivity
+Externalizing,cbcl_sum_score,-0.06775054000363503,0.5717531188161522,Functional Connectivity
+High Symptom,cbcl_sum_score,0.13958115579252744,0.26745468994860294,Functional Connectivity
