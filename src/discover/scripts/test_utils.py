@@ -677,9 +677,12 @@ def test_correlate_distance_symptom_severity(
     feature,
     output_data,
     metric="mahalanobis_distance",
-    scale="cbcl_sum_score",
+    sum_syndrome=[
+        "cbcl_scr_syn_internal_t",
+        "cbcl_scr_syn_external_t",
+        "cbcl_scr_syn_totprob_t",
+    ],
 ):
-    sum_syndrome = [scale]
 
     control_data = output_data[output_data["low_symp_test_subs"] == 1]
 
@@ -698,6 +701,9 @@ def test_correlate_distance_symptom_severity(
         correlation, p_value = stats.spearmanr(
             output_data[metric], output_data[syndrome]
         )
+
+        print(correlation)
+
         results.append(
             {
                 "Cohort": "All",

@@ -1,0 +1,22 @@
+Modality,Metric,CI Low,CI High,Mean Effect Size,Group,Brain Feature,Variable Name
+rsfmri,reconstruction_deviation_0,0.0347635924892542,0.2362566925571224,0.1386026694819395,inter_test,rsfmri_c_ngd_ad_ngd_ad,Average correlation between auditory network and auditory network
+rsfmri,reconstruction_deviation_21,0.007227671657201859,0.2998451213216314,0.15273866804336603,high_test,rsfmri_c_ngd_cgc_ngd_smh,Average correlation between cingulo-opercular network and sensorimotor hand network
+rsfmri,reconstruction_deviation_32,0.002143922445935869,0.26733780760626397,0.14623350111856825,exter_test,rsfmri_c_ngd_ca_ngd_smh,Average correlation between cingulo-parietal network and sensorimotor hand network
+rsfmri,reconstruction_deviation_52,0.04202374806401652,0.2659783169850284,0.15723933918430563,high_test,rsfmri_c_ngd_dla_ngd_smm,Average correlation between dorsal attention network and sensorimotor mouth network
+rsfmri,reconstruction_deviation_54,0.004749612803304078,0.2743417656169334,0.14422540010325247,high_test,rsfmri_c_ngd_dla_ngd_vs,Average correlation between dorsal attention network and visual network
+rsfmri,reconstruction_deviation_62,0.05768795716763442,0.25435487519794886,0.15802526204660278,inter_test,rsfmri_c_ngd_fo_ngd_vs,Average correlation between fronto-parietal network and visual network
+rsfmri,reconstruction_deviation_62,0.00010325245224574084,0.2715539494062984,0.1353176045431079,high_test,rsfmri_c_ngd_fo_ngd_vs,Average correlation between fronto-parietal network and visual network
+rsfmri,reconstruction_deviation_63,0.0270521424883841,0.24656685596282912,0.1373280330407847,high_test,rsfmri_c_ngd_n_ngd_n,Average correlation between none network and none network
+rsfmri,reconstruction_deviation_68,0.04958985831469053,0.2843027591349739,0.1691257457121551,exter_test,rsfmri_c_ngd_n_ngd_vta,Average correlation between none network and ventral attention network
+rsfmri,reconstruction_deviation_77,0.06832587621178225,0.3012677106636838,0.1791420581655481,exter_test,rsfmri_c_ngd_sa_ngd_smh,Average correlation between salience network and sensorimotor hand network
+rsfmri,reconstruction_deviation_90,0.02749813571961223,0.2550335570469799,0.1481955630126771,exter_test,rsfmri_c_ngd_vs_ngd_vs,Average correlation between visual network and visual network
+rsfmri,reconstruction_deviation_95,0.006504904491481673,0.19793495095508518,0.10591171915332989,high_test,rsfmri_cor_ngd_cerc_scs_aalh,Average correlation between cingulo-opercular network and ASEG ROI left-accumbens-area
+rsfmri,reconstruction_deviation_101,0.011461022199277233,0.20134228187919462,0.09838255033557047,high_test,rsfmri_cor_ngd_copa_scs_aglh,Average correlation between cingulo-parietal network and ASEG ROI left-amygdala
+rsfmri,reconstruction_deviation_102,0.06459731543624161,0.23303504847129008,0.14562304250559283,exter_test,rsfmri_cor_ngd_copa_scs_agrh,Average correlation between cingulo-parietal network and ASEG ROI right-amygdala
+rsfmri,reconstruction_deviation_105,0.024574083634486318,0.23242127000516263,0.1262521424883841,high_test,rsfmri_cor_ngd_df_scs_aglh,Average correlation between default network and ASEG ROI left-amygdala
+rsfmri,reconstruction_deviation_112,0.019204956117707797,0.19380485286525556,0.10429633453794529,high_test,rsfmri_cor_ngd_fopa_scs_aarh,Average correlation between fronto-parietal network and ASEG ROI right-accumbens-area
+rsfmri,reconstruction_deviation_122,0.015100671140939598,0.20087621178225204,0.11367225950782998,exter_test,rsfmri_cor_ngd_rst_scs_agrh,Average correlation between retrosplenial temporal network and ASEG ROI right-amygdala
+rsfmri,reconstruction_deviation_123,0.038534047206093054,0.24176155644370712,0.15976819244400875,inter_test,rsfmri_cor_ngd_sa_scs_aalh,Average correlation between salience network and ASEG ROI left-accumbens-area
+rsfmri,reconstruction_deviation_129,0.0697986577181208,0.28786783686112544,0.17564274651522974,high_test,rsfmri_cor_ngd_smh_scs_aglh,Average correlation between sensorimotor hand network and ASEG ROI left-amygdala
+rsfmri,reconstruction_deviation_130,0.028353819470628157,0.23339114697232485,0.12532659678757258,inter_test,rsfmri_cor_ngd_smh_scs_agrh,Average correlation between sensorimotor hand network and ASEG ROI right-amygdala
+rsfmri,reconstruction_deviation_136,0.0032624906785980613,0.2075876211782252,0.08928271812080536,exter_test,rsfmri_cor_ngd_vta_scs_aarh,Average correlation between ventral attention network and ASEG ROI right-accumbens-area

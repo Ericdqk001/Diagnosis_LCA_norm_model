@@ -42,7 +42,7 @@ modality_map = {
     "cortical_thickness": "t1w_cortical_thickness_rois",
     "cortical_volume": "t1w_cortical_volume_rois",
     "cortical_surface_area": "t1w_cortical_surface_area_rois",
-    "rsfmri": "gordon_net_subcor_limbic_no_dup",
+    # "rsfmri": "gordon_net_subcor_limbic_no_dup",
 }
 
 
@@ -56,21 +56,18 @@ def calculate_confidence_interval(data, confidence=1):
     return ci_lower, ci_upper, mean_value
 
 
-# Dictionary to store results
-significant_results = {}
-
 # Iterate through the JSON structure
 for modality, metrics in bootstrap_effect_size.items():
-
-    input_features = brain_features_of_interest[modality_map[modality]]
 
     if modality == "rsfmri":
         continue
 
-    significant_results[modality] = {}
+    input_features = brain_features_of_interest[modality_map[modality]]
 
     sig_metric_lists = []
-    sig_metric_mean_effect_sizes = []
+    ci_low_effect_sizes = []
+    ci_high_effect_sizes = []
+    mean_effect_sizes = []
     group_names = []
     modality_names = []
     var_names = []
@@ -95,7 +92,9 @@ for modality, metrics in bootstrap_effect_size.items():
             # Check if the CI does not cover 0
             if ci_low > 0:
                 sig_metric_lists.append(metric)
-                sig_metric_mean_effect_sizes.append(mean_value)
+                ci_low_effect_sizes.append(ci_low)
+                ci_high_effect_sizes.append(ci_high)
+                mean_effect_sizes.append(mean_value)
                 group_names.append(group)
                 modality_names.append(modality)
 
@@ -121,7 +120,9 @@ for modality, metrics in bootstrap_effect_size.items():
         {
             "Modality": modality_names,
             "Metric": sig_metric_lists,
-            "Mean Effect Size": sig_metric_mean_effect_sizes,
+            "CI Lower": ci_low_effect_sizes,
+            "CI Upper": ci_high_effect_sizes,
+            "Mean Effect Size": mean_effect_sizes,
             "Group": group_names,
             "Brain Feature": brain_features,
             "Brain Region": brain_regions,

@@ -73,7 +73,7 @@ def plot_histograms(
             bins=20,
             alpha=0.5,
             color="grey",
-            label="Healthy Control",
+            label="Control",
             histtype="stepfilled",
         )
         ax.hist(
@@ -81,7 +81,7 @@ def plot_histograms(
             bins=20,
             alpha=0.75,
             color=color,
-            label="Psychopathological Cohort",
+            label="Case",
             histtype="stepfilled",
         )
         ax.set_title("{} vs Control".format(group_name))
@@ -91,23 +91,27 @@ def plot_histograms(
             np.median(control_distance),
             color="grey",
             linestyle="--",
-            label="Healthy Control Median",
+            label="Control Median",
         )
         ax.axvline(
             np.median(group_distance),
             color=color,
             linestyle="--",
-            label="Psychopathological Cohort Median",
+            label="Case Median",
         )
 
-        # Fetch and annotate the p-value for the current group
+        # Fetch and annotate the p-value and effect size for the current group
         p_value = p_values_df.loc[
             p_values_df["Cohort"] == p_value_cohort_map[group_name], "FDR_p_value"
         ].values[0]
+        effect_size = p_values_df.loc[
+            p_values_df["Cohort"] == p_value_cohort_map[group_name], "Effect_size"
+        ].values[0]
+        textstr = f"p-value: {p_value:.4f}\nEffect Size: {effect_size:.4f}"
         ax.text(
             0.95,
             0.95,
-            f"p-value: {p_value:.4f}",
+            textstr,
             transform=ax.transAxes,
             verticalalignment="top",
             horizontalalignment="right",
@@ -395,6 +399,37 @@ def plot_ind_dim_violin(feature, output_data, latent_dim, ind_dim_dev_U_test_res
         plt.legend(title="Group", title_fontsize="13", fontsize="12")
         plt.tight_layout()
         plt.show()
+
+
+def plot_separate_correlations(
+    feature,
+    output_data,
+    metric,
+    sum_syndrome=[
+        "cbcl_scr_syn_internal_t",
+        "cbcl_scr_syn_external_t",
+        "cbcl_scr_syn_totprob_t",
+    ],
+):
+
+    inter_test_data = output_data[output_data["inter_test_subs"] == 1]
+
+    exter_test_data = output_data[output_data["exter_test_subs"] == 1]
+
+    high_test_data = output_data[output_data["high_test_subs"] == 1]
+
+    cohorts = [
+        inter_test_data,
+        exter_test_data,
+        high_test_data,
+    ]
+
+    for cohort, scale in zip(cohorts, sum_syndrome):
+        
+        # Compute the linear regression and correlation
+        slope, intercept, r_value, p_value, std_err = linregress(output_data[scale], output_data[metric])
+
+        
 
 
 def plot_correlations(
