@@ -175,3 +175,4 @@ src/discover/results/bootstrap
 src/interpret/plots/
 src/discover/low_entropy_images/
 src/discover/original_images/
+src/test/results/p_values_coefficients_deconfounding_assessment.csv

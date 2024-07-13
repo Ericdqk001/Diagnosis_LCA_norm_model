@@ -12,13 +12,6 @@ from modelling.models.cVAE import cVAE
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-FEATURE_NAMES_MAP = {
-    "t1w_cortical_thickness_rois": "Cortical Thickness",
-    "t1w_cortical_volume_rois": "Cortical Volume",
-    "gordon_net_subcor_limbic_no_dup": "Functional Connectivity",
-}
-
-
 processed_data_path = Path(
     "data",
     "processed_data",
@@ -170,6 +163,6 @@ def get_output(
 
 if __name__ == "__main__":
     get_output(
-        if_low_entropy=True,
+        if_low_entropy=False,
         entropy_threshold=0.20,
     )

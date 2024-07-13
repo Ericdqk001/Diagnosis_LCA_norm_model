@@ -415,6 +415,11 @@ def prepare_inputs_cVAE(
     # Create the DataFrame with indexes set by test_set_subs
     output_data = pd.DataFrame(output_data, index=test_subs)
 
+    # Add biological sex here for later test analysis
+    output_data["sex"] = pd.Categorical(data.loc[test_subs, "demo_sex_v2"])
+
+    print(output_data["sex"])
+
     # Join cbcl summary scales for later correlation tests
     cbcl_data_path = Path(
         "data",

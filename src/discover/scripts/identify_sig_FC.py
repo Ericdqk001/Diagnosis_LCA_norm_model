@@ -106,11 +106,12 @@ for modality, metrics in rsfmri_bootstrap_effect_size.items():
         {
             "Modality": modality_names,
             "Metric": sig_metric_lists,
-            "CI Low": ci_low_effect_sizes,
-            "CI High": ci_high_effect_sizes,
+            "CI Lower": ci_low_effect_sizes,
+            "CI Upper": ci_high_effect_sizes,
             "Mean Effect Size": mean_effect_sizes,
             "Group": group_names,
-            "Brain Feature": brain_features,
+            # Named brain region here for consistency with cortical features
+            "Brain Region": brain_features,
             "Variable Name": var_names,
         }
     )
