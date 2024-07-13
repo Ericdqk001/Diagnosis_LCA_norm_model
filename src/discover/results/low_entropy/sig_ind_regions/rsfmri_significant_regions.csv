@@ -1,4 +1,4 @@
-Modality,Metric,CI Low,CI High,Mean Effect Size,Group,Brain Feature,Variable Name
+Modality,Metric,CI Lower,CI Upper,Mean Effect Size,Group,Brain Region,Variable Name
 rsfmri,reconstruction_deviation_0,0.0347635924892542,0.2362566925571224,0.1386026694819395,inter_test,rsfmri_c_ngd_ad_ngd_ad,Average correlation between auditory network and auditory network
 rsfmri,reconstruction_deviation_21,0.007227671657201859,0.2998451213216314,0.15273866804336603,high_test,rsfmri_c_ngd_cgc_ngd_smh,Average correlation between cingulo-opercular network and sensorimotor hand network
 rsfmri,reconstruction_deviation_32,0.002143922445935869,0.26733780760626397,0.14623350111856825,exter_test,rsfmri_c_ngd_ca_ngd_smh,Average correlation between cingulo-parietal network and sensorimotor hand network

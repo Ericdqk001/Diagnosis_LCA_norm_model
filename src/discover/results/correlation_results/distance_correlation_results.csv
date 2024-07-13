@@ -1,6 +1,61 @@
 Cohort,Syndrome,Correlation,P-Value,Feature
-All,cbcl_sum_score,0.02578856741311434,0.384348659841231,Functional Connectivity
-Control,cbcl_sum_score,0.05508821517277229,0.34328567395668563,Functional Connectivity
-Internalizing,cbcl_sum_score,0.048440099155379814,0.2660780711620702,Functional Connectivity
-Externalizing,cbcl_sum_score,0.03428037013402178,0.6591140220410003,Functional Connectivity
-High Symptom,cbcl_sum_score,0.06675467287836756,0.4250063738265797,Functional Connectivity
+All,cbcl_scr_syn_internal_t,0.0037335619916386014,0.8884072788120054,Cortical Thickness
+All,cbcl_scr_syn_external_t,0.05385971376302273,0.04279624810799799,Cortical Thickness
+All,cbcl_scr_syn_totprob_t,0.06115554537367325,0.021415541732821022,Cortical Thickness
+Control,cbcl_scr_syn_internal_t,-0.039869913143285904,0.46305014248670284,Cortical Thickness
+Control,cbcl_scr_syn_external_t,0.01215638496428342,0.823017164968189,Cortical Thickness
+Control,cbcl_scr_syn_totprob_t,-0.003919688648106799,0.9425094368842191,Cortical Thickness
+Internalizing,cbcl_scr_syn_internal_t,-0.07728344285938214,0.04668182740155086,Cortical Thickness
+Internalizing,cbcl_scr_syn_external_t,-0.022573580136515708,0.5617666593251094,Cortical Thickness
+Internalizing,cbcl_scr_syn_totprob_t,-0.024155558954817993,0.5346698614737939,Cortical Thickness
+Externalizing,cbcl_scr_syn_internal_t,-0.048474480897182794,0.4703774100536716,Cortical Thickness
+Externalizing,cbcl_scr_syn_external_t,0.0960709259890733,0.15182054288920663,Cortical Thickness
+Externalizing,cbcl_scr_syn_totprob_t,0.05658848439178905,0.3992977220880706,Cortical Thickness
+High Symptom,cbcl_scr_syn_internal_t,-0.053319879266200715,0.46859609915233325,Cortical Thickness
+High Symptom,cbcl_scr_syn_external_t,-0.015479744786522193,0.833452604762455,Cortical Thickness
+High Symptom,cbcl_scr_syn_totprob_t,0.03201520649939182,0.6635788464653971,Cortical Thickness
+All,cbcl_scr_syn_internal_t,0.0060052682395136305,0.8214351584551673,Cortical Volume
+All,cbcl_scr_syn_external_t,-0.02973795946029797,0.2636113449309829,Cortical Volume
+All,cbcl_scr_syn_totprob_t,-0.006553155714488576,0.8054566030841612,Cortical Volume
+Control,cbcl_scr_syn_internal_t,0.054357014688506754,0.3169133142747797,Cortical Volume
+Control,cbcl_scr_syn_external_t,0.09369200649041647,0.08406300450511874,Cortical Volume
+Control,cbcl_scr_syn_totprob_t,0.057241273483199975,0.29187783655498445,Cortical Volume
+Internalizing,cbcl_scr_syn_internal_t,0.020891228610347538,0.5912901876847313,Cortical Volume
+Internalizing,cbcl_scr_syn_external_t,-0.06834281626374314,0.07866581370189145,Cortical Volume
+Internalizing,cbcl_scr_syn_totprob_t,-0.03338842474331939,0.3907111207490652,Cortical Volume
+Externalizing,cbcl_scr_syn_internal_t,0.0069271420877305935,0.917885854414197,Cortical Volume
+Externalizing,cbcl_scr_syn_external_t,-0.06968278865591573,0.29910976192519245,Cortical Volume
+Externalizing,cbcl_scr_syn_totprob_t,0.013233307359282073,0.8438599740276113,Cortical Volume
+High Symptom,cbcl_scr_syn_internal_t,-0.06471329896479718,0.3788971384689832,Cortical Volume
+High Symptom,cbcl_scr_syn_external_t,-0.054168076055830156,0.4615412332319272,Cortical Volume
+High Symptom,cbcl_scr_syn_totprob_t,-0.026790538005141848,0.7158849085345205,Cortical Volume
+All,cbcl_scr_syn_internal_t,0.028186642557055063,0.28934667454456897,Cortical Surface Area
+All,cbcl_scr_syn_external_t,-0.0008118028093325219,0.9756601694589622,Cortical Surface Area
+All,cbcl_scr_syn_totprob_t,0.020519148925424977,0.44055441370233517,Cortical Surface Area
+Control,cbcl_scr_syn_internal_t,0.07951960016817239,0.142824597085577,Cortical Surface Area
+Control,cbcl_scr_syn_external_t,0.11442247345418576,0.034675330275303166,Cortical Surface Area
+Control,cbcl_scr_syn_totprob_t,0.1018693258918268,0.06022788572901655,Cortical Surface Area
+Internalizing,cbcl_scr_syn_internal_t,0.000809611250391022,0.9833994757224209,Cortical Surface Area
+Internalizing,cbcl_scr_syn_external_t,-0.05430287145794721,0.16252631700690628,Cortical Surface Area
+Internalizing,cbcl_scr_syn_totprob_t,-0.03566688513931847,0.35917524586943617,Cortical Surface Area
+Externalizing,cbcl_scr_syn_internal_t,-0.011177365571167119,0.867876203024179,Cortical Surface Area
+Externalizing,cbcl_scr_syn_external_t,-0.1031170011434834,0.12385695830138281,Cortical Surface Area
+Externalizing,cbcl_scr_syn_totprob_t,-0.03430213269677617,0.6095853969771465,Cortical Surface Area
+High Symptom,cbcl_scr_syn_internal_t,-0.07684094695374977,0.29589135477150935,Cortical Surface Area
+High Symptom,cbcl_scr_syn_external_t,-0.08715169852791978,0.23560309560866008,Cortical Surface Area
+High Symptom,cbcl_scr_syn_totprob_t,-0.0729732391285094,0.320940525963522,Cortical Surface Area
+All,cbcl_scr_syn_internal_t,0.020104710561018965,0.4976848288525497,Functional Connectivity
+All,cbcl_scr_syn_external_t,0.02902278542853968,0.32755367587930473,Functional Connectivity
+All,cbcl_scr_syn_totprob_t,0.02395211368160862,0.41912216021147386,Functional Connectivity
+Control,cbcl_scr_syn_internal_t,0.06330022722791641,0.276051781727973,Functional Connectivity
+Control,cbcl_scr_syn_external_t,-0.03887118355819774,0.5038443342008043,Functional Connectivity
+Control,cbcl_scr_syn_totprob_t,0.00395061106122028,0.9458558725011385,Functional Connectivity
+Internalizing,cbcl_scr_syn_internal_t,0.045535750498727524,0.2958440895097076,Functional Connectivity
+Internalizing,cbcl_scr_syn_external_t,0.07885880629349892,0.06994214540286689,Functional Connectivity
+Internalizing,cbcl_scr_syn_totprob_t,0.06854428519430296,0.11533918433570532,Functional Connectivity
+Externalizing,cbcl_scr_syn_internal_t,-0.011824851982564277,0.8790855003800995,Functional Connectivity
+Externalizing,cbcl_scr_syn_external_t,-0.03337612561431636,0.6675638496608773,Functional Connectivity
+Externalizing,cbcl_scr_syn_totprob_t,0.01776447837145276,0.8192164365447258,Functional Connectivity
+High Symptom,cbcl_scr_syn_internal_t,0.10687812532752879,0.20071667612623179,Functional Connectivity
+High Symptom,cbcl_scr_syn_external_t,0.16290691093867138,0.05025589940808709,Functional Connectivity
+High Symptom,cbcl_scr_syn_totprob_t,0.11983367848289542,0.15109392053097676,Functional Connectivity

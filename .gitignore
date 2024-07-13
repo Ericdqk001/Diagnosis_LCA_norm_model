@@ -170,3 +170,8 @@ src/discover/results/bootstrap
 
 # Python
 .DS_Store
+
+# Plots
+src/interpret/plots/
+src/discover/low_entropy_images/
+src/discover/original_images/
