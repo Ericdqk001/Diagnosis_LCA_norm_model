@@ -15,7 +15,6 @@ parcellation_right = destrieux_atlas["map_right"]
 labels = destrieux_atlas["labels"]
 
 # Load the relevant ROI labels
-
 cortex_modalities = [
     "cortical_thickness",
     "cortical_volume",

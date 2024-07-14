@@ -25,7 +25,6 @@ brain_features_of_interest_path = Path(
 with open(brain_features_of_interest_path, "r") as file:
     brain_features_of_interest = json.load(file)
 
-
 bootstrap_effect_size_path = Path(
     "src",
     "discover",
@@ -36,7 +35,6 @@ bootstrap_effect_size_path = Path(
 
 with open(bootstrap_effect_size_path, "r") as f:
     bootstrap_effect_size = json.load(f)
-
 
 modality_map = {
     "cortical_thickness": "t1w_cortical_thickness_rois",
