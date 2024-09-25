@@ -17,15 +17,28 @@ with open(brain_features_of_interest_path) as f:
 
 fc_features = brain_features_of_interest["gordon_net_subcor_limbic_no_dup"]
 
-# Load feature effect sizes
-fc_feature_effect_sizes_path = Path(
-    "src",
-    "discover",
-    "results",
-    "low_entropy",
-    "sig_ind_regions",
-    "rsfmri_significant_regions.csv",
-)
+low_entropy = False
+
+if low_entropy:
+
+    # Load feature effect sizes
+    fc_feature_effect_sizes_path = Path(
+        "src",
+        "discover",
+        "results",
+        "low_entropy",
+        "sig_ind_regions",
+        "rsfmri_significant_regions.csv",
+    )
+
+else:
+    fc_feature_effect_sizes_path = Path(
+        "src",
+        "discover",
+        "results",
+        "sig_ind_regions",
+        "rsfmri_significant_regions.csv",
+    )
 
 fc_feature_effect_sizes_df = pd.read_csv(fc_feature_effect_sizes_path)
 

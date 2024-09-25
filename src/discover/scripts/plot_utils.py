@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import ptitprince as pt
 import seaborn as sns
 import torch
 from scipy.stats import linregress
@@ -12,6 +13,115 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 plt.rcParams["font.weight"] = "bold"
 plt.rcParams["axes.labelweight"] = "bold"
 plt.rcParams["axes.titleweight"] = "bold"
+
+
+def plot_rainclouds(
+    feature: str,
+    output_data: pd.DataFrame,
+    p_values_df: pd.DataFrame,
+    metric: str = "mahalanobis_distance",
+):
+    # Extract distances for each group
+    control_distance = output_data[metric][
+        output_data["low_symp_test_subs"] == 1
+    ].values
+    internalising_distance = output_data[metric][
+        output_data["inter_test_subs"] == 1
+    ].values
+    exter_test_distance = output_data[metric][
+        output_data["exter_test_subs"] == 1
+    ].values
+    high_test_distance = output_data[metric][output_data["high_test_subs"] == 1].values
+
+    if metric == "mahalanobis_distance":
+        title = f"Distribution of Latent Deviations by Group for Feature: {feature}"
+
+    if metric == "reconstruction_deviation":
+        title = (
+            f"Distribution of Reconstruction Deviations by Group for Feature: {feature}"
+        )
+
+    # Create a figure with subplots (1 row, 3 columns)
+    fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(18, 6))
+    fig.suptitle(
+        title,
+        fontweight="bold",
+    )
+
+    # Custom color palette
+    colors = ["#ff7f0e", "#2ca02c", "#d62728"]  # More distinctive color palette
+    group_names = [
+        "Predominantly Internalising",
+        "Predominantly Externalising",
+        "Highly Dysregulated",
+    ]
+
+    # Labels and distances for each plot
+    groups = zip(
+        group_names, [internalising_distance, exter_test_distance, high_test_distance]
+    )
+
+    p_value_cohort_map = {
+        "Predominantly Internalising": "inter_test",
+        "Predominantly Externalising": "exter_test",
+        "Highly Dysregulated": "high_test",
+    }
+
+    # Plot rainclouds
+    for ax, (group_name, group_distance), color in zip(axes, groups, colors):
+        # Control and case data combined
+        combined_data = np.concatenate([control_distance, group_distance])
+        group_labels = ["Control"] * len(control_distance) + ["Case"] * len(
+            group_distance
+        )
+
+        # Create a DataFrame for plotting
+        plot_df = pd.DataFrame(
+            {"Deviation Score": combined_data, "Group": group_labels}
+        )
+
+        # RainCloud plot
+        pt.RainCloud(
+            x="Group",
+            y="Deviation Score",
+            data=plot_df,
+            palette={"Control": "grey", "Case": color},
+            bw=0.2,
+            width_viol=0.6,
+            ax=ax,
+            orient="h",
+        )
+        ax.set_title("{} vs Control".format(group_name))
+
+        # Fetch and annotate the p-value and effect size for the current group
+        p_value = p_values_df.loc[
+            p_values_df["Cohort"] == p_value_cohort_map[group_name], "FDR_p_value"
+        ].values[0]
+        effect_size = p_values_df.loc[
+            p_values_df["Cohort"] == p_value_cohort_map[group_name], "Effect_size"
+        ].values[0]
+        textstr = f"p-value: {p_value:.4f}\nEffect Size: {effect_size:.4f}"
+        ax.text(
+            0.95,
+            0.95,
+            textstr,
+            transform=ax.transAxes,
+            verticalalignment="top",
+            horizontalalignment="right",
+            fontsize=12,
+            bbox=dict(
+                boxstyle="round,pad=0.3",
+                edgecolor="black",
+                facecolor="white",
+                alpha=0.8,
+            ),
+        )
+
+        ax.set_xlabel("Deviation Score")
+
+    # Adjust layout
+    plt.tight_layout()
+    plt.show()
 
 
 def plot_histograms(
@@ -425,11 +535,11 @@ def plot_separate_correlations(
     ]
 
     for cohort, scale in zip(cohorts, sum_syndrome):
-        
-        # Compute the linear regression and correlation
-        slope, intercept, r_value, p_value, std_err = linregress(output_data[scale], output_data[metric])
 
-        
+        # Compute the linear regression and correlation
+        slope, intercept, r_value, p_value, std_err = linregress(
+            output_data[scale], output_data[metric]
+        )
 
 
 def plot_correlations(

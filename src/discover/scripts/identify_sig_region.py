@@ -25,13 +25,25 @@ brain_features_of_interest_path = Path(
 with open(brain_features_of_interest_path, "r") as file:
     brain_features_of_interest = json.load(file)
 
-bootstrap_effect_size_path = Path(
-    "src",
-    "discover",
-    "results",
-    "bootstrap",
-    "ind_recon_dev_effect_size_CIs.json",
-)
+low_entropy = False
+
+if low_entropy:
+
+    bootstrap_effect_size_path = Path(
+        "src",
+        "discover",
+        "bootstrap_effect_size",
+        "ind_recon_dev_effect_size_CIs.json",
+    )
+
+else:
+
+    bootstrap_effect_size_path = Path(
+        "src",
+        "discover",
+        "bootstrap_effect_size",
+        "ind_recon_dev_effect_size_CIs_original.json",
+    )
 
 with open(bootstrap_effect_size_path, "r") as f:
     bootstrap_effect_size = json.load(f)
@@ -128,18 +140,32 @@ for modality, metrics in bootstrap_effect_size.items():
         }
     )
 
-    sig_metric_df.to_csv(
-        Path(
-            "src",
-            "discover",
-            "results",
-            "low_entropy",
-            "sig_ind_regions",
-            f"{modality}_significant_regions.csv",
-        ),
-        index=False,
-    )
+    if low_entropy:
 
+        sig_metric_df.to_csv(
+            Path(
+                "src",
+                "discover",
+                "results",
+                "low_entropy",
+                "sig_ind_regions",
+                f"{modality}_significant_regions.csv",
+            ),
+            index=False,
+        )
+
+    else:
+
+        sig_metric_df.to_csv(
+            Path(
+                "src",
+                "discover",
+                "results",
+                "sig_ind_regions",
+                f"{modality}_significant_regions.csv",
+            ),
+            index=False,
+        )
 
 # Print the results
 # for modality, metrics in significant_results.items():

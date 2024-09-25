@@ -4,16 +4,6 @@
 #
 #    pip-compile --output-file=requirements.txt pyproject.toml
 #
-absl-py==2.1.0
-    # via tensorboard
-aiohttp==3.9.5
-    # via fsspec
-aiosignal==1.3.1
-    # via aiohttp
-antlr4-python3-runtime==4.9.3
-    # via
-    #   hydra-core
-    #   omegaconf
 appnope==0.1.4
     # via ipykernel
 apptools==5.2.1
@@ -22,12 +12,6 @@ apptools==5.2.1
     #   mayavi
 asttokens==2.4.1
     # via stack-data
-async-timeout==4.0.3
-    # via aiohttp
-attrs==23.2.0
-    # via
-    #   aiohttp
-    #   pytest
 build==1.2.1
     # via pip-tools
 certifi==2024.2.2
@@ -48,10 +32,10 @@ configobj==5.0.8
     # via apptools
 contourpy==1.2.1
     # via matplotlib
-coverage[toml]==7.5.2
-    # via pytest-cov
 cycler==0.12.1
     # via matplotlib
+cython==3.0.11
+    # via ptitprince
 debugpy==1.8.1
     # via ipykernel
 decorator==5.1.1
@@ -74,35 +58,22 @@ filelock==3.14.0
     #   virtualenv
 fonttools==4.52.4
     # via matplotlib
-frozenlist==1.4.1
-    # via
-    #   aiohttp
-    #   aiosignal
-fsspec[http]==2024.5.0
+fsspec==2024.5.0
     # via
     #   huggingface-hub
-    #   pytorch-lightning
     #   torch
-future==1.0.0
-    # via pytorch-lightning
 gitdb==4.0.11
     # via gitpython
 gitpython==3.1.43
     # via wandb
-grpcio==1.64.0
-    # via tensorboard
 huggingface-hub==0.23.2
     # via
     #   tokenizers
     #   transformers
-hydra-core==1.3.2
-    # via multiviewae
 identify==2.5.36
     # via pre-commit
 idna==3.7
-    # via
-    #   requests
-    #   yarl
+    # via requests
 ipykernel==6.29.4
     # via LCA-normative-modelling (pyproject.toml)
 ipython==8.24.0
@@ -123,21 +94,15 @@ jupyter-core==5.7.2
     #   jupyter-client
 kiwisolver==1.4.5
     # via matplotlib
-lightning-utilities==0.11.2
-    # via torchmetrics
 lxml==5.2.2
     # via nilearn
-markdown==3.6
-    # via tensorboard
 markupsafe==2.1.5
-    # via
-    #   jinja2
-    #   werkzeug
+    # via jinja2
 matplotlib==3.9.0
     # via
     #   LCA-normative-modelling (pyproject.toml)
-    #   multiviewae
     #   nichord
+    #   ptitprince
     #   pysurfer
     #   seaborn
     #   vtk
@@ -147,16 +112,8 @@ matplotlib-inline==0.1.7
     #   ipython
 mayavi==4.8.2
     # via pysurfer
-more-itertools==10.2.0
-    # via pytest
 mpmath==1.3.0
     # via sympy
-multidict==6.0.5
-    # via
-    #   aiohttp
-    #   yarl
-multiviewae==1.1.8
-    # via LCA-normative-modelling (pyproject.toml)
 nest-asyncio==1.6.0
     # via ipykernel
 networkx==3.3
@@ -180,47 +137,34 @@ numpy==1.26.4
     #   contourpy
     #   matplotlib
     #   mayavi
-    #   multiviewae
     #   nibabel
     #   nichord
     #   nilearn
     #   pandas
     #   patsy
+    #   ptitprince
     #   pysurfer
-    #   pytorch-lightning
     #   scikit-learn
     #   scipy
     #   seaborn
     #   statsmodels
-    #   tensorboard
-    #   torchmetrics
     #   torchvision
     #   transformers
-omegaconf==2.3.0
-    # via hydra-core
-ordereddict==1.1
-    # via multiviewae
 packaging==24.0
     # via
     #   build
     #   huggingface-hub
-    #   hydra-core
     #   ipykernel
-    #   lightning-utilities
     #   matplotlib
     #   mayavi
     #   nibabel
     #   nilearn
     #   plotly
-    #   pytest
-    #   pytorch-lightning
     #   statsmodels
-    #   torchmetrics
     #   transformers
 pandas==2.2.2
     # via
     #   LCA-normative-modelling (pyproject.toml)
-    #   multiviewae
     #   nichord
     #   nilearn
     #   seaborn
@@ -245,28 +189,22 @@ platformdirs==4.2.2
     #   wandb
 plotly==5.22.0
     # via LCA-normative-modelling (pyproject.toml)
-pluggy==0.13.1
-    # via pytest
 pre-commit==3.7.1
     # via LCA-normative-modelling (pyproject.toml)
 prompt-toolkit==3.0.44
     # via ipython
 protobuf==4.25.3
-    # via
-    #   tensorboard
-    #   wandb
+    # via wandb
 psutil==5.9.8
     # via
     #   ipykernel
     #   wandb
+ptitprince==0.2.5
+    # via LCA-normative-modelling (pyproject.toml)
 ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.2
     # via stack-data
-py==1.11.0
-    # via pytest
-pydeprecate==0.3.1
-    # via pytorch-lightning
 pyface==8.0.0
     # via
     #   envisage
@@ -276,6 +214,8 @@ pygments==2.18.0
     # via
     #   ipython
     #   mayavi
+pyhamcrest==2.1.0
+    # via ptitprince
 pyparsing==3.1.2
     # via matplotlib
 pyproject-hooks==1.1.0
@@ -284,27 +224,17 @@ pyproject-hooks==1.1.0
     #   pip-tools
 pysurfer==0.11.2
     # via LCA-normative-modelling (pyproject.toml)
-pytest==5.4.3
-    # via
-    #   multiviewae
-    #   pytest-cov
-pytest-cov==5.0.0
-    # via multiviewae
 python-dateutil==2.9.0.post0
     # via
     #   jupyter-client
     #   matplotlib
     #   pandas
-pytorch-lightning==1.5.10
-    # via multiviewae
 pytz==2024.1
     # via pandas
 pyyaml==6.0.1
     # via
     #   huggingface-hub
-    #   omegaconf
     #   pre-commit
-    #   pytorch-lightning
     #   transformers
     #   wandb
 pyzmq==26.0.3
@@ -323,22 +253,22 @@ ruff==0.4.5
     # via LCA-normative-modelling (pyproject.toml)
 safetensors==0.4.3
     # via transformers
-schema==0.7.7
-    # via multiviewae
 scikit-learn==1.5.0
     # via
     #   LCA-normative-modelling (pyproject.toml)
     #   nilearn
 scipy==1.13.1
     # via
-    #   multiviewae
     #   nichord
     #   nilearn
+    #   ptitprince
     #   pysurfer
     #   scikit-learn
     #   statsmodels
 seaborn==0.13.2
-    # via LCA-normative-modelling (pyproject.toml)
+    # via
+    #   LCA-normative-modelling (pyproject.toml)
+    #   ptitprince
 sentry-sdk==2.3.1
     # via wandb
 setproctitle==1.3.3
@@ -350,7 +280,6 @@ six==1.16.0
     #   docker-pycreds
     #   patsy
     #   python-dateutil
-    #   tensorboard
 smmap==5.0.1
     # via gitdb
 stack-data==0.6.3
@@ -361,12 +290,6 @@ sympy==1.12
     # via torch
 tenacity==8.3.0
     # via plotly
-tensorboard==2.16.2
-    # via
-    #   multiviewae
-    #   pytorch-lightning
-tensorboard-data-server==0.7.2
-    # via tensorboard
 threadpoolctl==3.5.0
     # via scikit-learn
 tokenizers==0.19.1
@@ -374,24 +297,16 @@ tokenizers==0.19.1
 tomli==2.0.1
     # via
     #   build
-    #   coverage
     #   pip-tools
 torch==2.3.0
     # via
     #   LCA-normative-modelling (pyproject.toml)
-    #   multiviewae
-    #   pytorch-lightning
     #   torchaudio
-    #   torchmetrics
     #   torchvision
 torchaudio==2.3.0
     # via LCA-normative-modelling (pyproject.toml)
-torchmetrics==1.4.0.post0
-    # via pytorch-lightning
 torchvision==0.18.0
-    # via
-    #   LCA-normative-modelling (pyproject.toml)
-    #   multiviewae
+    # via LCA-normative-modelling (pyproject.toml)
 tornado==6.4
     # via
     #   ipykernel
@@ -399,7 +314,6 @@ tornado==6.4
 tqdm==4.66.4
     # via
     #   huggingface-hub
-    #   pytorch-lightning
     #   transformers
 traitlets==5.14.3
     # via
@@ -427,8 +341,6 @@ typing-extensions==4.12.0
     # via
     #   huggingface-hub
     #   ipython
-    #   lightning-utilities
-    #   pytorch-lightning
     #   torch
 tzdata==2024.1
     # via pandas
@@ -443,15 +355,9 @@ vtk==9.3.0
 wandb==0.17.0
     # via LCA-normative-modelling (pyproject.toml)
 wcwidth==0.2.13
-    # via
-    #   prompt-toolkit
-    #   pytest
-werkzeug==3.0.3
-    # via tensorboard
+    # via prompt-toolkit
 wheel==0.43.0
     # via pip-tools
-yarl==1.9.4
-    # via aiohttp
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip

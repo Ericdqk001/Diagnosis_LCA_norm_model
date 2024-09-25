@@ -3,13 +3,26 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 
-sig_ind_regions_path = Path(
-    "src",
-    "discover",
-    "results",
-    "low_entropy",
-    "sig_ind_regions",
-)
+low_entropy = True
+
+if low_entropy:
+
+    sig_ind_regions_path = Path(
+        "src",
+        "discover",
+        "results",
+        "low_entropy",
+        "sig_ind_regions",
+    )
+
+else:
+
+    sig_ind_regions_path = Path(
+        "src",
+        "discover",
+        "results",
+        "sig_ind_regions",
+    )
 
 modalities = [
     "cortical_thickness",
@@ -52,7 +65,7 @@ for modality in modalities:
 
     # Create a figure with subplots (1 row, 3 columns)
     fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(18, 6))
-    fig.suptitle(f"Error Bars for {modality.replace('_', ' ').title()}")
+    fig.suptitle("")
 
     groups = {
         "inter_test": inter_test,

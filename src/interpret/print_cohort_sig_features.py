@@ -15,18 +15,32 @@ clinical_cohorts = [
     "high_test",
 ]
 
+low_entropy = False
+
 for modality in modalities:
 
-    # print(f"Visualising {modality} results")
+    print(f"Visualising {modality} results")
 
-    feature_brain_region_results_path = Path(
-        "src",
-        "discover",
-        "results",
-        "low_entropy",
-        "sig_ind_regions",
-        f"{modality}_significant_regions.csv",
-    )
+    if low_entropy:
+
+        feature_brain_region_results_path = Path(
+            "src",
+            "discover",
+            "results",
+            "low_entropy",
+            "sig_ind_regions",
+            f"{modality}_significant_regions.csv",
+        )
+
+    else:
+
+        feature_brain_region_results_path = Path(
+            "src",
+            "discover",
+            "results",
+            "sig_ind_regions",
+            f"{modality}_significant_regions.csv",
+        )
 
     feature_brain_region_results_df = pd.read_csv(
         feature_brain_region_results_path,
@@ -35,6 +49,9 @@ for modality in modalities:
     # print(feature_brain_region_results_df.head())
 
     for cohort in clinical_cohorts:
+
+        # if cohort == "high_test":
+
         print(f"Visualising {modality} results for {cohort}")
 
         cohort_feature_brain_region_results_df = feature_brain_region_results_df[

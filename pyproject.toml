@@ -14,7 +14,6 @@ dependencies = ["ruff",
 "pandas",
 "matplotlib",
 "scikit-learn",
-"multiviewae",
 "ipykernel",
 "statsmodels",
 "seaborn",
@@ -22,7 +21,8 @@ dependencies = ["ruff",
 "nilearn",
 "plotly",
 "nichord",
-"neuroCombat",]
+"neuroCombat",
+"ptitprince",]
 
 [tool.ruff]
 select = ["E", "F", "D", "I"]

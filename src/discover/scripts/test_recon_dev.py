@@ -1,10 +1,10 @@
 from pathlib import Path
 
 import pandas as pd
+
 from discover.scripts.plot_utils import (
-    plot_boxplots,
     plot_correlations,
-    plot_histograms,
+    plot_rainclouds,
 )
 from discover.scripts.test_utils import (
     U_test_p_values,
@@ -23,7 +23,7 @@ feature_sets = {
     "t1w_cortical_thickness_rois": "Cortical Thickness",
     "t1w_cortical_volume_rois": "Cortical Volume",
     "t1w_cortical_surface_area_rois": "Cortical Surface Area",
-    "gordon_net_subcor_limbic_no_dup": "Functional Connectivity",
+    # "gordon_net_subcor_limbic_no_dup": "Functional Connectivity",
 }
 
 
@@ -73,11 +73,11 @@ def discover(
             index_col=0,
         )
 
-        plot_boxplots(
-            feature=feature_sets[feature],
-            output_data=feature_output_data,
-            metric=metric,
-        )
+        # plot_boxplots(
+        #     feature=feature_sets[feature],
+        #     output_data=feature_output_data,
+        #     metric=metric,
+        # )
 
         # Test assumptions of normality and homogeneity of variance
         assumption_test_result = test_assumptions_for_u_test(
@@ -95,7 +95,14 @@ def discover(
             metric=metric,
         )
 
-        plot_histograms(
+        # plot_histograms(
+        #     feature=feature_sets[feature],
+        #     output_data=feature_output_data,
+        #     p_values_df=U_test_result,
+        #     metric=metric,
+        # )
+
+        plot_rainclouds(
             feature=feature_sets[feature],
             output_data=feature_output_data,
             p_values_df=U_test_result,
@@ -183,6 +190,6 @@ def discover(
 
 if __name__ == "__main__":
     discover(
-        low_entropy=False,
+        low_entropy=True,
         metric="reconstruction_deviation",
     )

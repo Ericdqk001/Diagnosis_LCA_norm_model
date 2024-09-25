@@ -44,18 +44,3 @@ Externalizing,cbcl_scr_syn_totprob_t,0.16079750189055744,0.016003843650371944,Co
 High Symptom,cbcl_scr_syn_internal_t,-0.027586925851814395,0.7078185853761743,Cortical Surface Area
 High Symptom,cbcl_scr_syn_external_t,0.02851159406434435,0.6984936469577163,Cortical Surface Area
 High Symptom,cbcl_scr_syn_totprob_t,0.07167123619343861,0.3296733697185982,Cortical Surface Area
-All,cbcl_scr_syn_internal_t,0.08423684623785815,0.004425789933529961,Functional Connectivity
-All,cbcl_scr_syn_external_t,0.1007226666242561,0.0006598934680148471,Functional Connectivity
-All,cbcl_scr_syn_totprob_t,0.10710824112617967,0.0002913755496917069,Functional Connectivity
-Control,cbcl_scr_syn_internal_t,0.026352533423964288,0.6504896510928219,Functional Connectivity
-Control,cbcl_scr_syn_external_t,0.0838648663159825,0.14868471877570097,Functional Connectivity
-Control,cbcl_scr_syn_totprob_t,0.07510452937285196,0.19605152268998682,Functional Connectivity
-Internalizing,cbcl_scr_syn_internal_t,0.06313924729579373,0.14699864963130663,Functional Connectivity
-Internalizing,cbcl_scr_syn_external_t,0.0570027319907995,0.19052553575138498,Functional Connectivity
-Internalizing,cbcl_scr_syn_totprob_t,0.08660722035733248,0.04648128935459363,Functional Connectivity
-Externalizing,cbcl_scr_syn_internal_t,0.12560006301617543,0.10475215669416242,Functional Connectivity
-Externalizing,cbcl_scr_syn_external_t,0.021105826944676758,0.7859675906743732,Functional Connectivity
-Externalizing,cbcl_scr_syn_totprob_t,0.09898494237704702,0.2017611554426928,Functional Connectivity
-High Symptom,cbcl_scr_syn_internal_t,0.021321950188584928,0.7990652526380555,Functional Connectivity
-High Symptom,cbcl_scr_syn_external_t,0.09978504292368852,0.23241762506051844,Functional Connectivity
-High Symptom,cbcl_scr_syn_totprob_t,0.07876133952648003,0.346362962267601,Functional Connectivity

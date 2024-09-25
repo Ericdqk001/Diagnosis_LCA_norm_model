@@ -13,14 +13,25 @@ brain_features_of_interest_path = Path(
 with open(brain_features_of_interest_path, "r") as file:
     brain_features_of_interest = json.load(file)
 
+low_entropy = False
 
-bootstrap_effect_size_path = Path(
-    "src",
-    "discover",
-    "results",
-    "bootstrap",
-    "ind_recon_dev_effect_size_CIs.json",
-)
+if low_entropy:
+
+    bootstrap_effect_size_path = Path(
+        "src",
+        "discover",
+        "bootstrap_effect_size",
+        "ind_recon_dev_effect_size_CIs.json",
+    )
+
+else:
+
+    bootstrap_effect_size_path = Path(
+        "src",
+        "discover",
+        "bootstrap_effect_size",
+        "ind_recon_dev_effect_size_CIs_original.json",
+    )
 
 with open(bootstrap_effect_size_path, "r") as f:
     bootstrap_effect_size = json.load(f)
@@ -93,14 +104,14 @@ for modality, metrics in rsfmri_bootstrap_effect_size.items():
 
                 var_names.append(var_name)
 
-    print(
-        len(modality_names),
-        len(sig_metric_lists),
-        len(mean_effect_sizes),
-        len(group_names),
-        len(brain_features),
-        len(var_names),
-    )
+    # print(
+    #     len(modality_names),
+    #     len(sig_metric_lists),
+    #     len(mean_effect_sizes),
+    #     len(group_names),
+    #     len(brain_features),
+    #     len(var_names),
+    # )
 
     sig_metric_df = pd.DataFrame(
         {
@@ -116,18 +127,30 @@ for modality, metrics in rsfmri_bootstrap_effect_size.items():
         }
     )
 
-    sig_metric_df.to_csv(
-        Path(
-            "src",
-            "discover",
-            "results",
-            "low_entropy",
-            "sig_ind_regions",
-            f"{modality}_significant_regions.csv",
-        ),
-        index=False,
-    )
+    if low_entropy:
+        sig_metric_df.to_csv(
+            Path(
+                "src",
+                "discover",
+                "results",
+                "low_entropy",
+                "sig_ind_regions",
+                f"{modality}_significant_regions.csv",
+            ),
+            index=False,
+        )
 
+    else:
+        sig_metric_df.to_csv(
+            Path(
+                "src",
+                "discover",
+                "results",
+                "sig_ind_regions",
+                f"{modality}_significant_regions.csv",
+            ),
+            index=False,
+        )
 
 # Print the results
 # for modality, metrics in significant_results.items():

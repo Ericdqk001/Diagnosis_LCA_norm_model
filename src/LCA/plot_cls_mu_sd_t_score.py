@@ -118,11 +118,18 @@ def plot_mean_variance_cbcl_patterns_with_comparison(df, cbcl_t_vars):
     ].tolist()
     df_low_entropy = df[~df.index.isin(high_entropy_subs)]
 
+    # class_names = [
+    #     "Low Symptom",
+    #     "Predominantly Internalising",
+    #     "Predominantly Externalising",
+    #     "Highly Dysregulated",
+    # ]
+
     class_names = [
-        "Low Symptom",
-        "Predominantly Internalising",
-        "Predominantly Externalising",
-        "Highly Dysregulated",
+        "class 1",
+        "class 2",
+        "class 3",
+        "class 4",
     ]
 
     colors = ["blue", "green", "red", "purple"]
