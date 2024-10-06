@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # Load the data
-file_path = "data/LCA/lcmodel_prob_class.csv"  # Replace with your actual file path
+file_path = "data/LCA/lcmodel_prob_class_final_sample.csv"  # Replace with your actual file path
 LCA_cond_prob = pd.read_csv(file_path, index_col=0, low_memory=False)
 
 # Define mappings

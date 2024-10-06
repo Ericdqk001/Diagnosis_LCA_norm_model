@@ -68,8 +68,8 @@ write.csv(cbcl_data, "data/LCA/cbcl_final_class_member.csv", row.names = TRUE)
 # Visualise conditional probability of each variable for each class
 load("data/LCA/LCA_models_final_sample.RData")
 
-lc6
-
 lcmodel <- reshape2::melt(lc4$probs, level=2)
-write.csv(lcmodel, "data/LCA/lcmodel_prob_class.csv", row.names = TRUE)
+write.csv(lcmodel, "data/LCA/lcmodel_prob_class_final_sample.csv", row.names = TRUE)
 
+
+lc4

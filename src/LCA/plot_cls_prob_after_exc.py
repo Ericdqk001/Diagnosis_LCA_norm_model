@@ -23,7 +23,7 @@ lca_path = Path(
 
 lca_class_memberships_path = Path(
     lca_path,
-    "cbcl_class_member_prob.csv",
+    "cbcl_final_class_member.csv",
 )
 
 lca_class_memberships = pd.read_csv(

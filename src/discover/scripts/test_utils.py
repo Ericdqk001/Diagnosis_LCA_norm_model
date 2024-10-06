@@ -351,6 +351,10 @@ def prepare_inputs_cVAE(
 
         high_test_subs = [sub for sub in high_test_subs if sub not in high_entropy_subs]
 
+        print(len(inter_test_subs))
+        print(len(exter_test_subs))
+        print(len(high_test_subs))
+
         # Tested if test_subs aligns with the combined test subjects list (Works)
         # if (
         #     test_subs
@@ -418,7 +422,7 @@ def prepare_inputs_cVAE(
     # Add biological sex here for later test analysis
     output_data["sex"] = pd.Categorical(data.loc[test_subs, "demo_sex_v2"])
 
-    print(output_data["sex"])
+    # print(output_data["sex"])
 
     # Join cbcl summary scales for later correlation tests
     cbcl_data_path = Path(

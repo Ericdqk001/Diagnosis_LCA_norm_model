@@ -22,8 +22,10 @@ lca_path = Path(
 
 lca_class_memberships_path = Path(
     lca_path,
-    "cbcl_class_member_prob.csv",
+    "cbcl_final_class_member.csv",
 )
+
+# cbcl_class_member_prob.csv
 
 lca_class_memberships = pd.read_csv(
     lca_class_memberships_path,
@@ -96,17 +98,8 @@ def plot_cbcl_means(
 ):
 
     if low_entropy:
-        # Remove subjects with high entropy
-        high_entropy_subs_path = Path(
-            "data",
-            "LCA",
-            "subjects_with_high_entropy.csv",
-        )
 
-        high_entropy_subs = pd.read_csv(
-            high_entropy_subs_path,
-            low_memory=False,
-        )["subject"].tolist()
+        high_entropy_subs = df[df["entropy"] > 0.2].index.tolist()
 
         df = df[~df.index.isin(high_entropy_subs)]
 
@@ -156,6 +149,7 @@ def plot_cbcl_means(
 
     for class_id in sorted(df["predicted_class"].unique()):
         class_df = df[df["predicted_class"] == class_id]
+        print(len(class_df))
         means = class_df[cbcl_scales_ordered].mean()
         plt.plot(
             new_order,
