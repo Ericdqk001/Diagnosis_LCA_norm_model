@@ -9,7 +9,7 @@ library(tidyr)
 library(dplyr)
 # Load the csv results data
 
-data <- read.csv("src/discover/results/out_put_data/t1w_cortical_thickness_rois_output_data_with_dev.csv")
+data <- read.csv("src/discover/results/output_data_low_entropy/t1w_cortical_thickness_rois_output_data_with_dev.csv")
 
 head(data)
 

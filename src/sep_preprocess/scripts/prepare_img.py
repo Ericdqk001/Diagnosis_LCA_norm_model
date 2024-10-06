@@ -143,9 +143,9 @@ def prepare_image():
 
     predicted_class = cbcl_LCA["predicted_class"]
 
+    # 6 removed
     subs_t1w_pass = subs_t1w_pass[subs_t1w_pass.index.isin(predicted_class.index)]
 
-    # 6 removed
     subs_rsfmri_pass = subs_rsfmri_pass[
         subs_rsfmri_pass.index.isin(predicted_class.index)
     ]
@@ -164,10 +164,9 @@ def prepare_image():
         low_memory=False,
     )["psych_dx"]
 
-    # 113 removed
     subs_t1w_pass = subs_t1w_pass[subs_t1w_pass.index.isin(psych_dx.index)]
 
-
+    # 113 removed
     subs_rsfmri_pass = subs_rsfmri_pass[subs_rsfmri_pass.index.isin(psych_dx.index)]
 
     # Genetics and relatedness (NDA 4.0 acspsw03), used to remove familial members.
@@ -369,7 +368,6 @@ def prepare_image():
     t1w_cortical_volume_rois = list(t1w_cortical_volume_bl_pass.columns[1:-3])
 
     # For surface area
-
     t1w_cortical_surface_area_rois = list(
         t1w_cortical_surface_area_bl_pass.columns[1:-3]
     )
@@ -450,6 +448,26 @@ def prepare_image():
 
     with open(brain_features_of_interest_path, "w") as f:
         json.dump(brain_features_of_interest, f)
+
+    # data_path = Path(
+    #     "data",
+    #     "raw_data",
+    #     "core",
+    #     "mental-health",
+    #     "mh_p_cbcl.csv",
+    # )
+
+    # cbcl_t_vars_path = Path(
+    #     "data",
+    #     "var_dict",
+    #     "cbcl_8_dim_t.csv",
+    # )
+
+    # cbcl = pd.read_csv(
+    #     data_path,
+    #     index_col=0,
+    #     low_memory=False,
+    # )
 
 
 if __name__ == "__main__":
