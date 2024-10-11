@@ -34,7 +34,11 @@ lca_class_memberships = lca_class_memberships.drop(cbcl_t_vars, axis=1)
 cbcl_lca_memberships = lca_class_memberships.join(filtered_cbcl, how="inner")
 
 
-def plot_radar_chart_after_exclusion(df, threshold=65, low_entropy=False):
+def plot_radar_chart_after_exclusion(
+    df,
+    threshold=65,
+    low_entropy=False,
+):
     cbcl_scales = [
         "cbcl_scr_syn_anxdep_t",
         "cbcl_scr_syn_withdep_t",

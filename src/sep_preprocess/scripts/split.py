@@ -16,7 +16,7 @@ def split(
     cbcl_LCA_path = Path(
         "data",
         "LCA",
-        "cbcl_class_member_prob.csv",
+        "cbcl_final_class_member.csv",
     )
 
     cbcl_LCA = pd.read_csv(
@@ -220,27 +220,27 @@ def split(
     return t1w_data_splits, rsfmri_data_splits
 
 
-if __name__ == "__main__":
-    processed_data_path = Path(
-        "data",
-        "processed_data",
-    )
+# if __name__ == "__main__":
+#     processed_data_path = Path(
+#         "data",
+#         "processed_data",
+#     )
 
-    t1w_cortical_features_resid = Path(
-        processed_data_path,
-        "t1w_cortical_features_post_combat.csv",
-    )
+#     t1w_cortical_features_resid = Path(
+#         processed_data_path,
+#         "t1w_cortical_features_post_combat.csv",
+#     )
 
-    rsfmri_features_resid = Path(
-        processed_data_path,
-        "gordon_cor_subcortical_post_combat.csv",
-    )
+#     rsfmri_features_resid = Path(
+#         processed_data_path,
+#         "gordon_cor_subcortical_post_combat.csv",
+#     )
 
-    t1w_cortical_features_resid = pd.read_csv(t1w_cortical_features_resid, index_col=0)
+#     t1w_cortical_features_resid = pd.read_csv(t1w_cortical_features_resid, index_col=0)
 
-    rsfmri_features_resid = pd.read_csv(rsfmri_features_resid, index_col=0)
+#     rsfmri_features_resid = pd.read_csv(rsfmri_features_resid, index_col=0)
 
-    split(
-        t1w_cortical_features_resid,
-        rsfmri_features_resid,
-    )
+#     split(
+#         t1w_cortical_features_resid,
+#         rsfmri_features_resid,
+#     )

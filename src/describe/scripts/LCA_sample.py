@@ -139,8 +139,8 @@ for i in range(1, 5):
         cbcl_dummy_des_vars.predicted_class == i
     ]
 
-    print("Class", i)
-    print(len(cbcl_dummy_des_vars_class))
+    # print("Class", i)
+    # print(len(cbcl_dummy_des_vars_class))
 
     class_demographic_stats = {
         "demo_sex_v2": cbcl_dummy_des_vars_class["demo_sex_v2"]

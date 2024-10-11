@@ -51,7 +51,7 @@ data_splits_path = Path(processed_data_path, "data_splits.json")
 with open(data_splits_path, "r") as f:
     data_splits = json.load(f)
 
-feature_types = ["structural", "functional"]
+feature_types = ["structural"]
 
 low_entropy = True
 high_entropy_subs = cbcl_LCA[cbcl_LCA["entropy"] > 0.2].index
