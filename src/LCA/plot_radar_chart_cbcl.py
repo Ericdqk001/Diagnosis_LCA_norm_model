@@ -10,6 +10,7 @@ psych_dx = pd.read_csv(psych_dx_path, index_col=0, low_memory=False)
 
 lca_path = Path("data", "LCA")
 lca_class_memberships_path = Path(lca_path, "cbcl_class_member_prob.csv")
+
 lca_class_memberships = pd.read_csv(
     lca_class_memberships_path, index_col=0, low_memory=False
 )
@@ -32,6 +33,23 @@ lca_class_memberships = lca_class_memberships.drop(cbcl_t_vars, axis=1)
 
 # Join the LCA class memberships with the CBCL data
 cbcl_lca_memberships = lca_class_memberships.join(filtered_cbcl, how="inner")
+
+cortical_feature_pass_path = Path(
+    "data",
+    "processed_data",
+    "t1w_cortical_thickness_bl_pass.csv",
+)
+
+neuroimaging_sample_subs = pd.read_csv(
+    cortical_feature_pass_path,
+    index_col=0,
+    low_memory=False,
+).index.tolist()
+
+
+filtered_lca_class_memberships = cbcl_lca_memberships[
+    lca_class_memberships.index.isin(neuroimaging_sample_subs)
+]
 
 
 def plot_radar_chart_after_exclusion(
@@ -97,6 +115,8 @@ def plot_radar_chart_after_exclusion(
         ax = axes[i]
         class_df = df[df["predicted_class"] == class_id]
 
+        print(len(class_df))
+
         proportions = (class_df[cbcl_scales] >= threshold).mean().tolist()
         proportions += proportions[:1]
 
@@ -128,7 +148,7 @@ def plot_radar_chart_after_exclusion(
 
 # Example usage
 plot_radar_chart_after_exclusion(
-    cbcl_lca_memberships,
+    filtered_lca_class_memberships,
     threshold=65,
     low_entropy=True,
 )
