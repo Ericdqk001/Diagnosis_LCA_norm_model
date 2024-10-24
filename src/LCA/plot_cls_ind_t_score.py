@@ -57,20 +57,10 @@ def plot_individual_cbcl_patterns_combined(df, low_entropy=False):
 
     axis_labels = [syndrome_map[scale] for scale in cbcl_scales]
 
-    # Load subjects with high entropy
-    high_entropy_subs_path = Path("data", "LCA", "subjects_with_high_entropy.csv")
-    high_entropy_subs = pd.read_csv(high_entropy_subs_path, low_memory=False)[
-        "subject"
-    ].tolist()
-
-    # Separate the dataframe into high entropy and non-high entropy subjects
-    high_entropy_df = df[df.index.isin(high_entropy_subs)]
-    low_entropy_df = df[~df.index.isin(high_entropy_subs)]
-
     class_names = [
-        "Class 2",
-        "Class 3",
-        "Class 4",
+        "Predominantly internalizing",
+        "Predominantly externalizing",
+        "Highly dysregulated",
     ]
 
     bright_colors = [
@@ -85,26 +75,28 @@ def plot_individual_cbcl_patterns_combined(df, low_entropy=False):
     fig, axes = plt.subplots(1, 3, figsize=(20, 6))
     axes = axes.flatten()
 
+    if low_entropy:
+        high_entropy_subs_path = Path(
+            "data",
+            "LCA",
+            "subjects_with_high_entropy.csv",
+        )
+
+        high_entropy_subs = pd.read_csv(
+            high_entropy_subs_path,
+            low_memory=False,
+        )["subject"].tolist()
+        df = df[~df.index.isin(high_entropy_subs)]
+
     for i, class_id in enumerate(sorted(df["predicted_class"].unique())):
         if class_id == 1:
             continue  # Skip Class 1
 
         ax = axes[i - 1]
 
-        # Plot the background with high entropy subjects in grey
-        class_df_bg = high_entropy_df[high_entropy_df["predicted_class"] == class_id]
-        for _, row in class_df_bg.iterrows():
-            ax.plot(
-                axis_labels,
-                row[cbcl_scales],
-                color="grey",
-                alpha=0.1,
-                linewidth=1,
-            )
-
-        # Overlay the low entropy subjects in bright colors
-        class_df_fg = low_entropy_df[low_entropy_df["predicted_class"] == class_id]
-        for _, row in class_df_fg.iterrows():
+        # Plot all subjects for each class (no distinction between low and high entropy)
+        class_df = df[df["predicted_class"] == class_id]
+        for _, row in class_df.iterrows():
             ax.plot(
                 axis_labels,
                 row[cbcl_scales],
@@ -125,4 +117,7 @@ def plot_individual_cbcl_patterns_combined(df, low_entropy=False):
 
 
 # Plot the combined figure
-plot_individual_cbcl_patterns_combined(cbcl_lca_memberships)
+plot_individual_cbcl_patterns_combined(
+    cbcl_lca_memberships,
+    low_entropy=True,
+)

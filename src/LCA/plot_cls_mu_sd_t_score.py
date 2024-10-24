@@ -118,25 +118,21 @@ def plot_mean_variance_cbcl_patterns_with_comparison(df, cbcl_t_vars):
     ].tolist()
     df_low_entropy = df[~df.index.isin(high_entropy_subs)]
 
-    # class_names = [
-    #     "Low Symptom",
-    #     "Predominantly Internalising",
-    #     "Predominantly Externalising",
-    #     "Highly Dysregulated",
-    # ]
-
     class_names = [
-        "class 1",
         "class 2",
         "class 3",
         "class 4",
     ]
 
-    colors = ["blue", "green", "red", "purple"]
-    fig, axes = plt.subplots(2, 2, figsize=(15, 10), dpi=100)
+    colors = ["green", "red", "purple"]
+    fig, axes = plt.subplots(1, 3, figsize=(15, 5), dpi=100)
 
+    # Exclude class 1 (class_id == 1)
     for i, class_id in enumerate(sorted(df["predicted_class"].unique())):
-        ax = axes[i // 2, i % 2]
+        if class_id == 1:
+            continue  # Skip class 1
+
+        ax = axes[i - 1]  # Adjust index to fit the 1x3 grid
 
         class_df = df[df["predicted_class"] == class_id]
         class_df_low_entropy = df_low_entropy[
@@ -154,7 +150,7 @@ def plot_mean_variance_cbcl_patterns_with_comparison(df, cbcl_t_vars):
             means_before,
             yerr=stds_before,
             fmt="o--",
-            color=colors[i],
+            color=colors[i - 1],
             ecolor="gray",
             elinewidth=2,
             capsize=5,
@@ -166,14 +162,14 @@ def plot_mean_variance_cbcl_patterns_with_comparison(df, cbcl_t_vars):
             means_after,
             yerr=stds_after,
             fmt="o-",
-            color=colors[i],
+            color=colors[i - 1],
             ecolor="black",
             elinewidth=3,
             capsize=5,
             label="After Exclusion (Mean ± 1 SD)",
         )
 
-        ax.set_title(f"{class_names[class_id - 1]}", fontweight="bold")
+        ax.set_title(f"{class_names[class_id - 2]}", fontweight="bold")
         ax.set_xticks(np.arange(len(cbcl_scales)))
         ax.set_xticklabels(axis_labels, rotation=45)
         ax.set_ylabel("Scores")

@@ -78,12 +78,14 @@ filtered_lca_class_memberships = filtered_lca_class_memberships.join(
 )
 
 # Filter for low-entropy classes
-low_entropy = True
+low_entropy = False
 if low_entropy:
     filtered_lca_low_entropy = filtered_lca_class_memberships[
         filtered_lca_class_memberships["entropy"] <= 0.2
     ]
 
+
+filtered_lca_low_entropy = filtered_lca_class_memberships
 # Apply mappings to demographic columns
 filtered_lca_low_entropy["demo_sex_v2"] = filtered_lca_low_entropy["demo_sex_v2"].map(
     sex_mapping
@@ -159,7 +161,9 @@ class_summaries["HCs"] = summarize_demographics(hc_demographics)
 demographic_summary_df = pd.DataFrame(class_summaries)
 
 # Export to Excel
-demographic_summary_df.to_excel("demographic_summary.xlsx", engine="openpyxl")
+demographic_summary_df.to_excel(
+    "filtered_lca_demographic_summary.xlsx", engine="openpyxl"
+)
 
 # Display the dataframe
 print(demographic_summary_df)

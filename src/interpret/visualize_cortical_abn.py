@@ -30,9 +30,9 @@ clinical_cohorts = [
 
 low_entropy = True
 
-# Set the global min and max effect size
-global_min_effect_size = 0.0
-global_max_effect_size = 0.15
+# Set the global min and max effect size for color mapping
+global_min_effect_size = 0.15
+global_max_effect_size = 0.5  # Adjust this based on your data's maximum effect size
 
 # Create a darker version of the "Reds" colormap by truncating it
 cmap = plt.get_cmap("Reds")
@@ -63,18 +63,14 @@ for modality in cortex_modalities:
 
     feature_brain_region_results_df = pd.read_csv(feature_brain_region_results_path)
 
-    # Adjust the effect size based on the threshold conditions
-    feature_brain_region_results_df["Mean Effect Size"] = (
-        feature_brain_region_results_df["Mean Effect Size"].apply(
-            lambda x: 0 if x < 0.15 else 0.15
-        )
-    )
+    # Set effect size to 0 if it's below the threshold of 0.15, otherwise keep the original value
+    feature_brain_region_results_df[
+        "Mean Effect Size"
+    ] = feature_brain_region_results_df["Mean Effect Size"].apply(
+        lambda x: x if x >= 0.15 else 0
+    )  # Regions with effect sizes < 0.15 are set to 0
 
-    # Normalize the effect size according to global min and max
-    feature_brain_region_results_df["Mean Effect Size"] = (
-        feature_brain_region_results_df["Mean Effect Size"] - global_min_effect_size
-    ) / (global_max_effect_size - global_min_effect_size)
-
+    # Retain the original effect sizes (not normalized) for those ≥ 0.15 for visualization
     for cohort in clinical_cohorts:
         print(f"Visualising {cohort} cohort")
 
@@ -176,6 +172,17 @@ for modality in cortex_modalities:
             cmap=dark_red_cmap,
             axes=axes[3],
         )
+
+        # Add a color bar for effect size range from 0.15 onwards
+        sm = plt.cm.ScalarMappable(
+            cmap=dark_red_cmap,
+            norm=plt.Normalize(vmin=0.15, vmax=global_max_effect_size),
+        )
+        sm.set_array([])
+        cbar = fig.colorbar(
+            sm, ax=axes, orientation="horizontal", fraction=0.05, pad=0.05
+        )
+        cbar.set_label("Mean Effect Size")
 
         # Adjust layout
         plt.tight_layout()

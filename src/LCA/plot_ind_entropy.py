@@ -10,10 +10,10 @@ def plot_entropy_distribution_by_class(df):
     fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 12))
 
     class_names = [
-        "Low Symptom",
-        "Predominantly Internalising",
-        "Predominantly Externalising",
-        "Highly Dysregulated",
+        "Class 1",
+        "Class 2",
+        "Class 3",
+        "Class 4",
     ]
 
     # Iterate through each predicted class and plot the histogram
@@ -29,7 +29,7 @@ def plot_entropy_distribution_by_class(df):
         sd_entropy = class_entropy.std()
 
         sns.histplot(class_entropy, bins=30, kde=True, ax=ax)
-        ax.set_title(f"Distribution of Entropy for {class_names[i-1]} Class")
+        ax.set_title(f"Distribution of Entropy for {class_names[i-1]}")
         ax.set_xlabel("Entropy")
         ax.set_ylabel("Frequency")
         ax.grid(True)
@@ -53,7 +53,9 @@ def plot_entropy_distribution_by_class(df):
 
     # Add a main title to the figure
     fig.suptitle(
-        "Entropy Distribution Across Predicted Classes", fontsize=16, fontweight="bold"
+        "",
+        fontsize=16,
+        fontweight="bold",
     )
 
     # Improve layout and avoid label cut-off

@@ -2,8 +2,10 @@ from pathlib import Path
 
 import torch
 from discover.scripts.test_utils import (
+    compute_distance_deviation,
     prepare_inputs_cVAE,
 )
+from modelling.models.cVAE import cVAE
 
 # welch_t_test_p_values,
 
@@ -112,51 +114,51 @@ def get_output(
             entropy_threshold=entropy_threshold,
         )
 
-        # hyperparameters = cVAE_feature_hyper.get(feature)
+        hyperparameters = cVAE_feature_hyper.get(feature)
 
-        # model = cVAE(
-        #     input_dim=input_dim,
-        #     hidden_dim=hyperparameters.get("hidden_dim"),
-        #     latent_dim=hyperparameters.get("latent_dim"),
-        #     c_dim=c_dim,
-        #     learning_rate=hyperparameters.get("learning_rate"),
-        #     non_linear=True,
-        # ).to(DEVICE)
+        model = cVAE(
+            input_dim=input_dim,
+            hidden_dim=hyperparameters.get("hidden_dim"),
+            latent_dim=hyperparameters.get("latent_dim"),
+            c_dim=c_dim,
+            learning_rate=hyperparameters.get("learning_rate"),
+            non_linear=True,
+        ).to(DEVICE)
 
-        # model.load_state_dict(torch.load(checkpoint_path))
+        model.load_state_dict(torch.load(checkpoint_path))
 
-        # model.eval()
+        model.eval()
 
-        # output_data_with_dev = compute_distance_deviation(
-        #     model,
-        #     train_dataset=train_dataset,
-        #     test_dataset=test_dataset,
-        #     train_cov=train_cov,
-        #     test_cov=test_cov,
-        #     latent_dim=hyperparameters.get("latent_dim"),
-        #     output_data=output_data,
-        # )
+        output_data_with_dev = compute_distance_deviation(
+            model,
+            train_dataset=train_dataset,
+            test_dataset=test_dataset,
+            train_cov=train_cov,
+            test_cov=test_cov,
+            latent_dim=hyperparameters.get("latent_dim"),
+            output_data=output_data,
+        )
 
-        # output_data_save_path = Path(
-        #     cVAE_discover_results_path,
-        #     "output_data",
-        # )
+        output_data_save_path = Path(
+            cVAE_discover_results_path,
+            "output_data",
+        )
 
-        # if if_low_entropy:
-        #     output_data_save_path = Path(
-        #         cVAE_discover_results_path,
-        #         "output_data_low_entropy",
-        #     )
+        if if_low_entropy:
+            output_data_save_path = Path(
+                cVAE_discover_results_path,
+                "output_data_low_entropy",
+            )
 
-        # if not output_data_save_path.exists():
-        #     output_data_save_path.mkdir(parents=True)
+        if not output_data_save_path.exists():
+            output_data_save_path.mkdir(parents=True)
 
-        # feature_output_data_save_path = Path(
-        #     output_data_save_path,
-        #     f"{feature}_output_data_with_dev.csv",
-        # )
+        feature_output_data_save_path = Path(
+            output_data_save_path,
+            f"{feature}_output_data_with_dev.csv",
+        )
 
-        # output_data_with_dev.to_csv(feature_output_data_save_path)
+        output_data_with_dev.to_csv(feature_output_data_save_path)
 
 
 if __name__ == "__main__":

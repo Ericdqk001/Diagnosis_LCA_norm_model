@@ -9,7 +9,6 @@ plt.rcParams["font.weight"] = "bold"
 plt.rcParams["axes.labelweight"] = "bold"
 plt.rcParams["axes.titleweight"] = "bold"
 
-
 # Gather the demographics for descriptive stats
 processed_data_path = Path("data", "processed_data")
 LCA_path = Path("data", "LCA")
@@ -52,100 +51,92 @@ data_splits_path = Path(processed_data_path, "data_splits.json")
 with open(data_splits_path, "r") as f:
     data_splits = json.load(f)
 
-feature_types = ["structural", "functional"]
+# Use only the "structural" modality
+modality = "structural"
+modality_data_split = data_splits[modality]
 
-# Plotting the distributions of demographics for each set
-for modality in feature_types:
-    modality_data_split = data_splits[modality]
+train_set_subs = modality_data_split["train"]
+val_set_subs = modality_data_split["val"]
+test_set_subs = modality_data_split["low_symptom_test"]
 
-    train_set_subs = modality_data_split["train"]
-    val_set_subs = modality_data_split["val"]
-    test_set_subs = modality_data_split["low_symptom_test"]
+sets = {
+    "Train Set": train_set_subs,
+    "Validation Set": val_set_subs,
+    "Healthy Control (HCs)": test_set_subs,
+}
 
-    sets = {
-        "Train Set": train_set_subs,
-        "Validation Set": val_set_subs,
-        "Healthy Control (HC)": test_set_subs,
-    }
+# Define colors for the sets
+colors = {
+    "Train Set": "#1f77b4",
+    "Validation Set": "#ff7f0e",
+    "Healthy Control (HCs)": "#2ca02c",
+}
 
-    fig, axes = plt.subplots(3, 4, figsize=(20, 15))
+# Function to plot demographics for each set separately
+def plot_demographics(subset, set_name, color):
+    fig, axes = plt.subplots(1, 4, figsize=(24, 6))
     fig.suptitle(
-        f"Distribution of Demographics of each set for {modality.capitalize()} Modality",
-        fontsize=16,
-        fontweight="bold",
+        f"Distribution of Demographics for {set_name}", fontsize=16, fontweight="bold"
     )
 
-    for i, (set_name, subs) in enumerate(sets.items()):
-        subset = cbcl_dummy_des_vars.loc[subs]
+    # Filter out intersex categories from the 'demo_sex_v2' column
+    subset = subset[
+        subset["demo_sex_v2"].isin([1, 2])
+    ]  # Only include Male (1) and Female (2)
 
-        # Add row titles
-        axes[i, 0].text(
-            -0.5,
-            0.5,
-            set_name,
-            va="center",
-            ha="center",
-            fontsize=14,
-            fontweight="bold",
-            rotation=90,
-            transform=axes[i, 0].transAxes,
-        )
+    # Plot the distribution of sex (only Male and Female)
+    sex_counts = subset["demo_sex_v2"].value_counts().sort_index()
+    sex_counts.plot(kind="bar", ax=axes[0], color=color)
+    axes[0].set_title("Sex", fontweight="bold")
+    axes[0].set_xlabel("Sex", fontweight="bold")
+    axes[0].set_ylabel("Count", fontweight="bold")
+    axes[0].set_xticklabels(["Male", "Female"], rotation=0, fontweight="bold")
 
-        # Plot the distribution of sex
-        sex_counts = subset["demo_sex_v2"].value_counts()
-        sex_counts.plot(kind="bar", ax=axes[i, 0], color="skyblue")
-        axes[i, 0].set_title("Sex", fontweight="bold")
-        axes[i, 0].set_xlabel("Sex", fontweight="bold")
-        axes[i, 0].set_ylabel("Count", fontweight="bold")
-        axes[i, 0].set_xticklabels(
-            sex_counts.index.map({1: "Male", 2: "Female", 3: "Intersex-Male"}),
-            rotation=0,
-            fontweight="bold",
-        )
+    # Plot the distribution of race/ethnicity
+    race_counts = subset["race_ethnicity"].value_counts().sort_index()
+    race_counts.plot(kind="bar", ax=axes[1], color=color)
+    axes[1].set_title("Race/Ethnicity", fontweight="bold")
+    axes[1].set_xlabel("Race/Ethnicity", fontweight="bold")
+    axes[1].set_ylabel("Count", fontweight="bold")
+    axes[1].set_xticklabels(
+        ["White", "Black", "Hispanic", "Asian", "Other"], rotation=0, fontweight="bold"
+    )
 
-        # Plot the distribution of race/ethnicity
-        race_counts = subset["race_ethnicity"].value_counts()
-        race_counts.plot(kind="bar", ax=axes[i, 1], color="lightgreen")
-        axes[i, 1].set_title("Race/Ethnicity", fontweight="bold")
-        axes[i, 1].set_xlabel("Race/Ethnicity", fontweight="bold")
-        axes[i, 1].set_ylabel("Count", fontweight="bold")
-        axes[i, 1].set_xticklabels(
-            race_counts.index.map(
-                {1: "White", 2: "Black", 3: "Hispanic", 4: "Asian", 5: "Other"}
-            ),
-            rotation=0,
-            fontweight="bold",
-        )
+    # Plot the distribution of family income
+    income_counts = subset["family_income"].value_counts().sort_index()
+    income_counts.plot(kind="bar", ax=axes[2], color=color)
+    axes[2].set_title("Family Income", fontweight="bold")
+    axes[2].set_xlabel("Family Income", fontweight="bold")
+    axes[2].set_ylabel("Count", fontweight="bold")
+    income_labels = [
+        "Less than $5,000",
+        "$5,000 - $11,999",
+        "$12,000 - $15,999",
+        "$16,000 - $24,999",
+        "$25,000 - $34,999",
+        "$35,000 - $49,999",
+        "$50,000 - $74,999",
+        "$75,000 - $99,999",
+        "$100,000 - $199,999",
+        "$200,000 and greater",
+        "Not provided",
+    ]
+    axes[2].set_xticks(range(len(income_counts)))
+    axes[2].set_xticklabels(income_labels, rotation=90, fontweight="bold")
 
-        # Plot the distribution of family income
-        income_counts = subset["family_income"].value_counts().sort_index()
-        income_counts.plot(kind="bar", ax=axes[i, 2], color="lightcoral")
-        axes[i, 2].set_title("Family Income", fontweight="bold")
-        axes[i, 2].set_xlabel("Family Income", fontweight="bold")
-        axes[i, 2].set_ylabel("Count", fontweight="bold")
-        income_labels = [
-            "Less than $5,000",
-            "$5,000 - $11,999",
-            "$12,000 - $15,999",
-            "$16,000 - $24,999",
-            "$25,000 - $34,999",
-            "$35,000 - $49,999",
-            "$50,000 - $74,999",
-            "$75,000 - $99,999",
-            "$100,000 - $199,999",
-            "$200,000 and greater",
-            "Not provided",
-        ]
-        axes[i, 2].set_xticks(range(len(income_counts)))
-        axes[i, 2].set_xticklabels(income_labels, rotation=90, fontweight="bold")
+    # Plot the distribution of interview age
+    subset["interview_age"].plot(
+        kind="hist", bins=20, ax=axes[3], alpha=0.5, edgecolor="black", color=color
+    )
+    axes[3].set_title("Interview Age", fontweight="bold")
+    axes[3].set_xlabel("Age in months", fontweight="bold")
+    axes[3].set_ylabel("Count", fontweight="bold")
 
-        # Plot the distribution of interview age
-        subset["interview_age"].plot(
-            kind="hist", bins=20, ax=axes[i, 3], color="lightblue", edgecolor="black"
-        )
-        axes[i, 3].set_title("Interview Age", fontweight="bold")
-        axes[i, 3].set_xlabel("Age in months", fontweight="bold")
-        axes[i, 3].set_ylabel("Count", fontweight="bold")
-
-    plt.tight_layout(rect=[0, 0, 1, 0.96])
+    plt.tight_layout(rect=[0, 0, 1, 0.95])
     plt.show()
+
+
+# Iterate over sets and plot demographics separately
+for set_name, subs in sets.items():
+    subset = cbcl_dummy_des_vars.loc[subs]
+    plot_demographics(subset, set_name, colors[set_name])

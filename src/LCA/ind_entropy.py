@@ -53,37 +53,37 @@ plt.grid(True)
 plt.show()
 
 
-####### Visualise the patterns of the excluded subjects
+# ####### Visualise the patterns of the excluded subjects
 
 
-data_path = Path(
-    "data",
-    "raw_data",
-    "core",
-    "mental-health",
-    "mh_p_cbcl.csv",
-)
+# data_path = Path(
+#     "data",
+#     "raw_data",
+#     "core",
+#     "mental-health",
+#     "mh_p_cbcl.csv",
+# )
 
-cbcl_t_vars_path = Path(
-    "data",
-    "var_dict",
-    "cbcl_8_dim_t.csv",
-)
+# cbcl_t_vars_path = Path(
+#     "data",
+#     "var_dict",
+#     "cbcl_8_dim_t.csv",
+# )
 
-cbcl = pd.read_csv(
-    data_path,
-    index_col=0,
-    low_memory=False,
-)
+# cbcl = pd.read_csv(
+#     data_path,
+#     index_col=0,
+#     low_memory=False,
+# )
 
-cbcl_t_vars_df = pd.read_csv(cbcl_t_vars_path)
+# cbcl_t_vars_df = pd.read_csv(cbcl_t_vars_path)
 
-cbcl_t_vars = cbcl_t_vars_df["var_name"].tolist()
+# cbcl_t_vars = cbcl_t_vars_df["var_name"].tolist()
 
-baseline_cbcl = cbcl[cbcl["eventname"] == "baseline_year_1_arm_1"]
+# baseline_cbcl = cbcl[cbcl["eventname"] == "baseline_year_1_arm_1"]
 
-# Filter columns with t variables
-filtered_cbcl = baseline_cbcl[cbcl_t_vars]
+# # Filter columns with t variables
+# filtered_cbcl = baseline_cbcl[cbcl_t_vars]
 
 
 

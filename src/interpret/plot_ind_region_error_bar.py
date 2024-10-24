@@ -3,7 +3,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 
-low_entropy = True
+low_entropy = False
 
 if low_entropy:
 
@@ -73,9 +73,9 @@ for modality in modalities:
         "high_test": high_test,
     }
     group_titles = [
-        "Predominantly Internalising",
-        "Predominantly Externalising",
-        "Highly Dysregulated",
+        "Class 2",
+        "Class 3",
+        "Class 4",
     ]
 
     # Plot error bars for each group

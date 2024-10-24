@@ -150,6 +150,10 @@ def plot_combined_radar_charts(df, threshold=65, low_entropy=False):
     for i, class_id in enumerate(class_ids_to_plot):
         class_df = df[df["predicted_class"] == class_id]
         proportions_diag = class_df[diagnoses].mean().tolist()
+
+        print(diagnoses)
+        print(proportions_diag)
+
         proportions_diag += proportions_diag[:1]
 
         ax.plot(
